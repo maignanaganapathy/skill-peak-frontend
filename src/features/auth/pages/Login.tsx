@@ -3,6 +3,8 @@ import { Link } from "react-router-dom";
 import logo from "../assets/logo.svg"; 
 import eye from "../assets/eye.svg";
 import Button from "../../../components/Button";
+import CloseButton from "./CloseButtons"; 
+
 
 
 
@@ -34,8 +36,9 @@ const Login: React.FC = () => {
       />
      
       <main className="flex justify-center items-center p-5 min-h-screen bg-neutral-100">
-      <section className="flex flex-col items-center p-4 bg-white rounded-xl shadow-lg w-[500px] min-h-[400px] max-md:w-full max-md:max-w-[450px] max-sm:p-4 border border-gray-200">
-     
+      <section className="relative flex flex-col items-center p-4 bg-white rounded-xl shadow-lg w-[500px] min-h-[400px] max-md:w-full max-md:max-w-[450px] max-sm:p-4 border border-gray-200">
+  <CloseButton /> 
+
       <img src={logo} alt="Logo" className="mb-4 w-16 h-[50px]" />
           <h1 className="mb-6 text-lg font-medium">Welcome Back !</h1>
           <form
