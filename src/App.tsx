@@ -5,6 +5,7 @@ import theme from "./theme"; // Import global theme
 import Landingpage from "./features/landing/Landingpage"; 
 import Login from "./features/auth/pages/Login";
 import SignUp from "./features/auth/pages/Signup";
+import TeamDashboard from "./features/TeamDashboard/components/TeamDashboard";
 
 
 
@@ -17,6 +18,7 @@ const App: React.FC = () => {
             <Route path="/" element={<Landingpage />} />
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<SignUp />} />
+            <Route path="/team" element={<TeamDashboard/>}/>
           </Routes>
         </div>
       </Router>
