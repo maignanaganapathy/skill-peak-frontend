@@ -1,4 +1,4 @@
-import logo from "../auth/assets/logo.svg";
+import logo from "./assets/logo.svg";
 interface HeaderProps {
   showSubmit?: boolean;
   isComplete?: boolean;
