@@ -1,17 +1,24 @@
+
+// Correct relative path
 "use client";
-
 import React from "react";
-import Navbar from "../../components/Navbar"; // Correct relative path
+import Navbar from "../../components/Navbar"; 
+import { Hero } from "./Hero";
+import { Features } from "./Features";
+import { About } from "./About";
+import { Partners } from "./Partners";
+import { Footer } from "./Footer";
 
-const LandingPage = () => {
+export const LandingPage: React.FC = () => {
   return (
-    <>
-      <Navbar /> 
-      <div className="flex justify-center items-center h-screen">
-        <h1 className="text-3xl font-bold">Welcome to the Landing Page!</h1>
-      </div>
-    </>
+    <main className="min-h-screen bg-white">
+      <Navbar />
+      <Hero />
+      <Features />
+      <About />
+      <Partners />
+      <Footer />
+    </main>
   );
 };
 
-export default LandingPage;
