@@ -5,6 +5,12 @@ import { AnswerOption, QuestionTypeEnum } from "./types";
 import AddBlue from "./assets/AddBlue.png";
 import Delete from "./assets/Delete.png";
 
+// MUI Icons
+import RadioButtonUncheckedIcon from "@mui/icons-material/RadioButtonUnchecked";
+import CheckCircleIcon from "@mui/icons-material/CheckCircle";
+import CheckBoxIcon from "@mui/icons-material/CheckBox";
+import CheckBoxOutlineBlankIcon from "@mui/icons-material/CheckBoxOutlineBlank";
+
 interface AnswerOptionsProps {
   options: AnswerOption[];
   questionType: QuestionTypeEnum;
@@ -35,22 +41,16 @@ export const AnswerOptions: React.FC<AnswerOptionsProps> = ({
     switch (questionType) {
       case QuestionTypeEnum.YesNo:
       case QuestionTypeEnum.MultipleChoice:
-        return (
-          <div
-            dangerouslySetInnerHTML={{
-              __html: `<svg width="17" height="18" viewBox="0 0 17 18" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M16.5 9C16.5 13.7217 12.8917 17.5 8.5 17.5C4.10826 17.5 0.5 13.7217 0.5 9C0.5 4.27827 4.10826 0.5 8.5 0.5C12.8917 0.5 16.5 4.27827 16.5 9Z" fill="white" stroke="#A5C8E5"/>
-              </svg>`,
-            }}
-          />
+        return option.isCorrect ? (
+          <CheckCircleIcon className="text-blue-500 w-5 h-5" />
+        ) : (
+          <RadioButtonUncheckedIcon className="text-gray-400 w-5 h-5" />
         );
       case QuestionTypeEnum.Checkboxes:
-        return (
-          <div
-            className={`w-4 h-4 border border-gray-300 rounded ${
-              option.isCorrect ? "bg-blue-500" : "bg-white"
-            }`}
-          />
+        return option.isCorrect ? (
+          <CheckBoxIcon className="text-blue-500 w-5 h-5" />
+        ) : (
+          <CheckBoxOutlineBlankIcon className="text-gray-400 w-5 h-5" />
         );
       default:
         return null;

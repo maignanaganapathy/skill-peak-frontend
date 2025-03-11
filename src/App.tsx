@@ -6,10 +6,16 @@ import QuizPage from './features/quiz/QuizAttending/AppContainer';
 
 import QuizCreation from "./features/quiz/QuizCreation/QuizCreation";
 
-export default function App() {
+import QuizListPage from "./features/quiz/QuizListing/QuizListPage"; // adjust the path if needed
+
+function App() {
   return (
-    <div className="min-h-screen bg-white">
-      <QuizCreation />
+    <div>
+      <QuizListPage />
     </div>
   );
 }
+
+export default App;
+
+
