@@ -1,9 +1,11 @@
-import React from 'react';
+import React from "react";
+import ModalWrapper from "./features/admin/CreateProject/ModalWrapper";
 
-const App = () => {
+
+const App: React.FC = () => {
   return (
-    <div>
-      <h1>Hello from App!</h1>
+    <div >
+      <ModalWrapper />
     </div>
   );
 };
