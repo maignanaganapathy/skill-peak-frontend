@@ -1,12 +1,19 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { IconButton } from "@mui/material";
-import CloseIcon from "@mui/icons-material/Close";
 
 interface CloseButtonProps {
   onClick?: () => void;
 }
 
 export const CloseButton: React.FC<CloseButtonProps> = ({ onClick }) => {
+  const [Icon, setIcon] = React.useState<any>(null);
+
+  useEffect(() => {
+    import("@mui/icons-material/Close")
+      .then((mod) => setIcon(() => mod.default))
+      .catch((err) => console.error("Error loading icon", err));
+  }, []);
+
   return (
     <IconButton
       onClick={onClick}
@@ -17,7 +24,7 @@ export const CloseButton: React.FC<CloseButtonProps> = ({ onClick }) => {
       }}
       aria-label="close"
     >
-      <CloseIcon sx={{ color: "#3E7CB1" }} />
+      {Icon && <Icon sx={{ color: "#1E4D92" }} />}
     </IconButton>
   );
 };

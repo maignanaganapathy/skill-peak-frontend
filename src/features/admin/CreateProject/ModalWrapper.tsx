@@ -36,7 +36,7 @@ const ModalWrapper: React.FC = () => {
               position: "absolute",
               top: 8,
               right: 8,
-              color: "#3E7CB1",
+              color: "#1E4D92",
             }}
             aria-label="close"
           >

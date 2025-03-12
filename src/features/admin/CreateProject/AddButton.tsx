@@ -16,7 +16,7 @@ export const AddButton: React.FC<AddButtonProps> = ({ onClick }) => {
         color: "#fff",
         textTransform: "uppercase",
         fontWeight: "bold",
-        width: 66,
+        width: 76,
         height: 23,
         fontSize: "0.75rem",
         borderRadius: "6px",
