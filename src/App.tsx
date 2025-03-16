@@ -6,12 +6,13 @@ import QuizPage from './features/quiz/QuizAttending/AppContainer';
 
 import QuizCreation from "./features/quiz/QuizCreation/QuizCreation";
 
-import QuizList from "./features/quiz/QuizListing/QuizList"; // adjust the path if needed
+import QuizList from "./features/quiz/QuizListing/QuizList";
+import {NotificationManager} from "./features/Admin/Notification/NotificationManager"; // adjust the path if needed
 
 function App() {
   return (
     <div>
-      <QuizList />
+      <NotificationManager />
     </div>
   );
 }
