@@ -2,7 +2,6 @@ import React, { useState } from "react";
 import {
   Box,
   Container,
-  Typography,
   Button,
 } from "@mui/material";
 import FilterComponent from "./FilterComponent";
@@ -10,6 +9,7 @@ import SearchComponent from "./SearchComponent";
 import QuizTableComponent from "./QuizTable";
 import PaginationComponent from "./PaginationComponent";
 import initialQuizData from "./data";
+import { QuizHeader } from "./Header"; // Import your custom header component
 
 const QuizList: React.FC = () => {
   const [quizzes, setQuizzes] = useState(initialQuizData);
@@ -80,64 +80,64 @@ const QuizList: React.FC = () => {
   };
 
   return (
-    <Container maxWidth="lg">
-      <Box sx={{ my: 4 }}>
-      <Box sx={{ mb: 2, textAlign: "center", width: "100%" }}>
-  <Typography variant="h4">Quiz Listings</Typography>
-</Box>
+    <>
+      <QuizHeader />
 
+      <Container maxWidth="lg">
+        <Box sx={{ my: 4 }}>
 
-        {/* Toolbar Row: Filter | Spacer | Search + Create */}
-        <Box
-          sx={{
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "space-between",
-            mb: 3,
-            flexWrap: "wrap",
-            gap: 2,
-          }}
-        >
-          {/* Left side: Filter dropdown */}
-          <FilterComponent
-            allProjects={allProjects}
-            selectedProject={selectedProject}
-            setSelectedProject={setSelectedProject}
+          {/* Toolbar Row: Filter | Spacer | Search + Create */}
+          <Box
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              mb: 3,
+              flexWrap: "wrap",
+              gap: 2,
+            }}
+          >
+            {/* Left side: Filter dropdown */}
+            <FilterComponent
+              allProjects={allProjects}
+              selectedProject={selectedProject}
+              setSelectedProject={setSelectedProject}
+            />
+
+            {/* Right side: Search bar and create button */}
+            <Box sx={{ display: "flex", gap: 2, alignItems: "center" }}>
+              <Box sx={{ width: "300px" }}>
+                <SearchComponent
+                  searchQuery={searchQuery}
+                  setSearchQuery={setSearchQuery}
+                />
+              </Box>
+              <Button variant="contained" color="primary" onClick={handleCreateQuiz}>
+                Create New Quiz
+              </Button>
+            </Box>
+          </Box>
+
+          <QuizTableComponent
+            quizzes={paginatedQuizzes}
+            editIndex={editIndex}
+            editData={editData}
+            handleEdit={handleEdit}
+            handleSave={handleSave}
+            handleDelete={handleDelete}
+            handleChangeEditField={handleChangeEditField}
           />
 
-          {/* Right side: Search bar and create button */}
-          <Box sx={{ display: "flex", gap: 2, alignItems: "center" }}>
-            <Box sx={{ width: "300px" }}>
-              <SearchComponent
-                searchQuery={searchQuery}
-                setSearchQuery={setSearchQuery}
-              />
-            </Box>
-            <Button variant="contained" color="primary" onClick={handleCreateQuiz}>
-              Create New Quiz
-            </Button>
-          </Box>
+          <PaginationComponent
+            count={filteredQuizzes.length}
+            page={page}
+            rowsPerPage={rowsPerPage}
+            handleChangePage={handleChangePage}
+            handleChangeRowsPerPage={handleChangeRowsPerPage}
+          />
         </Box>
-
-        <QuizTableComponent
-          quizzes={paginatedQuizzes}
-          editIndex={editIndex}
-          editData={editData}
-          handleEdit={handleEdit}
-          handleSave={handleSave}
-          handleDelete={handleDelete}
-          handleChangeEditField={handleChangeEditField}
-        />
-
-        <PaginationComponent
-          count={filteredQuizzes.length}
-          page={page}
-          rowsPerPage={rowsPerPage}
-          handleChangePage={handleChangePage}
-          handleChangeRowsPerPage={handleChangeRowsPerPage}
-        />
-      </Box>
-    </Container>
+      </Container>
+    </>
   );
 };
 
