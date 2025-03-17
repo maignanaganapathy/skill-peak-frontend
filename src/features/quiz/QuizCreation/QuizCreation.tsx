@@ -9,6 +9,7 @@ import Edit from "./assets/Edit.png";
 
 const QuizCreation = () => {
   const [title, setTitle] = useState("Untitled");
+  const [isEditingTitle, setIsEditingTitle] = useState(false);
 
   const getDefaultOptions = (type: QuestionTypeEnum): AnswerOption[] => {
     const timestamp = Date.now();
@@ -19,11 +20,8 @@ const QuizCreation = () => {
           { id: timestamp + 2, text: "No", isCorrect: false },
         ];
       case QuestionTypeEnum.MultipleChoice:
-        return [];
       case QuestionTypeEnum.Checkboxes:
-        return [];
       case QuestionTypeEnum.TextField:
-        return [];
       default:
         return [];
     }
@@ -51,9 +49,7 @@ const QuizCreation = () => {
     if (questions.length > 1) {
       setQuestions(questions.filter((q) => q.id !== questionId));
     } else {
-      alert(
-        "Cannot delete the last question. At least one question is required.",
-      );
+      alert("Cannot delete the last question. At least one question is required.");
     }
   };
 
@@ -130,18 +126,30 @@ const QuizCreation = () => {
 
       <div className="p-10 mx-auto my-0 max-w-[1085px] max-md:p-5">
         <div className="flex items-center pb-5 border-b border-solid border-b-black">
-          <h2 className="mr-3 text-xl font-bold text-black">{title}</h2>
-          <button
-            onClick={() => {
-              const newTitle = prompt("Enter new title:", title);
-              if (newTitle) setTitle(newTitle);
-            }}
-          >
-            <img
-              src={Edit}
-              className="h-[22px] w-[22px]"
-              alt="Edit title"
-            />
+        {isEditingTitle ? (
+  <input
+    className="text-xl font-bold text-black outline-none mr-3 bg-transparent"
+    value={title}
+    onChange={(e) => setTitle(e.target.value)}
+    onBlur={() => setIsEditingTitle(false)}
+    onKeyDown={(e) => {
+      if (e.key === "Enter") {
+        setIsEditingTitle(false);
+      }
+    }}
+    autoFocus
+  />
+) : (
+  <h2
+    className="mr-3 text-xl font-bold text-black cursor-pointer"
+    onClick={() => setIsEditingTitle(true)}
+  >
+    {title}
+  </h2>
+)}
+
+          <button onClick={() => setIsEditingTitle(true)}>
+            <img src={Edit} className="h-[22px] w-[22px]" alt="Edit title" />
           </button>
         </div>
 
@@ -161,6 +169,7 @@ const QuizCreation = () => {
           />
         ))}
       </div>
+
       <div className="flex justify-center w-full">
         <AddQuestionButton onClick={handleAddQuestion} />
       </div>

@@ -31,6 +31,7 @@ export const QuestionCard: React.FC<QuestionCardProps> = ({
   isLast,
 }) => {
   const [isRequired, setIsRequired] = useState(question.required);
+  const [showImageUrl, setShowImageUrl] = useState(!!question.imageUrl);
 
   return (
     <section className="p-5 mt-5 rounded-xl border border-solid bg-zinc-300 bg-opacity-10 border-black border-opacity-10">
@@ -78,15 +79,26 @@ export const QuestionCard: React.FC<QuestionCardProps> = ({
         </div>
       </div>
 
+      {/* Image URL Section with Toggle */}
       <div className="mt-5">
-        <label className="mb-2.5 text-sm text-black block">Image URL</label>
-        <input
-          type="text"
-          placeholder="Add Image URL"
-          value={question.imageUrl || ""}
-          onChange={(e) => onUpdate({ ...question, imageUrl: e.target.value })}
-          className="p-1.5 text-xs rounded border border-solid border-black border-opacity-30 h-[22px] text-black text-opacity-60 w-[159px]"
-        />
+        <label className="mb-2.5 text-sm text-black flex items-center gap-2">
+          <input
+            type="checkbox"
+            checked={showImageUrl}
+            onChange={() => setShowImageUrl(!showImageUrl)}
+          />
+          Image URL
+        </label>
+
+        {showImageUrl && (
+          <input
+            type="text"
+            placeholder="Add Image URL"
+            value={question.imageUrl || ""}
+            onChange={(e) => onUpdate({ ...question, imageUrl: e.target.value })}
+            className="p-1.5 text-xs rounded border border-solid border-black border-opacity-30 h-[22px] text-black text-opacity-60 w-[159px] mt-2"
+          />
+        )}
       </div>
 
       <AnswerOptions

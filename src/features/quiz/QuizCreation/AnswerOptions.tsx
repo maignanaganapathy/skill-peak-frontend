@@ -7,9 +7,9 @@ import Delete from "./assets/Delete.png";
 
 // MUI Icons
 import RadioButtonUncheckedIcon from "@mui/icons-material/RadioButtonUnchecked";
-import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import CheckBoxIcon from "@mui/icons-material/CheckBox";
 import CheckBoxOutlineBlankIcon from "@mui/icons-material/CheckBoxOutlineBlank";
+import DoneIcon from "@mui/icons-material/Done";
 
 interface AnswerOptionsProps {
   options: AnswerOption[];
@@ -41,9 +41,8 @@ export const AnswerOptions: React.FC<AnswerOptionsProps> = ({
     switch (questionType) {
       case QuestionTypeEnum.YesNo:
       case QuestionTypeEnum.MultipleChoice:
-        return option.isCorrect ? (
-          <CheckCircleIcon className="text-blue-500 w-5 h-5" />
-        ) : (
+        // Always show unselected radio icon (no tick)
+        return (
           <RadioButtonUncheckedIcon className="text-gray-400 w-5 h-5" />
         );
       case QuestionTypeEnum.Checkboxes:
@@ -83,19 +82,28 @@ export const AnswerOptions: React.FC<AnswerOptionsProps> = ({
         <div className="flex flex-col gap-4">
           {options.map((option) => (
             <div key={option.id} className="flex items-center px-2">
+              {/* Static radio/checkbox icon for display */}
               {renderOptionIcon(option)}
               <span className="text-sm text-black ml-4 flex-grow">
                 {option.text}
               </span>
+              {/* Correct button */}
               <div className="w-20 flex justify-center">
                 <button
-                  className={`rounded-sm h-[15px] w-[17px] ${
-                    option.isCorrect ? "bg-blue-500" : "bg-zinc-300"
-                  }`}
+                  className={`h-[18px] w-[18px] rounded-sm border ${
+                    option.isCorrect
+                      ? "bg-blue-500 border-blue-500 text-white"
+                      : "bg-zinc-300 border-zinc-300"
+                  } flex items-center justify-center`}
                   onClick={() => onToggleCorrect(option.id)}
                   aria-label="Toggle correct answer"
-                />
+                >
+                  {option.isCorrect && (
+                    <DoneIcon className="text-white" style={{ fontSize: 14 }} />
+                  )}
+                </button>
               </div>
+              {/* Delete button */}
               <div className="w-20 flex justify-center">
                 <button
                   onClick={() => onDeleteOption(option.id)}
@@ -112,6 +120,7 @@ export const AnswerOptions: React.FC<AnswerOptionsProps> = ({
           ))}
         </div>
 
+        {/* Add new option input */}
         {showNewOptionInput ? (
           <div className="flex gap-2.5 items-center px-2 mt-4">
             <input
