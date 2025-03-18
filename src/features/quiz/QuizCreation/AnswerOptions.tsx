@@ -9,7 +9,7 @@ import Delete from "./assets/Delete.png";
 import RadioButtonUncheckedIcon from "@mui/icons-material/RadioButtonUnchecked";
 import CheckBoxIcon from "@mui/icons-material/CheckBox";
 import CheckBoxOutlineBlankIcon from "@mui/icons-material/CheckBoxOutlineBlank";
-import DoneIcon from "@mui/icons-material/Done";
+import CheckCircleOutlineOutlinedIcon from "@mui/icons-material/CheckCircleOutlineOutlined";
 
 interface AnswerOptionsProps {
   options: AnswerOption[];
@@ -41,10 +41,7 @@ export const AnswerOptions: React.FC<AnswerOptionsProps> = ({
     switch (questionType) {
       case QuestionTypeEnum.YesNo:
       case QuestionTypeEnum.MultipleChoice:
-        // Always show unselected radio icon (no tick)
-        return (
-          <RadioButtonUncheckedIcon className="text-gray-400 w-5 h-5" />
-        );
+        return <RadioButtonUncheckedIcon className="text-gray-400 w-5 h-5" />;
       case QuestionTypeEnum.Checkboxes:
         return option.isCorrect ? (
           <CheckBoxIcon className="text-blue-500 w-5 h-5" />
@@ -87,22 +84,20 @@ export const AnswerOptions: React.FC<AnswerOptionsProps> = ({
               <span className="text-sm text-black ml-4 flex-grow">
                 {option.text}
               </span>
-              {/* Correct button */}
+              {/* Correct button with MUI CheckCircleOutlineOutlinedIcon */}
               <div className="w-20 flex justify-center">
-                <button
-                  className={`h-[18px] w-[18px] rounded-sm border ${
-                    option.isCorrect
-                      ? "bg-blue-500 border-blue-500 text-white"
-                      : "bg-zinc-300 border-zinc-300"
-                  } flex items-center justify-center`}
-                  onClick={() => onToggleCorrect(option.id)}
-                  aria-label="Toggle correct answer"
-                >
-                  {option.isCorrect && (
-                    <DoneIcon className="text-white" style={{ fontSize: 14 }} />
-                  )}
-                </button>
-              </div>
+  <button
+    className={`rounded-full ${
+      option.isCorrect ? "text-blue-500" : "text-gray-400"
+    } flex items-center justify-center`}
+    onClick={() => onToggleCorrect(option.id)}
+    aria-label="Toggle correct answer"
+  >
+    <CheckCircleOutlineOutlinedIcon fontSize="small" />
+  </button>
+</div>
+
+            
               {/* Delete button */}
               <div className="w-20 flex justify-center">
                 <button

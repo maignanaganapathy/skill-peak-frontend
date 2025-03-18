@@ -1,4 +1,5 @@
 "use client";
+import Checkbox from "@mui/material/Checkbox";
 
 import { useState } from "react";
 import { QuestionType, AnswerOption, QuestionTypeEnum } from "./types";
@@ -80,26 +81,32 @@ export const QuestionCard: React.FC<QuestionCardProps> = ({
       </div>
 
       {/* Image URL Section with Toggle */}
-      <div className="mt-5">
-        <label className="mb-2.5 text-sm text-black flex items-center gap-2">
-          <input
-            type="checkbox"
-            checked={showImageUrl}
-            onChange={() => setShowImageUrl(!showImageUrl)}
-          />
-          Image URL
-        </label>
+<div className="mt-5">
+  <label className="mb-2.5 text-sm text-black flex items-center gap-2">
+    <Checkbox
+      checked={showImageUrl}
+      onChange={() => setShowImageUrl(!showImageUrl)}
+      size="small"
+      sx={{
+        color: "#1976d2",
+        '&.Mui-checked': {
+          color: "#1976d2",
+        },
+      }}
+    />
+    Image URL
+  </label>
 
-        {showImageUrl && (
-          <input
-            type="text"
-            placeholder="Add Image URL"
-            value={question.imageUrl || ""}
-            onChange={(e) => onUpdate({ ...question, imageUrl: e.target.value })}
-            className="p-1.5 text-xs rounded border border-solid border-black border-opacity-30 h-[22px] text-black text-opacity-60 w-[159px] mt-2"
-          />
-        )}
-      </div>
+  {showImageUrl && (
+    <input
+      type="text"
+      placeholder="Add Image URL"
+      value={question.imageUrl || ""}
+      onChange={(e) => onUpdate({ ...question, imageUrl: e.target.value })}
+      className="p-1.5 text-xs rounded border border-solid border-black border-opacity-30 h-[22px] text-black text-opacity-60 w-[159px] mt-2"
+    />
+  )}
+</div>
 
       <AnswerOptions
         options={question.options}
