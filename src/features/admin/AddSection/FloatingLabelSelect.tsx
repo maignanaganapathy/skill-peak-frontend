@@ -1,17 +1,28 @@
-"use client";
-import { Select, MenuItem, FormControl, InputLabel } from "@mui/material";
+import {
+  Select,
+  MenuItem,
+  FormControl,
+  InputLabel,
+  OutlinedInput,
+  SelectChangeEvent,
+} from "@mui/material";
 import { DropdownArrow } from "./DropdownArrow";
+import { useState } from "react";
 
 interface FloatingLabelSelectProps {
   label: string;
-  placeholder: string;
+  placeholder: string; // not used now
 }
 
 export const FloatingLabelSelect: React.FC<FloatingLabelSelectProps> = ({
   label,
-  placeholder,
 }) => {
-  // Sample options based on the label type
+  const [value, setValue] = useState("");
+
+  const handleChange = (event: SelectChangeEvent) => {
+    setValue(event.target.value);
+  };
+
   const getOptions = () => {
     if (label === "Section Type") {
       return [
@@ -41,47 +52,24 @@ export const FloatingLabelSelect: React.FC<FloatingLabelSelectProps> = ({
   };
 
   return (
-    <FormControl fullWidth sx={{ minWidth: "162px" }}>
-      <InputLabel sx={{ fontSize: "0.85rem", opacity: 0.9 }}>
-        {label}
-      </InputLabel>
+    <FormControl fullWidth variant="outlined" size="small">
+      <InputLabel>{label}</InputLabel>
       <Select
+        value={value}
+        onChange={handleChange}
         label={label}
-        displayEmpty
+        input={<OutlinedInput label={label} />}
         IconComponent={DropdownArrow}
         sx={{
-          height: "36px",
           backgroundColor: "white",
+          fontSize: "0.875rem",
           "& .MuiSelect-select": {
-            fontSize: "0.85rem",
-            color: "Black",
-            textAlign: "center",
-            paddingLeft: "3px",
-          },
-          "& .MuiSelect-icon": {
-            right: "8px",
+            padding: "10px",
           },
         }}
       >
-        <MenuItem
-          disabled
-          value=""
-          sx={{
-            justifyContent: "left",
-            color: "#000000",
-          }}
-        >
-          {placeholder}
-        </MenuItem>
         {getOptions().map((option) => (
-          <MenuItem
-            key={option}
-            value={option}
-            sx={{
-              fontSize: "0.85rem",
-              color: "#000000",
-            }}
-          >
+          <MenuItem key={option} value={option}>
             {option}
           </MenuItem>
         ))}
@@ -89,3 +77,5 @@ export const FloatingLabelSelect: React.FC<FloatingLabelSelectProps> = ({
     </FormControl>
   );
 };
+export default FloatingLabelSelect;
+

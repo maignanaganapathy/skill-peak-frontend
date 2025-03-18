@@ -15,16 +15,14 @@ export const FloatingLabelInput: React.FC<FloatingLabelInputProps> = ({
       label={label}
       variant="outlined"
       fullWidth
+      size="small"
       multiline={isTextArea}
-      rows={isTextArea ? 2 : 1}
+      minRows={isTextArea ? 3 : undefined}
       sx={{
-        "& .MuiOutlinedInput-root": {
-          height: isTextArea ? "45px" : "36px",
-          backgroundColor: "white",
-        },
-        "& .MuiInputLabel-root": {
-          fontSize: "0.75rem",
-          opacity: 0.6,
+        backgroundColor: "white",
+        fontSize: "0.875rem",
+        "& .MuiInputBase-input": {
+          padding: "10px",
         },
       }}
     />

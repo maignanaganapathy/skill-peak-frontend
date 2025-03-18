@@ -1,7 +1,7 @@
 "use client";
 import { Paper, Stack, Button, Box, Collapse } from "@mui/material";
 import { FloatingLabelInput } from "./FloatingLabelInput";
-import { FloatingLabelSelect } from "./FloatingLabelSelect";
+import  FloatingLabelSelect  from "./FloatingLabelSelect";
 
 interface FormSectionProps {
   isExpanded: boolean;
@@ -37,27 +37,28 @@ export const FormSection = ({ isExpanded }: FormSectionProps) => {
               />
             </Box>
           </Stack>
-          <Stack direction="row" spacing={2.5} alignItems="flex-end">
-            <Box flexGrow={1}>
-              <FloatingLabelInput label="Description" isTextArea />
-            </Box>
-            <Button
-              variant="contained"
-              sx={{
-                height: "28px",
-                width: "69px",
-                fontSize: "0.75rem",
-                fontWeight: "bold",
-                backgroundColor: "#1a237e",
-                borderRadius: "6px",
-                "&:hover": {
-                  backgroundColor: "#0d1642",
-                },
-              }}
-            >
-              Save
-            </Button>
-          </Stack>
+          <Stack spacing={1.5} >
+  <FloatingLabelInput label="Description" isTextArea />
+  
+  <Button
+    variant="contained"
+    sx={{
+      alignSelf: "center",
+      height: "28px",
+      width: "69px",
+      fontSize: "0.75rem",
+      fontWeight: "bold",
+      backgroundColor: "#1a237e",
+      borderRadius: "6px",
+      "&:hover": {
+        backgroundColor: "#0d1642",
+      },
+    }}
+  >
+    Save
+  </Button>
+</Stack>
+
         </Stack>
       </Paper>
     </Collapse>

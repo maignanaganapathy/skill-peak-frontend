@@ -1,14 +1,17 @@
 import React from "react";
-import ModalWrapper from "./features/admin/CreateProject/ModalWrapper";
-import InputDesign from "./features/admin/AddSection/InputDesign";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import ModalWrapper from "./features/Admin/CreateProject/ModalWrapper";
+import InputDesign from "./features/Admin/AddSection/InputDesign";
 
 const App: React.FC = () => {
   return (
-    <div >
-     <ModalWrapper />
-     
+    <Router>
+      <Routes>
+        <Route path="/modal" element={<ModalWrapper />} />
+        <Route path="/input" element={<InputDesign />} />
 
-    </div>
+      </Routes>
+    </Router>
   );
 };
 
