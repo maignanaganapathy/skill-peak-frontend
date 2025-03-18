@@ -17,7 +17,7 @@ export const AddButton: React.FC<AddButtonProps> = ({ onClick }) => {
         textTransform: "uppercase",
         fontWeight: "bold",
         width: 76,
-        height: 23,
+        height: 33,
         fontSize: "0.75rem",
         borderRadius: "6px",
         "&:hover": {
