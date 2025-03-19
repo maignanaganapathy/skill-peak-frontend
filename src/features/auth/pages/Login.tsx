@@ -1,14 +1,24 @@
 import * as React from "react";
-import { Link } from "react-router-dom";
-import logo from "../assets/logo.svg"; 
-import eye from "../assets/eye.svg";
-import Button from "../../../components/Button";
-import CloseButton from "./CloseButtons"; 
-
-
-
+import {
+  Box,
+  TextField,
+  Typography,
+  IconButton,
+  Link as MuiLink,
+} from "@mui/material";
+import { Link, useNavigate } from "react-router-dom"; 
+import CloseIcon from "@mui/icons-material/Close";
+import VisibilityIcon from "@mui/icons-material/Visibility";
+import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
+import logo from "../../../assets/logo.svg";
+import { login } from "../services/api"; 
+import Button from "../components/Button";
+import { toast } from "react-toastify";
+import Cookies from "js-cookie";
 
 const Login: React.FC = () => {
+  const navigate = useNavigate(); 
+
   const [showPassword, setShowPassword] = React.useState(false);
   const [formData, setFormData] = React.useState({
     email: "",
@@ -23,92 +33,141 @@ const Login: React.FC = () => {
     }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log(formData);
+  
+    try {
+      const response = await login(formData.email, formData.password);
+  
+      // ✅ Set token and userId in cookies
+      Cookies.set("token", response.token, { expires: 1 }); 
+      Cookies.set("userId", response.userId.toString(), { expires: 1 });
+  
+      toast.success("Login successful!");
+  
+     
+      navigate("/dashboard");
+    } catch (error: any) {
+      toast.error(error.message || "Login failed. Please try again.");
+    }
   };
+  
+  
 
   return (
-    <>
-      <link
-        rel="stylesheet"
-        href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css"
-      />
-     
-      <main className="flex justify-center items-center p-5 min-h-screen bg-neutral-100">
-      <section className="relative flex flex-col items-center p-4 bg-white rounded-xl shadow-lg w-[500px] min-h-[400px] max-md:w-full max-md:max-w-[450px] max-sm:p-4 border border-gray-200">
-  <CloseButton /> 
+    <Box
+      display="flex"
+      justifyContent="center"
+      alignItems="center"
+      minHeight="100vh"
+      p={2}
+      bgcolor="#f5f5f5"
+    >
+      <Box
+        position="relative"
+        width={{ xs: "100%", sm: "450px" }}
+        bgcolor="white"
+        borderRadius={3}
+        boxShadow={3}
+        p={4}
+        sx={{ border: "1px solid #ddd" }}
+      >
+        {/* Close Button */}
+        <IconButton
+          size="small"
+          sx={{ position: "absolute", top: 10, right: 10, color: "secondary.main" }}
+          onClick={() => navigate("/")} 
+        >
+          <CloseIcon />
+        </IconButton>
 
-      <img src={logo} alt="Logo" className="mb-4 w-16 h-[50px]" />
-          <h1 className="mb-6 text-lg font-medium">Welcome Back !</h1>
-          <form
-            onSubmit={handleSubmit}
-            className="w-full max-w-[350px] max-sm:max-w-full"
-          >
-            <div className="mb-4">
-              <label
-                htmlFor="email"
-                className="mb-2 text-xs text-black block"
-              >
-                Email*
-              </label>
-              <div className="relative">
-                <input
-                  id="email"
-                  name="email"
-                  type="email"
-                  value={formData.email}
-                  onChange={handleChange}
-                  placeholder="Enter your Email"
-                  className="px-4 py-2 w-full text-sm text-black rounded-md border border-gray-300 h-[36px]"
-                  required
-                />
-              </div>
-            </div>
+        {/* Logo and Heading */}
+        <Box display="flex" flexDirection="column" alignItems="center" mb={3}>
+          <img src={logo} alt="Logo" style={{ height: 60, width: 60, marginBottom: 10 }} />
+          <Typography variant="h6" fontWeight={500}>
+            Welcome Back !
+          </Typography>
+        </Box>
 
-            <div className="mb-4">
-              <label
-                htmlFor="password"
-                className="mb-2 text-xs text-black block"
-              >
-                Password*
-              </label>
-              <div className="relative">
-                <input
-                  id="password"
-                  name="password"
-                  type={showPassword ? "text" : "password"}
-                  value={formData.password}
-                  onChange={handleChange}
-                  placeholder="Enter your Password"
-                  className="px-4 py-2 w-full text-sm text-black rounded-md border border-gray-300 h-[36px]"
-                  required
-                />
-              <img src={eye} 
-                  alt="Show password"
-                  className="absolute right-4 top-2/4 w-4 h-3 -translate-y-2/4 cursor-pointer"
-                  onClick={() => setShowPassword(!showPassword)}
-                />
-              </div>
-              <div className="mb-4 text-right">
-  <a href="#" className="text-xs text-[#3E7CB1] no-underline">
-    Forgot password?
-  </a>
-</div>
+        {/* Form */}
+        <form onSubmit={handleSubmit}>
+          {/* Email */}
+          <Typography variant="caption" fontWeight={500} mb={0.5} color="textPrimary">
+            Email*
+          </Typography>
+          <TextField
+            fullWidth
+            required
+            name="email"
+            type="email"
+            value={formData.email}
+            onChange={handleChange}
+            placeholder="Enter your Email"
+            size="small"
+            sx={{ mb: 2 }}
+          />
 
-            </div>
+          {/* Password */}
+          <Typography variant="caption" fontWeight={500} mb={0.5} color="textPrimary">
+            Password*
+          </Typography>
+          <Box position="relative" mb={2}>
+            <TextField
+              fullWidth
+              required
+              name="password"
+              type={showPassword ? "text" : "password"}
+              value={formData.password}
+              onChange={handleChange}
+              placeholder="Enter your Password"
+              size="small"
+            />
+            <IconButton
+              onClick={() => setShowPassword(!showPassword)}
+              sx={{
+                position: "absolute",
+                right: 10,
+                top: "50%",
+                transform: "translateY(-50%)",
+              }}
+            >
+              {showPassword ? <VisibilityOffIcon /> : <VisibilityIcon />}
+            </IconButton>
+          </Box>
 
-            <Button type="submit">Log In</Button>
-          </form>
-          <footer className="mt-8 text-sm text-black">
-            <span>Don't have an account? </span>
-            <Link to="/signup" className="text-xs no-underline text-[#3E7CB1]">
-  Sign Up
-</Link>
-          </footer>
-        </section>
-      </main>
-    </>
+          {/* Forgot password link */}
+          <Box textAlign="right" mb={2}>
+            <MuiLink
+              href="#"
+              variant="caption"
+              color="secondary"
+              underline="none"
+            >
+              Forgot password?
+            </MuiLink>
+          </Box>
+
+          {/* ✅ Reused Submit Button */}
+          <Button type="submit">Log In</Button>
+        </form>
+
+        {/* Footer Link */}
+        <Box mt={3} textAlign="center">
+          <Typography variant="body2">
+            Don't have an account?{" "}
+            <MuiLink
+              component={Link}
+              to="/signup"
+              color="secondary"
+              underline="none"
+              sx={{ fontWeight: 500 }}
+            >
+              Sign Up
+            </MuiLink>
+          </Typography>
+        </Box>
+      </Box>
+    </Box>
   );
 };
 

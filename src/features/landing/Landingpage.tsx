@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import Navbar from "../../components/Navbar"; // Correct relative path
+import Navbar from "./Navbar"; // Correct relative path
 
 const LandingPage = () => {
   return (
