@@ -1,4 +1,8 @@
+// Header.tsx
+import React from "react";
+import { Box, Typography, Button } from "@mui/material";
 import logo from "./assets/logo.svg";
+
 interface HeaderProps {
   showSubmit?: boolean;
   isComplete?: boolean;
@@ -13,24 +17,61 @@ export const Header: React.FC<HeaderProps> = ({
   isScoreView = false,
 }) => {
   return (
-    <header className="flex justify-between items-center px-24 py-0 w-full bg-white h-[85px] shadow-[0_4px_8px_rgba(0,0,0,0.25)] max-md:px-10 max-md:py-0 max-sm:px-5 max-sm:py-0 max-sm:h-[70px]">
-      <img src={logo} alt="Logo"  className="object-contain h-16 w-[89px] max-sm:h-[50px] max-sm:w-[70px]"/>
-      <h1
-        className={`text-xl font-semibold text-black max-sm:text-base ${
-          isScoreView ? "absolute left-1/2 transform -translate-x-1/2" : ""
-        }`}
+    <Box
+      component="header"
+      sx={{
+        display: "flex",
+        justifyContent: "space-between",
+        alignItems: "center",
+        px: { xs: 2.5, md: 10 },
+        py: 0,
+        width: "100%",
+        height: { xs: 70, sm: 85 },
+        bgcolor: "white",
+        boxShadow: "0px 4px 8px rgba(0, 0, 0, 0.25)",
+        position: "relative",
+      }}
+    >
+      <Box
+        component="img"
+        src={logo}
+        alt="Logo"
+        sx={{
+          height: { xs: 50, sm: 64 },
+          width: { xs: 70, sm: 89 },
+          objectFit: "contain",
+        }}
+      />
+      <Typography
+        variant="h6"
+        sx={{
+          fontWeight: 600,
+          fontSize: { xs: "1rem", sm: "1.25rem" },
+          color: "black",
+          position: isScoreView ? "absolute" : "static",
+          left: isScoreView ? "50%" : undefined,
+          transform: isScoreView ? "translateX(-50%)" : undefined,
+        }}
       >
         Pre Training Assessment
-      </h1>
+      </Typography>
+
       {showSubmit && (
-        <button
+        <Button
           onClick={onSubmit}
           disabled={!isComplete}
-          className={`h-9 text-base font-extrabold text-white rounded-xl cursor-pointer border-[none] w-[106px] max-sm:h-8 max-sm:text-sm max-sm:w-[90px] ${
-            isComplete
-              ? "bg-blue-900 hover:bg-blue-800"
-              : "bg-gray-400 cursor-not-allowed"
-          }`}
+          variant="contained"
+          sx={{
+            height: { xs: 32, sm: 36 },
+            width: { xs: 90, sm: 106 },
+            fontSize: { xs: "0.875rem", sm: "1rem" },
+            fontWeight: 800,
+            borderRadius: "12px",
+            bgcolor: isComplete ? "primary.dark" : "grey.400",
+            "&:hover": {
+              bgcolor: isComplete ? "primary.main" : "grey.400",
+            },
+          }}
           title={
             !isComplete
               ? "Please answer all questions before submitting"
@@ -38,8 +79,8 @@ export const Header: React.FC<HeaderProps> = ({
           }
         >
           SUBMIT
-        </button>
+        </Button>
       )}
-    </header>
+    </Box>
   );
 };

@@ -1,6 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
+import { Box, Container, CircularProgress, Typography } from "@mui/material";
 import { Header } from "./Header";
 import { QuestionCard } from "./QuestionCard";
 import { NavigationFooter } from "./NavigationFooter";
@@ -12,6 +13,9 @@ function AppContainer() {
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
   const [quizResult, setQuizResult] = useState<QuizResult | null>(null);
+  const [answersArray, setAnswersArray] = useState<
+    { questionId: number; selectedOptionId: number }[]
+  >([]); // ✅ Store answers in an array
 
   const { register, watch } = useForm<FormValues>({
     defaultValues: {
@@ -21,7 +25,6 @@ function AppContainer() {
 
   const answers = watch("answers");
 
-  // Check if all questions are answered
   const isAllQuestionsAnswered =
     questions.length > 0 && questions.every((question) => answers[question.id]);
 
@@ -41,6 +44,18 @@ function AppContainer() {
     loadQuestions();
   }, []);
 
+  // ✅ Track answers in an array
+  useEffect(() => {
+    if (questions.length === 0) return;
+
+    const updatedArray = questions.map((q) => ({
+      questionId: q.id,
+      selectedOptionId: Number(answers[q.id]) || 0,
+    }));
+
+    setAnswersArray(updatedArray);
+  }, [answers, questions]);
+
   const handlePrevious = () => {
     if (currentQuestionIndex > 0) {
       setCurrentQuestionIndex((prev) => prev - 1);
@@ -58,65 +73,70 @@ function AppContainer() {
       return;
     }
 
-    const answersArray = questions.map((question) => ({
-      questionId: question.id,
-      selectedAnswer: Number(answers[question.id]) || 0,
-      correctAnswer: question.correctOptionId,
-      isCorrect: Number(answers[question.id]) === question.correctOptionId,
-    }));
+    const submittedAnswers = questions.map((question) => {
+      const selected = Number(answers[question.id]) || 0;
+      return {
+        questionId: question.id,
+        selectedAnswer: selected,
+        correctAnswer: question.correctOptionId,
+        isCorrect: selected === question.correctOptionId,
+      };
+    });
 
-    const correctAnswers = answersArray.filter((a) => a.isCorrect).length;
+    const correctAnswers = submittedAnswers.filter((a) => a.isCorrect).length;
     const score = correctAnswers / questions.length;
 
     setQuizResult({
       totalQuestions: questions.length,
       correctAnswers,
       score,
-      answers: answersArray,
+      answers: submittedAnswers,
     });
   };
 
   if (isLoading) {
     return (
-      <div className="flex justify-center items-center h-screen">
-        Loading...
-      </div>
+      <Box display="flex" justifyContent="center" alignItems="center" height="100vh">
+        <CircularProgress />
+      </Box>
     );
   }
 
   if (questions.length === 0) {
     return (
-      <div className="flex justify-center items-center h-screen">
-        No questions available
-      </div>
+      <Box display="flex" justifyContent="center" alignItems="center" height="100vh">
+        <Typography>No questions available</Typography>
+      </Box>
     );
   }
 
   const currentQuestion = questions[currentQuestionIndex];
 
   return (
-    <div className="relative w-full min-h-screen bg-white">
+    <Box sx={{ width: "100%", minHeight: "100vh", backgroundColor: "#fff" }}>
       <Header
         showSubmit={!quizResult}
         isComplete={isAllQuestionsAnswered}
         onSubmit={handleSubmit}
         isScoreView={!!quizResult}
       />
-      {quizResult ? (
-        <ScoreCard result={quizResult} />
-      ) : (
-        <>
-          <QuestionCard
-            question={currentQuestion}
-            currentQuestion={currentQuestionIndex + 1}
-            totalQuestions={questions.length}
-            register={register}
-            selectedOptionId={Number(answers[currentQuestion.id])}
-          />
-          <NavigationFooter onPrevious={handlePrevious} onNext={handleNext} />
-        </>
-      )}
-    </div>
+      <Container maxWidth="md">
+        {quizResult ? (
+          <ScoreCard result={quizResult} />
+        ) : (
+          <>
+            <QuestionCard
+              question={currentQuestion}
+              currentQuestion={currentQuestionIndex + 1}
+              totalQuestions={questions.length}
+              register={register}
+              selectedOptionId={Number(answers[currentQuestion.id])}
+            />
+            <NavigationFooter onPrevious={handlePrevious} onNext={handleNext} />
+          </>
+        )}
+      </Container>
+    </Box>
   );
 }
 

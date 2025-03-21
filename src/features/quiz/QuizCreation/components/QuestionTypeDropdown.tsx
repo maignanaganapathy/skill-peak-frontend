@@ -1,8 +1,9 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import { QuestionTypeEnum } from "./types";
-import Chevron from "./assets/Chevron.png";
+import { QuestionTypeEnum } from "../../types/quiz";
+
+import Chevron from "../assets/Chevron.png";
 
 interface QuestionTypeDropdownProps {
   currentType: QuestionTypeEnum;
@@ -31,11 +32,12 @@ export const QuestionTypeDropdown: React.FC<QuestionTypeDropdownProps> = ({
   }, []);
 
   const questionTypes = [
-    QuestionTypeEnum.YesNo,
-    QuestionTypeEnum.MultipleChoice,
-    QuestionTypeEnum.TextField,
-    QuestionTypeEnum.Checkboxes,
+    QuestionTypeEnum.YES_NO,
+    QuestionTypeEnum.MULTIPLE_CHOICE,
+    QuestionTypeEnum.TEXT,
+    QuestionTypeEnum.CHECKBOXES,
   ];
+  
 
   return (
     <div className="relative inline-block" ref={dropdownRef}>

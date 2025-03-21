@@ -1,4 +1,5 @@
 import { QuizResult } from "./types";
+import { Box, Typography } from "@mui/material";
 
 interface ScoreCardProps {
   result: QuizResult;
@@ -6,27 +7,68 @@ interface ScoreCardProps {
 
 export const ScoreCard: React.FC<ScoreCardProps> = ({ result }) => {
   return (
-    <div className="flex flex-col items-center justify-start pt-12 px-4">
+    <Box
+      display="flex"
+      flexDirection="column"
+      alignItems="center"
+      justifyContent="flex-start"
+      pt={10}
+      px={2}
+    >
       {/* Score Circle */}
-      <div className="relative w-48 h-48 mb-6">
-        {/* Outer stroke */}
-        <div className="absolute inset-0 rounded-full border-[12px] border-[#A5C8E5]" />
-        {/* Inner circle with score */}
-        <div className="absolute inset-[5px] flex flex-col items-center justify-center bg-[#1E4D92] rounded-full text-white">
-          <span className="text-lg font-medium mb-2">SCORE</span>
-          <span className="text-4xl font-bold">{result.correctAnswers}</span>
-        </div>
-      </div>
+      <Box
+        position="relative"
+        width={192}
+        height={192}
+        mb={4}
+      >
+        {/* Outer Stroke */}
+        <Box
+          sx={{
+            position: "absolute",
+            inset: 0,
+            borderRadius: "50%",
+            border: "12px solid #A5C8E5",
+          }}
+        />
+        {/* Inner Circle */}
+        <Box
+          sx={{
+            position: "absolute",
+            inset: 5,
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            justifyContent: "center",
+            bgcolor: "#1E4D92",
+            borderRadius: "50%",
+            color: "#fff",
+            textAlign: "center",
+          }}
+        >
+          <Typography variant="subtitle1" mb={1}>
+            SCORE
+          </Typography>
+          <Typography variant="h3" fontWeight="bold">
+            {result.correctAnswers}
+          </Typography>
+        </Box>
+      </Box>
 
       {/* Total Questions */}
-      <p className="text-xl text-gray-700 mb-4">
+      <Typography variant="h6" color="text.secondary" mb={2}>
         Out of {result.totalQuestions}
-      </p>
+      </Typography>
 
       {/* Motivational Message */}
-      <p className="text-2xl font-semibold text-[#1E4D92] text-center">
+      <Typography
+        variant="h5"
+        fontWeight="600"
+        color="#1E4D92"
+        textAlign="center"
+      >
         Amazing! You crushed it! Keep up the great work!
-      </p>
-    </div>
+      </Typography>
+    </Box>
   );
 };

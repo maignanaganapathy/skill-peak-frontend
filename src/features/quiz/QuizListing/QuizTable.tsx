@@ -1,23 +1,25 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   Table, TableBody, TableCell, TableContainer, TableHead, TableRow,
-  Paper, Chip, TextField, IconButton
+  Paper, TextField, IconButton, Dialog, DialogTitle,
+  DialogContent, DialogContentText, DialogActions, Button
 } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
 import SaveIcon from "@mui/icons-material/Save";
 import DeleteIcon from "@mui/icons-material/Delete";
 
 interface Quiz {
-  name: string;
+  title: string;
   description: string;
-  projectsUsed: string[];
+  createdBy: { email: string };
   createdDate: string;
+  projectsUsed?: string[];
 }
 
 interface QuizTableProps {
   quizzes: Quiz[];
   editIndex: number | null;
-  editData: Quiz;
+  editData: Quiz | null;
   handleChangeEditField: (field: keyof Quiz, value: any) => void;
   handleEdit: (index: number) => void;
   handleSave: () => void;
@@ -32,88 +34,158 @@ const QuizTable: React.FC<QuizTableProps> = ({
   handleEdit,
   handleSave,
   handleDelete,
-}) => (
-  <TableContainer component={Paper}>
-    <Table>
-      <TableHead>
-        <TableRow>
-          <TableCell><strong>Name</strong></TableCell>
-          <TableCell><strong>Description</strong></TableCell>
-          <TableCell><strong>Project Used</strong></TableCell>
-          <TableCell><strong>Created Date</strong></TableCell>
-          <TableCell />
-          <TableCell />
-        </TableRow>
-      </TableHead>
-      <TableBody>
-        {quizzes.length === 0 ? (
-          <TableRow>
-            <TableCell colSpan={6} align="center">
-              No matching quizzes found.
-            </TableCell>
-          </TableRow>
-        ) : (
-          quizzes.map((quiz, index) => {
-            const isEditing = editIndex === index;
-            return (
-              <TableRow key={index}>
-                <TableCell>
-                  {isEditing ? (
-                    <TextField
-                      value={editData.name}
-                      onChange={(e) => handleChangeEditField("name", e.target.value)}
-                    />
-                  ) : quiz.name}
-                </TableCell>
-                <TableCell>
-                  {isEditing ? (
-                    <TextField
-                      value={editData.description}
-                      onChange={(e) => handleChangeEditField("description", e.target.value)}
-                    />
-                  ) : quiz.description}
-                </TableCell>
-                <TableCell>
-                  {isEditing ? (
-                    <TextField
-                      value={editData.projectsUsed.join(", ")}
-                      onChange={(e) =>
-                        handleChangeEditField("projectsUsed", e.target.value.split(",").map(p => p.trim()))
-                      }
-                    />
-                  ) : quiz.projectsUsed.map((p, i) => (
-                    <Chip key={i} label={p} sx={{ mr: 0.5, mb: 0.5 }} />
-                  ))}
-                </TableCell>
-                <TableCell>
-                  {isEditing ? (
-                    <TextField
-                      type="date"
-                      value={editData.createdDate}
-                      onChange={(e) => handleChangeEditField("createdDate", e.target.value)}
-                    />
-                  ) : quiz.createdDate}
-                </TableCell>
-                <TableCell>
-                  <IconButton
-                    color={isEditing ? "success" : "primary"}
-                    onClick={() => (isEditing ? handleSave() : handleEdit(index))}
-                  >
-                    {isEditing ? <SaveIcon /> : <EditIcon />}
-                  </IconButton>
-                </TableCell>
-                <TableCell>
-                  <IconButton color="error" onClick={() => handleDelete(index)}>
-                    <DeleteIcon />
-                  </IconButton>
+}) => {
+  const [openDialog, setOpenDialog] = useState(false);
+  const [deleteIndex, setDeleteIndex] = useState<number | null>(null);
+  const [searchQuery, setSearchQuery] = useState("");
+
+  // Filter quizzes based on search query
+  const filteredQuizzes = quizzes.filter(quiz => {
+    const searchTerm = searchQuery.toLowerCase();
+    return (
+      quiz.title.toLowerCase().includes(searchTerm) ||
+      quiz.description.toLowerCase().includes(searchTerm) ||
+      (quiz.createdBy?.email.toLowerCase().includes(searchTerm) || "")
+    );
+  });
+
+  const confirmDelete = (index: number) => {
+    setDeleteIndex(index);
+    setOpenDialog(true);
+  };
+
+  const handleConfirm = () => {
+    if (deleteIndex !== null) {
+      handleDelete(deleteIndex);
+    }
+    setOpenDialog(false);
+    setDeleteIndex(null);
+  };
+
+  const handleCancel = () => {
+    setOpenDialog(false);
+    setDeleteIndex(null);
+  };
+
+  return (
+    <>
+      {/* Search Bar */}
+      <TextField
+        label="Search"
+        variant="outlined"
+        fullWidth
+        value={searchQuery}
+        onChange={(e) => setSearchQuery(e.target.value)}
+        style={{ marginBottom: "20px" }}
+      />
+
+      <TableContainer component={Paper}>
+        <Table>
+          <TableHead>
+            <TableRow>
+              <TableCell><strong>Title</strong></TableCell>
+              <TableCell><strong>Description</strong></TableCell>
+              <TableCell><strong>Project Used</strong></TableCell>
+              <TableCell><strong>Created By</strong></TableCell>
+              <TableCell><strong>Created Date</strong></TableCell>
+              <TableCell><strong>Actions</strong></TableCell>
+            </TableRow>
+          </TableHead>
+
+          <TableBody>
+            {filteredQuizzes.length === 0 ? (
+              <TableRow>
+                <TableCell colSpan={6} align="center">
+                  No matching quizzes found.
                 </TableCell>
               </TableRow>
-            );
-          })
-        )}
-      </TableBody>
-    </Table>
-  </TableContainer>
-);
+            ) : (
+              filteredQuizzes.map((quiz, index) => {
+                const isEditing = editIndex === index;
+                return (
+                  <TableRow key={index}>
+                    {/* Title */}
+                    <TableCell>
+                      {isEditing ? (
+                        <TextField
+                          value={editData?.title || ""}
+                          onChange={(e) => handleChangeEditField("title", e.target.value)}
+                        />
+                      ) : (
+                        quiz.title
+                      )}
+                    </TableCell>
+
+                    {/* Description */}
+                    <TableCell>
+                      {isEditing ? (
+                        <TextField
+                          value={editData?.description || ""}
+                          onChange={(e) => handleChangeEditField("description", e.target.value)}
+                        />
+                      ) : (
+                        quiz.description
+                      )}
+                    </TableCell>
+
+                    {/* Project Used */}
+                    <TableCell>
+                      {quiz.projectsUsed?.join(", ") || "N/A"}
+                    </TableCell>
+
+                    {/* Created By */}
+                    <TableCell>
+                      {quiz.createdBy?.email || "N/A"}
+                    </TableCell>
+
+                    {/* Created Date */}
+                    <TableCell>
+                    {new Date(quiz.createdDate).toLocaleDateString("en-GB", {
+          year: "numeric",
+          month: "short",
+          day: "numeric",
+        })}
+                    </TableCell>
+
+                    {/* Actions */}
+                    <TableCell>
+                      <IconButton
+                        color={isEditing ? "success" : "primary"}
+                        onClick={() => (isEditing ? handleSave() : handleEdit(index))}
+                      >
+                        {isEditing ? <SaveIcon /> : <EditIcon />}
+                      </IconButton>
+                      <IconButton color="error" onClick={() => confirmDelete(index)}>
+                        <DeleteIcon />
+                      </IconButton>
+                    </TableCell>
+                  </TableRow>
+                );
+              })
+            )}
+          </TableBody>
+        </Table>
+      </TableContainer>
+
+      {/* Confirmation Dialog */}
+      <Dialog open={openDialog} onClose={handleCancel}>
+        <DialogTitle>Confirm Deletion</DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            Are you sure you want to delete this quiz? This action cannot be undone.
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleCancel} color="primary" variant="outlined">
+            No
+          </Button>
+          <Button onClick={handleConfirm} color="error" variant="contained">
+            Yes, Delete
+          </Button>
+        </DialogActions>
+      </Dialog>
+    </>
+  );
+};
 
 export default QuizTable;

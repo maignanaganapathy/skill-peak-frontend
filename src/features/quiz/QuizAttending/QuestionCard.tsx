@@ -1,4 +1,14 @@
 "use client";
+import React from "react";
+import {
+  Box,
+  Card,
+  CardContent,
+  RadioGroup,
+  Typography,
+  useMediaQuery,
+} from "@mui/material";
+import { useTheme } from "@mui/material/styles";
 import { UseFormRegister } from "react-hook-form";
 import { QuestionOption } from "./QuestionOption";
 import { FormValues, Question, Option } from "./types";
@@ -18,30 +28,52 @@ export const QuestionCard: React.FC<QuestionCardProps> = ({
   register,
   selectedOptionId,
 }) => {
+  const theme = useTheme();
+  const isSmall = useMediaQuery(theme.breakpoints.down("sm"));
+
   return (
-    <section className="flex justify-center px-5 py-10">
-      <article className="p-10 bg-white border border-solid border-zinc-300 border-opacity-10 shadow-[0_4px_3px_rgba(0,0,0,0.25)] w-[685px] max-sm:p-5">
-        <p className="mb-2.5 text-base text-black">
-          Question {currentQuestion} of {totalQuestions}
-        </p>
-        <p className="mb-8 text-base text-black">{question.question}</p>
-        <div
-          className="flex flex-col gap-3.5"
-          role="radiogroup"
-          aria-label={`Question ${currentQuestion} options`}
-        >
-          {question.options.map((option: Option, index: number) => (
-            <QuestionOption
-              key={option.id}
-              questionId={question.id}
-              option={option}
-              label={String.fromCharCode(65 + index)}
-              isSelected={selectedOptionId === option.id}
-              register={register}
-            />
-          ))}
-        </div>
-      </article>
-    </section>
+    <Box
+      sx={{
+        display: "flex",
+        justifyContent: "center",
+        px: 2,
+        py: 4,
+      }}
+    >
+      <Card
+        elevation={0} // ✅ No shadow
+        sx={{
+          width: isSmall ? "100%" : 685,
+          p: isSmall ? 2 : 4,
+          border: "1px solid rgba(0, 0, 0, 0.1)",
+        }}
+      >
+        <CardContent>
+          <Typography variant="body2" color="textSecondary" gutterBottom>
+            Question {currentQuestion} of {totalQuestions}
+          </Typography>
+
+          <Typography variant="body1" color="textPrimary" sx={{ mb: 3 }}>
+            {question.question}
+          </Typography>
+
+          <RadioGroup
+            name={`question-${question.id}`}
+            aria-label={`Question ${currentQuestion} options`}
+          >
+            {question.options.map((option: Option, index: number) => (
+              <QuestionOption
+                key={option.id}
+                questionId={question.id}
+                option={option}
+                label={String.fromCharCode(65 + index)}
+                isSelected={selectedOptionId === option.id}
+                register={register}
+              />
+            ))}
+          </RadioGroup>
+        </CardContent>
+      </Card>
+    </Box>
   );
 };
