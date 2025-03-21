@@ -1,0 +1,124 @@
+import React from 'react';
+import { Box, Typography, TextField, Button, Grid, Paper } from '@mui/material';
+import LocationOnIcon from '@mui/icons-material/LocationOn';
+import PhoneIcon from '@mui/icons-material/Phone';
+import EmailIcon from '@mui/icons-material/Email';
+
+const ContactForm = () => {
+  return (
+    <Box className="min-h-screen bg-[#f5f5f5] flex justify-center items-center relative px-4">
+      {/* Wrapper to hold both papers together */}
+      <Box position="relative">
+        {/* Main White Paper */}
+        <Paper elevation={3} sx={{ width: '700px', padding: 4, position: 'relative' }}>
+          {/* Form Content aligned to the right */}
+          <Box sx={{ width: '65%', marginLeft: 'auto' }}>
+            <Box sx={{ textAlign: 'center', mb: 4 }}>
+              <Typography variant="h5" className="text-[#2F70B7] font-bold" sx={{ mb: 1 }}>
+                Get in Touch
+              </Typography>
+              <Typography className="text-gray-600" sx={{ mb: 3 }}>
+                Feel Free to drop us a line below!
+              </Typography>
+            </Box>
+
+            <Grid container spacing={2}>
+              <Grid item xs={12}>
+                <TextField label="Name" fullWidth variant="outlined" size="small" />
+              </Grid>
+              <Grid item xs={12} sm={6}>
+                <TextField label="Phone" fullWidth variant="outlined" size="small" />
+              </Grid>
+              <Grid item xs={12} sm={6}>
+                <TextField label="Email" fullWidth variant="outlined" size="small" />
+              </Grid>
+              <Grid item xs={12}>
+                <TextField
+                  label="Message"
+                  fullWidth
+                  multiline
+                  rows={2}
+                  variant="outlined"
+                />
+              </Grid>
+              <Grid item xs={12}>
+                <Box className="flex justify-center">
+                  <Button
+                    variant="contained"
+                    sx={{
+                      backgroundColor: '#1E4D92',
+                      fontWeight: 'bold',
+                      fontSize: '18px',
+                      width: '130px',
+                      borderRadius: 13,
+                    }}
+                  >
+                    SEND
+                  </Button>
+                </Box>
+              </Grid>
+            </Grid>
+          </Box>
+
+          {/* Blue Contact Info Paper - Overlapping Bottom */}
+          <Paper
+            elevation={6}
+            sx={{
+              position: 'absolute',
+              bottom: '15%',
+              left: -90,
+              width: 260,
+              height: 280,
+              padding: 2,
+              backgroundColor: '#2F70B7',
+              color: 'white',
+              zIndex: 2,
+            }}
+          >
+            <Typography
+              variant="h5"
+              fontWeight="bold"
+              align="center"
+              gutterBottom
+              mb={4}
+            >
+              Contact Us
+            </Typography>
+
+            <Box display="flex" alignItems="flex-start" gap={2} mb={2} pl={4}>
+              <Box alignSelf="center">
+                <LocationOnIcon />
+              </Box>
+              <Box>
+                <Typography fontSize={14}>Location</Typography>
+                <Typography fontSize={14}>Chennai</Typography>
+              </Box>
+            </Box>
+
+            <Box display="flex" alignItems="flex-start" gap={2} mb={2} pl={4}>
+              <Box alignSelf="center">
+                <PhoneIcon />
+              </Box>
+              <Box>
+                <Typography fontSize={14}>Phone</Typography>
+                <Typography fontSize={14}>+91 9962514135</Typography>
+              </Box>
+            </Box>
+
+            <Box display="flex" alignItems="flex-start" gap={2} mb={2} pl={4}>
+              <Box alignSelf="center">
+                <EmailIcon />
+              </Box>
+              <Box>
+                <Typography fontSize={14}>Email</Typography>
+                <Typography fontSize={14}>training@goripe.com</Typography>
+              </Box>
+            </Box>
+          </Paper>
+        </Paper>
+      </Box>
+    </Box>
+  );
+};
+
+export default ContactForm;
