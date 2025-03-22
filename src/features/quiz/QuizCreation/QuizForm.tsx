@@ -18,7 +18,17 @@ import { useNavigate } from "react-router-dom";
 const QuizForm: React.FC = () => {
   const navigate = useNavigate();
 
-  const form = useForm<UpdateQuizInput>({
+  const [title, setTitle] = useState("Untitled");
+  const [editTitle, setEditTitle] = useState(false);
+
+  const {
+    control,
+    register,
+    handleSubmit,
+    watch,
+    setValue,
+    getValues,
+  } = useForm<UpdateQuizInput>({
     defaultValues: {
       questions: [
         {
@@ -31,12 +41,9 @@ const QuizForm: React.FC = () => {
   });
 
   const { fields, append, remove, move } = useFieldArray({
-    control: form.control,
+    control,
     name: "questions",
   });
-
-  const [title, setTitle] = useState("Untitled");
-  const [editTitle, setEditTitle] = useState(false);
 
   const handleAddQuestion = () => {
     append({
@@ -46,7 +53,7 @@ const QuizForm: React.FC = () => {
     });
   };
 
-  const handleQuizSubmit = form.handleSubmit(async (data) => {
+  const handleQuizSubmit = handleSubmit(async (data) => {
     const token =
       "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEsInVzZXJFbWFpbCI6InRlc3R1c2VyQGV4YW1wbGUuY29tIiwiaWF0IjoxNzQyNTU1NTUwLCJleHAiOjE3NDI2NDE5NTB9.-0EVDJjU9K8ChCEalOk8_8HzfcZPuysiJNuaQWEqxns";
 
@@ -63,9 +70,6 @@ const QuizForm: React.FC = () => {
       })),
     };
 
-    // ✅ Debug log before submission
-    console.log("Submitting Payload:", payload);
-
     try {
       const response = await fetch("http://localhost:5000/quiz", {
         method: "POST",
@@ -78,17 +82,16 @@ const QuizForm: React.FC = () => {
 
       if (!response.ok) {
         const errorText = await response.text();
-        console.error("Server response:", errorText);
         throw new Error(`Failed to submit quiz: ${errorText}`);
       }
 
       const result = await response.json();
-      console.log("Quiz submitted successfully:", result);
+      console.log("✅ Quiz submitted successfully:", result);
       alert("🎉 Quiz submitted successfully!");
       navigate("/");
     } catch (error) {
-      console.error("Submission error:", error);
-      alert("⚠️ Failed to submit quiz.");
+      console.error("⚠️ Submission error:", error);
+      alert("⚠️ Failed to submit quiz. Please try again.");
     }
   });
 
@@ -98,6 +101,7 @@ const QuizForm: React.FC = () => {
 
       <Box sx={{ pt: "110px", px: 3 }}>
         <Paper elevation={3} sx={{ p: 3 }}>
+          {/* Editable Title */}
           <Box display="flex" alignItems="center" mb={3}>
             {editTitle ? (
               <>
@@ -105,7 +109,9 @@ const QuizForm: React.FC = () => {
                   variant="standard"
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
-                  onKeyDown={(e) => e.key === "Enter" && setEditTitle(false)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") setEditTitle(false);
+                  }}
                   autoFocus
                 />
                 <IconButton onClick={() => setEditTitle(false)}>
@@ -124,21 +130,22 @@ const QuizForm: React.FC = () => {
             )}
           </Box>
 
+          {/* Question Fields */}
           {fields.map((field, index) => (
             <QuestionField
               key={field.id}
               index={index}
-              control={form.control}
-              register={form.register}
-              watch={form.watch}
-              setValue={form.setValue}
+              control={control}
+              register={register}
+              watch={watch}
+              setValue={setValue}
               onDelete={() => remove(index)}
               onMoveUp={() => index > 0 && move(index, index - 1)}
               onMoveDown={() =>
                 index < fields.length - 1 && move(index, index + 1)
               }
               onDuplicate={() => {
-                const current = form.getValues(`questions.${index}`);
+                const current = getValues(`questions.${index}`);
                 append({ ...current });
               }}
               isFirst={index === 0}
@@ -146,6 +153,7 @@ const QuizForm: React.FC = () => {
             />
           ))}
 
+          {/* Add Question Button */}
           <Box display="flex" justifyContent="center" mt={2}>
             <Button variant="contained" onClick={handleAddQuestion}>
               Add Question

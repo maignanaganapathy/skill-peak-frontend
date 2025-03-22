@@ -7,8 +7,10 @@ import { QuestionCard } from "./QuestionCard";
 import { NavigationFooter } from "./NavigationFooter";
 import { ScoreCard } from "./ScoreCard";
 import { FormValues, Question, QuizResult } from "./types";
+import { useParams } from "react-router-dom";
 
 function AppContainer() {
+  const { id } = useParams();
   const [questions, setQuestions] = useState<Question[]>([]);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
@@ -31,14 +33,30 @@ function AppContainer() {
   useEffect(() => {
     const loadQuestions = async () => {
       try {
-        const response = await fetch("/questions.json");
-        const data = await response.json();
-        setQuestions(data.questions);
+        const token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEsInVzZXJFbWFpbCI6InRlc3R1c2VyQGV4YW1wbGUuY29tIiwiaWF0IjoxNzQyNjE3NzI2LCJleHAiOjE3NDI3MDQxMjZ9.1XSo6KYr-sk8pDI156Nv4w4QK0MUTzMKEVYaBLj0Ejs"; // Ideally from a secure state/store
+const response = await fetch("http://localhost:5000/quiz/1", {
+  headers: {
+    "Content-Type": "application/json",
+    Authorization: `Bearer ${token}`,
+  },
+});
+const data = await response.json();
+        setQuestions(data.questions.map((q: any) => ({
+          id: q.id,
+          question: q.question,
+          optionType: q.optionType,
+          imageUrl: q.imageUrl,
+          options: q.options,
+          correctOptionId: q.correctOptions[0]?.optionId,
+        })));
+        
         setIsLoading(false);
       } catch (error) {
         console.error("Error loading questions:", error);
         setIsLoading(false);
+        setQuestions([]); // optionally clear existing questions
       }
+      
     };
 
     loadQuestions();
