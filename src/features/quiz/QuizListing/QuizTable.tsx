@@ -7,14 +7,7 @@ import {
 import EditIcon from "@mui/icons-material/Edit";
 import SaveIcon from "@mui/icons-material/Save";
 import DeleteIcon from "@mui/icons-material/Delete";
-
-interface Quiz {
-  title: string;
-  description: string;
-  createdBy: { email: string };
-  createdDate: string;
-  projectsUsed?: string[];
-}
+import { Quiz } from "../types/quiz";
 
 interface QuizTableProps {
   quizzes: Quiz[];
@@ -43,9 +36,9 @@ const QuizTable: React.FC<QuizTableProps> = ({
   const filteredQuizzes = quizzes.filter(quiz => {
     const searchTerm = searchQuery.toLowerCase();
     return (
-      quiz.title.toLowerCase().includes(searchTerm) ||
-      quiz.description.toLowerCase().includes(searchTerm) ||
-      (quiz.createdBy?.email.toLowerCase().includes(searchTerm) || "")
+      quiz.title?.toLowerCase().includes(searchTerm) ||
+      quiz.description?.toLowerCase().includes(searchTerm) ||
+      quiz.createdBy?.email?.toLowerCase().includes(searchTerm)
     );
   });
 
@@ -140,11 +133,13 @@ const QuizTable: React.FC<QuizTableProps> = ({
 
                     {/* Created Date */}
                     <TableCell>
-                    {new Date(quiz.createdDate).toLocaleDateString("en-GB", {
-          year: "numeric",
-          month: "short",
-          day: "numeric",
-        })}
+                      {quiz.createdDate
+                        ? new Date(quiz.createdDate).toLocaleDateString("en-GB", {
+                            year: "numeric",
+                            month: "short",
+                            day: "numeric",
+                          })
+                        : "N/A"}
                     </TableCell>
 
                     {/* Actions */}

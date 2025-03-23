@@ -1,10 +1,20 @@
 export interface Quiz {
   title: string;
   description: string;
-  projectsUsed: string[];
-  createdAt: string;
-  updatedAt: string;
-  questions: Question[];
+  projectsUsed?: string[];
+  createdBy?: {
+    email?: string;
+  };
+  createdDate?: string | Date;
+}
+
+
+
+export interface User {
+  id: number;
+  email: string;
+  mobile?: string;
+  password?: string; // Optional: avoid exposing this on frontend if not needed
 }
 
 export interface Question {
@@ -28,8 +38,23 @@ export enum QuestionTypeEnum {
   CHECKBOXES = "checkboxes",
 }
 
+export interface Section {
+  id: number;
+  sectionName: string;
+  sectionType: string;
+  linkUrl: string;
+  expiresAt: string | null;
+  isEnabled: boolean;
+  project?: Project;
+}
 
-// ✅ Add this interface for your form
+export interface Project {
+  id: number;
+  name: string;
+  description?: string;
+  date?: string;
+}
+
 export interface UpdateQuizInput {
   title: string;
   description: string;

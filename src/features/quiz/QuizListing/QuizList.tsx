@@ -6,12 +6,13 @@ import QuizTableComponent from "./QuizTable";
 import PaginationComponent from "./PaginationComponent";
 import { QuizHeader } from "./Header";
 import CreateQuizButton from "./CreateQuizButton";
-import { Quiz } from "../quiz.model"; // Ensure Quiz model matches usage
-import { useLocation } from "react-router-dom"; // ✅ Added
+import { Quiz } from "../types/quiz"; 
+import { useLocation } from "react-router-dom"; 
+import { getQuizzes } from "../services/quiz.service"; // Adjust relative path as needed
 
 
 const QuizList: React.FC = () => {
-  const location = useLocation(); // ✅ Added
+  const location = useLocation(); // 
   const [quizzes, setQuizzes] = useState<Quiz[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedProject, setSelectedProject] = useState<string | null>(null);
@@ -26,39 +27,24 @@ const QuizList: React.FC = () => {
   ];
 
  
-    useEffect(() => {
-      const fetchQuizzes = async () => {
-        try {
-          setLoading(true); 
-    
-          const token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEsInVzZXJFbWFpbCI6InRlc3R1c2VyQGV4YW1wbGUuY29tIiwiaWF0IjoxNzQyNTU1NTUwLCJleHAiOjE3NDI2NDE5NTB9.-0EVDJjU9K8ChCEalOk8_8HzfcZPuysiJNuaQWEqxns"; // ✅ already done
-          const res = await fetch("http://localhost:5000/quiz?page=1&limit=10", {
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${token}`,
-            },
-          });
-    
-          if (!res.ok) {
-            throw new Error(`Failed to fetch quizzes: ${res.status}`);
-          }
-    
-          const data = await res.json();
-    
-          if (!Array.isArray(data)) {
-            throw new Error("Unexpected response format");
-          }
-    
-          setQuizzes(data);
-        } catch (error) {
-          console.error("Failed to fetch quizzes:", error);
-        } finally {
-          setLoading(false); // ✅ Always stop loading at the end
-        }
-      };
-    
-      fetchQuizzes();
-    }, [location]);
+  useEffect(() => {
+    const fetchQuizzes = async () => {
+      try {
+        setLoading(true);
+        const token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjIsInVzZXJFbWFpbCI6InRlc3R1c2VyQGV4YW1wbGUuY29tIiwiaWF0IjoxNzQyNzE5OTUxLCJleHAiOjE3NDI4MDYzNTF9.NeM0aPbZQioHi3ENiQlBSQUY2iORy0JCeTzEFIJv6vk"; // ← You may still need this if your backend requires it
+        
+        const data = await getQuizzes(); // 
+        setQuizzes(data);
+      } catch (error) {
+        console.error("Failed to fetch quizzes:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+  
+    fetchQuizzes();
+  }, [location]);
+  
     
     
 

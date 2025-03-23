@@ -31,8 +31,8 @@ export const QuestionOption: React.FC<QuestionOptionProps> = ({
           borderRadius: 2,
           cursor: "pointer",
           backgroundColor: isSelected ? "#A5C8E5" : "#f5f5f5",
-          boxShadow: "none", // Removes elevation
-          border: "1px solid #ccc", // Optional: add border if you want subtle separation
+          boxShadow: "none", 
+          border: "1px solid #ccc", 
         }}
         component="label"
       >
@@ -40,6 +40,7 @@ export const QuestionOption: React.FC<QuestionOptionProps> = ({
           type="radio"
           {...register(`answers.${questionId}` as const)}
           value={option.id}
+          defaultChecked={isSelected}
           style={{ display: "none" }}
         />
         <Box
@@ -58,7 +59,7 @@ export const QuestionOption: React.FC<QuestionOptionProps> = ({
           {label}
         </Box>
         <Typography variant="body2" color="textPrimary">
-          {option.text}
+          {option.option}
         </Typography>
       </Paper>
     </Box>

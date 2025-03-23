@@ -8,6 +8,7 @@ import { NavigationFooter } from "./NavigationFooter";
 import { ScoreCard } from "./ScoreCard";
 import { FormValues, Question, QuizResult } from "./types";
 import { useParams } from "react-router-dom";
+import { BACKEND_URL } from "../../../config";
 
 function AppContainer() {
   const { id } = useParams();
@@ -17,7 +18,7 @@ function AppContainer() {
   const [quizResult, setQuizResult] = useState<QuizResult | null>(null);
   const [answersArray, setAnswersArray] = useState<
     { questionId: number; selectedOptionId: number }[]
-  >([]); // ✅ Store answers in an array
+  >([]); // 
 
   const { register, watch } = useForm<FormValues>({
     defaultValues: {
@@ -30,25 +31,33 @@ function AppContainer() {
   const isAllQuestionsAnswered =
     questions.length > 0 && questions.every((question) => answers[question.id]);
 
-  useEffect(() => {
-    const loadQuestions = async () => {
-      try {
-        const token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEsInVzZXJFbWFpbCI6InRlc3R1c2VyQGV4YW1wbGUuY29tIiwiaWF0IjoxNzQyNjE3NzI2LCJleHAiOjE3NDI3MDQxMjZ9.1XSo6KYr-sk8pDI156Nv4w4QK0MUTzMKEVYaBLj0Ejs"; // Ideally from a secure state/store
-const response = await fetch("http://localhost:5000/quiz/1", {
-  headers: {
-    "Content-Type": "application/json",
-    Authorization: `Bearer ${token}`,
-  },
-});
-const data = await response.json();
-        setQuestions(data.questions.map((q: any) => ({
-          id: q.id,
-          question: q.question,
-          optionType: q.optionType,
-          imageUrl: q.imageUrl,
-          options: q.options,
-          correctOptionId: q.correctOptions[0]?.optionId,
-        })));
+    useEffect(() => {
+      const loadQuestions = async () => {
+        try {
+          const token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjIsInVzZXJFbWFpbCI6InRlc3R1c2VyQGV4YW1wbGUuY29tIiwiaWF0IjoxNzQyNzE5OTUxLCJleHAiOjE3NDI4MDYzNTF9.NeM0aPbZQioHi3ENiQlBSQUY2iORy0JCeTzEFIJv6vk";
+          const response = await fetch(`${BACKEND_URL}/quiz/${id}`,{
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+          });
+          const data = await response.json();
+          
+      console.log("Fetched quiz data:", data);
+          setQuestions(
+            data.questions.map((q: any) => ({
+              id: q.id,
+              question: q.question,
+              optionType: q.optionType,
+              imageUrl: q.imageUrl,
+              options: q.options.map((opt: any) => ({
+                id: opt.id,
+                option: opt.option,
+              })),
+              correctOptionId: q.correctOptions?.[0]?.option?.id || null,
+            }))
+          );
+          
         
         setIsLoading(false);
       } catch (error) {
@@ -62,7 +71,7 @@ const data = await response.json();
     loadQuestions();
   }, []);
 
-  // ✅ Track answers in an array
+  // Track answers in an array
   useEffect(() => {
     if (questions.length === 0) return;
 
@@ -108,7 +117,15 @@ const data = await response.json();
       totalQuestions: questions.length,
       correctAnswers,
       score,
-      answers: submittedAnswers,
+      answers: submittedAnswers
+      .filter((a): a is {
+        questionId: number;
+        selectedAnswer: number;
+        correctAnswer: number;
+        isCorrect: boolean;
+      } => a.correctAnswer !== null)
+    
+
     });
   };
 

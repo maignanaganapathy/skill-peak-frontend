@@ -61,16 +61,17 @@ export const QuestionCard: React.FC<QuestionCardProps> = ({
             name={`question-${question.id}`}
             aria-label={`Question ${currentQuestion} options`}
           >
-            {question.options.map((option: Option, index: number) => (
-              <QuestionOption
-                key={option.id}
-                questionId={question.id}
-                option={option}
-                label={String.fromCharCode(65 + index)}
-                isSelected={selectedOptionId === option.id}
-                register={register}
-              />
-            ))}
+           {question.options.map((option, index) => (
+  <QuestionOption
+    key={option.id}
+    questionId={question.id}
+    option={option}
+    label={String.fromCharCode(65 + index)}
+    isSelected={selectedOptionId === option.id}
+    register={register}
+  />
+))}
+
           </RadioGroup>
         </CardContent>
       </Card>
