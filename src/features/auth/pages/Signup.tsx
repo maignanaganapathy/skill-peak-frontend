@@ -3,7 +3,6 @@ import * as React from "react";
 import {
   Box,
   Typography,
-  InputAdornment,
   IconButton,
   Link as MuiLink,
   Paper,
@@ -38,13 +37,14 @@ const SignUp: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const response = await signup(formData.email, formData.mobile, formData.password);
+      await signup(formData.email, formData.mobile, formData.password);
       toast.success("Signup successful!");
       navigate("/login");
     } catch (error: any) {
       toast.error(error.message || "Signup failed");
     }
   };
+  
   
   return (
     <Box
