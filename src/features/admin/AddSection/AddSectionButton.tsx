@@ -1,3 +1,6 @@
+import { Permissions } from "../../../constants/Permissions";
+import { usePermissions } from "../../../context/PermissionsContext";
+
 import { Paper, Button, Typography } from "@mui/material";
 
 interface AddSectionButtonProps {
@@ -9,6 +12,11 @@ export const AddSectionButton = ({
   isExpanded,
   onToggle,
 }: AddSectionButtonProps) => {
+  const { checkHasPermission } = usePermissions();
+
+ /* if (!checkHasPermission(Permissions.CREATE_SECTION)) {
+    return null; // 🔒 Do not show button if no permission
+  }*/
   return (
     <Paper
       elevation={0}
@@ -17,6 +25,9 @@ export const AddSectionButton = ({
         borderColor: "rgba(0, 0, 0, 0.2)",
         borderRadius: "16px",
         p: 2.5,
+        maxWidth: "730px", // 👈 adjust this value as needed
+         width: "100%",      // 👈 ensures responsiveness
+    mx: "auto",         // 👈 centers the paper horizontally
       }}
     >
       <Button

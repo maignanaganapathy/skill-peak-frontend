@@ -17,6 +17,9 @@ export const FormSection = ({ isExpanded }: FormSectionProps) => {
           borderColor: "rgba(0, 0, 0, 0.2)",
           borderRadius: "16px",
           p: 2.5,
+          maxWidth: "730px", // 👈 adjust this value as needed
+    width: "100%",      // 👈 ensures responsiveness
+    mx: "auto",         // 👈 centers the paper horizontally
         }}
       >
         <Stack spacing={2.5}>

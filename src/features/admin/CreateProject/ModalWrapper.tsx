@@ -24,9 +24,21 @@ const ModalWrapper: React.FC = () => {
 
   return (
     <>
-      <Button variant="outlined" onClick={handleOpen}>
-        New +
-      </Button>
+      <Button
+  onClick={handleOpen}
+  sx={{
+    backgroundColor: "#A5C8E5",
+    color: "#000",
+    borderRadius: "15px",
+    textTransform: "none",
+    width: "100px",
+    fontWeight: "bold",
+    fontSize: "1rem",
+  }}
+>
+  New +
+</Button>
+
 
       <Modal open={open} onClose={handleClose}>
         <Box sx={{ ...style, position: "relative" }}>
