@@ -1,13 +1,37 @@
-import React, { useState } from "react";
-import { Modal, Box, IconButton, Button } from "@mui/material";
+import React, { useState, useEffect } from "react";
+import { Modal, Box, IconButton } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import InputDesign from "./InputDesign";
 
-const ModalWrapper: React.FC = () => {
-  const [open, setOpen] = useState(false);
+interface Project {
+  id: number;
+  name: string;
+  description: string;
+  date: string;
+}
 
-  const handleOpen = () => setOpen(true);
-  const handleClose = () => setOpen(false);
+interface ModalWrapperProps {
+  onProjectCreated: () => void;
+  open: boolean;
+  onClose: () => void;
+  project?: Project | null;
+}
+
+const ModalWrapper: React.FC<ModalWrapperProps> = ({ 
+  onProjectCreated, open, onClose, project
+}) => {
+  const [mode, setMode] = useState<"create" | "edit">("create");
+  const [projectData, setProjectData] = useState<Project | null>(null);
+
+  useEffect(() => {
+    if (project) {
+      setMode("edit");
+      setProjectData(project);
+    } else {
+      setMode("create");
+      setProjectData(null);
+    }
+  }, [project]);
 
   const style = {
     position: "absolute" as const,
@@ -23,42 +47,29 @@ const ModalWrapper: React.FC = () => {
   };
 
   return (
-    <>
-      <Button
-  onClick={handleOpen}
-  sx={{
-    backgroundColor: "#A5C8E5",
-    color: "#000",
-    borderRadius: "15px",
-    textTransform: "none",
-    width: "100px",
-    fontWeight: "bold",
-    fontSize: "1rem",
-  }}
->
-  New +
-</Button>
+    <Modal open={open} onClose={onClose}>
+      <Box sx={{ ...style, position: "relative" }}>
+        <IconButton
+          onClick={onClose}
+          sx={{
+            position: "absolute",
+            top: 8,
+            right: 8,
+            color: "#1E4D92",
+          }}
+          aria-label="close"
+        >
+          <CloseIcon />
+        </IconButton>
 
-
-      <Modal open={open} onClose={handleClose}>
-        <Box sx={{ ...style, position: "relative" }}>
-          <IconButton
-            onClick={handleClose}
-            sx={{
-              position: "absolute",
-              top: 8,
-              right: 8,
-              color: "#1E4D92",
-            }}
-            aria-label="close"
-          >
-            <CloseIcon />
-          </IconButton>
-
-          <InputDesign onClose={handleClose} />
-        </Box>
-      </Modal>
-    </>
+        {/* ✅ InputDesign now always gets the correct project data */}
+        <InputDesign
+          onProjectCreated={onProjectCreated}
+          onClose={onClose}
+          project={projectData}
+        />
+      </Box>
+    </Modal>
   );
 };
 

@@ -5,12 +5,16 @@ interface FormFieldProps {
   label: string;
   icon?: string;
   altText?: string;
+  value: string;
+  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
 }
 
 export const FormField: React.FC<FormFieldProps> = ({
   label,
   icon,
   altText,
+  value,
+  onChange,
 }) => {
   return (
     <TextField
@@ -19,6 +23,8 @@ export const FormField: React.FC<FormFieldProps> = ({
       fullWidth
       size="small"
       margin="normal"
+      value={value}
+      onChange={onChange}
       InputProps={{
         endAdornment: icon ? (
           <InputAdornment position="end">

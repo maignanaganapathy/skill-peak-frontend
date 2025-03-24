@@ -1,6 +1,9 @@
-"use client";
+
 
 import * as React from "react";
+import Cookies from "js-cookie";
+import { Button } from "@mui/material";
+
 import { useNavigate } from "react-router-dom";
 import {
   Box,
@@ -13,25 +16,72 @@ import {
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
-import InputDesign from "../AddSection/InputDesign";
-import ModalWrapper from "../CreateProject/ModalWrapper"; 
 import ManageAccountsIcon from "@mui/icons-material/ManageAccounts";
-
-
-
+import ModalWrapper from "../CreateProject/ModalWrapper";
+import axios from "../../../api/axiosInstance";
 
 export const Program: React.FC = () => {
   const [isExpanded, setIsExpanded] = React.useState(false);
-
+  const [projects, setProjects] = React.useState<any[]>([]);
+  const navigate = useNavigate();
+  const [selectedProject, setSelectedProject] = React.useState<any>(null);
+  const [isModalOpen, setIsModalOpen] = React.useState(false);
+  
   const handleToggle = () => {
     setIsExpanded((prev) => !prev);
   };
-  const navigate = useNavigate();
 
-const handleManagePermissions = () => {
-  navigate("/access");
-};
+  const handleManagePermissions = () => {
+    navigate("/access");
+  };
 
+  // ✅ Fetch Projects from Backend
+  const fetchProjects = async () => {
+    try {
+      const token = Cookies.get("token");
+  
+      if (!token) {
+        console.error("Token missing");
+        return;
+      }
+  
+      const response = await axios.get("http://localhost:5000/projects", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+  
+      setProjects(response.data);
+    } catch (error) {
+      console.error("Error fetching projects:", error);
+    }
+  };
+  //fetch all proj at tym load
+  React.useEffect(() => {
+    fetchProjects();
+  }, []);
+  const handleDeleteProject = async (projectId: string) => {
+    try {
+      const token = Cookies.get("token");
+  
+      if (!token) {
+        console.error("Token missing");
+        return;
+      }
+  
+      await axios.delete(`http://localhost:5000/projects/${projectId}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+  
+      // ✅ Refresh project list after deleting
+      fetchProjects();
+    } catch (error) {
+      console.error("Error deleting project:", error);
+    }
+  };
+  
   return (
     <Box
       component="main"
@@ -42,119 +92,149 @@ const handleManagePermissions = () => {
         p: 2.5,
       }}
     >
-       {/* Header with title and ModalWrapper */}
-  <Box
-    sx={{
-      display: "flex",
-      justifyContent: "space-between",
-      alignItems: "center",
-      mb: 2,
-    }}
-  >
-    <Typography
-      variant="h6"
-      sx={{
-        fontWeight: 600,
-        color: "#000",
-      }}
-    >
-      Program Creation
-    </Typography>
-
-    <ModalWrapper />
-  </Box>
-
-      <Card
+      {/* Header */}
+      <Box
         sx={{
-          border: "2px solid",
-          borderColor: "grey.300",
-          borderRadius: 4,
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          mb: 2,
         }}
       >
-        <CardContent
+        <Typography
+          variant="h6"
           sx={{
-            display: "flex",
-            gap: 3,
-            alignItems: "flex-start",
-            position: "relative",
+            fontWeight: 600,
+            color: "#000",
           }}
         >
-          <Box
-            sx={{
-              width: 82,
-              height: 80,
-              borderRadius: "50%",
-              border: "1px solid #1E4D92",
-              backgroundColor: "#f0f0f0",
-            }}
-          />
+          Program Creation
+        </Typography>
 
-          <Stack spacing={1} sx={{ flexGrow: 1, minHeight: 80 }}>
-            <Typography variant="subtitle1" fontWeight={600}>
-              SIEMENS SCHOLARSHIP PROGRAM
-            </Typography>
-            <Typography variant="body2" fontWeight="medium">
-              15 May, 2025
-            </Typography>
-            <Typography variant="body2" fontWeight="medium">
-              Chennai
-            </Typography>
-          </Stack>
+        {/* ✅ Pass refresh callback to ModalWrapper */}
+        <ModalWrapper
+  onProjectCreated={fetchProjects}  
+  open={isModalOpen}               
+  onClose={() => setIsModalOpen(false)}  
+  project={selectedProject} 
+/>
 
-          <Box
+<Button
+  onClick={() => {
+    setSelectedProject(null); // Reset to null for new project
+    setIsModalOpen(true); // Open modal
+  }}
+  sx={{
+    backgroundColor: "#A5C8E5",
+    color: "#000",
+    borderRadius: "15px",
+    textTransform: "none",
+    width: "100px",
+    fontWeight: "bold",
+    fontSize: "1rem",
+  }}
+>
+  New +
+</Button>
+
+
+
+      </Box>
+
+      {/* ✅ Render Projects */}
+      {projects.map((project) => (
+        <Card
+          key={project.id}
+          sx={{
+            border: "2px solid",
+            borderColor: "grey.300",
+            borderRadius: 4,
+            mb: 2,
+          }}
+        >
+          <CardContent
             sx={{
-              position: "absolute",
-              bottom: 16,
-              right: 16,
               display: "flex",
-              gap: 2.5,
-              alignItems: "center",
+              gap: 3,
+              alignItems: "flex-start",
+              position: "relative",
             }}
           >
-         <IconButton size="small">
-  <EditIcon sx={{ fontSize: 20, color: "#000" }} />
-</IconButton>
-<IconButton size="small">
-  <DeleteIcon sx={{ fontSize: 20, color: "#000" }} />
-</IconButton>
-<IconButton size="small" onClick={handleManagePermissions}>
-  <ManageAccountsIcon sx={{ fontSize: 20, color: "#000" }} />
-</IconButton>
-
-
-
-            <IconButton
-              size="small"
-              onClick={handleToggle}
+            <Box
               sx={{
-                width: 25,
-                height: 25,
-                bgcolor: "primary.main",
+                width: 82,
+                height: 80,
                 borderRadius: "50%",
+                border: "1px solid #1E4D92",
+                backgroundColor: "#f0f0f0",
+              }}
+            />
+
+            <Stack spacing={1} sx={{ flexGrow: 1, minHeight: 80 }}>
+              <Typography variant="subtitle1" fontWeight={600}>
+                {project.name}
+              </Typography>
+              <Typography variant="body2" fontWeight="medium">
+                {project.description}
+              </Typography>
+              <Typography variant="body2" fontWeight="medium">
+                {new Date(project.date).toLocaleDateString()}
+              </Typography>
+            </Stack>
+
+            <Box
+              sx={{
+                position: "absolute",
+                bottom: 16,
+                right: 16,
                 display: "flex",
+                gap: 2.5,
                 alignItems: "center",
-                justifyContent: "center",
-                "&:hover": { bgcolor: "primary.dark" },
               }}
             >
-              <KeyboardArrowDownIcon
-                sx={{
-                  fontSize: 27,
-                  color: "#fff",
-                  transform: isExpanded ? "rotate(180deg)" : "rotate(0deg)",
-                  transition: "transform 0.3s ease",
-                }}
-              />
-            </IconButton>
-          </Box>
-        </CardContent>
-      </Card>
+              <IconButton size="small" onClick={() => {
+  setSelectedProject(project);
+  setIsModalOpen(true);
+}}>
+  <EditIcon sx={{ fontSize: 20, color: "#000" }} />
+</IconButton>
 
-      {/* Accordion Section */}
+<IconButton size="small" onClick={() => handleDeleteProject(project.id)}>
+  <DeleteIcon sx={{ fontSize: 20, color: "#000" }} />
+</IconButton>
+
+              <IconButton size="small" onClick={handleManagePermissions}>
+                <ManageAccountsIcon sx={{ fontSize: 20, color: "#000" }} />
+              </IconButton>
+              <IconButton
+                size="small"
+                onClick={handleToggle}
+                sx={{
+                  width: 25,
+                  height: 25,
+                  bgcolor: "primary.main",
+                  borderRadius: "50%",
+                  "&:hover": { bgcolor: "primary.dark" },
+                }}
+              >
+                <KeyboardArrowDownIcon
+                  sx={{
+                    fontSize: 27,
+                    color: "#fff",
+                    transform: isExpanded ? "rotate(180deg)" : "rotate(0deg)",
+                    transition: "transform 0.3s ease",
+                  }}
+                />
+              </IconButton>
+            </Box>
+          </CardContent>
+        </Card>
+      ))}
+
+      {/* Optional Expanded Area */}
       {isExpanded && (
         <Box mt={2}>
-          <InputDesign/>
-
+          {/* You can place additional details here */}
         </Box>
       )}
     </Box>
