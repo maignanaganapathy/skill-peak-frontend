@@ -3,7 +3,8 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 
 // 🔹 Admin Features
 import ModalWrapper from "./features/admin/CreateProject/ModalWrapper";
-import InputDesign from "./features/admin/AddSection/InputDesign";
+import SectionList from "./features/admin/AddSection/SectionList";
+
 import { NotificationManager } from "./features/admin/Notification/NotificationManager";
 import Program from "./features/admin/Project/Program";
 import AccessControlPage from "./features/admin/ManagePermissions/AccessControlPage";
@@ -40,9 +41,10 @@ const App: React.FC = () => {
               <Route path="/notification" element={<NotificationManager />} />
               <Route path="/program" element={<Program />} />
               <Route path="/access" element={<AccessControlPage />} />
+             
 
+              
               {/* Optional Admin Components */}
-            
             </Routes>
 
             <ToastContainer

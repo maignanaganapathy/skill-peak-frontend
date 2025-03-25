@@ -40,7 +40,7 @@ const Login: React.FC = () => {
       const response = await login(formData.email, formData.password);
   
       // ✅ Set token and userId in cookies
-      Cookies.set("token", response.token, { expires: 1 }); 
+      Cookies.set("authToken", response.token, { expires: 1 }); 
       Cookies.set("userId", response.userId.toString(), { expires: 1 });
   
       toast.success("Login successful!");

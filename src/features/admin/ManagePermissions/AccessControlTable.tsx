@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import {
     Box,
     Typography,
@@ -9,8 +9,13 @@ import {
     Paper,
     Switch,
     TextField,
+    IconButton,
 } from "@mui/material";
+import DeleteIcon from "@mui/icons-material/Delete";
+import SaveIcon from "@mui/icons-material/Save";
 import axios from "axios";
+import Cookies from 'js-cookie';
+import { useNavigate } from 'react-router-dom';
 
 const permissions = [
     { id: 1, name: "Read" },
@@ -18,9 +23,6 @@ const permissions = [
     { id: 3, name: "Update" },
     { id: 4, name: "Delete" },
 ];
-
-const token =
-    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjIsInVzZXJFbWFpbCI6InRlc3R1c2VyQGV4YW1wbGUuY29tIiwiaWF0IjoxNzQyODA2NTIzLCJleHAiOjE3NDI4OTI5MjN9.2Ykw6owUT3l3t_vOgMqtmSFh2yjub6I1kAjF5KYB2MM";
 
 interface PermissionState {
     [permId: number]: { checked: boolean; rpId?: number };
@@ -31,6 +33,7 @@ interface Role {
     name: string;
     isNew?: boolean;
     permissions: PermissionState;
+    isNameChanged?: boolean;
 }
 
 interface PermissionResponse {
@@ -43,11 +46,21 @@ const AccessControlTable: React.FC = () => {
     const [roles, setRoles] = useState<Role[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
+    const navigate = useNavigate();
+    const [isSavingAll, setIsSavingAll] = useState(false);
 
     useEffect(() => {
         const fetchPermissions = async () => {
             setLoading(true);
             setError(null);
+            const token = Cookies.get('authToken');
+
+            if (!token) {
+                console.warn("Authentication token not found when fetching permissions.");
+                navigate('/login');
+                return;
+            }
+
             try {
                 const res = await axios.get("http://localhost:5000/auth/permissions", {
                     headers: { Authorization: `Bearer ${token}` },
@@ -80,6 +93,7 @@ const AccessControlTable: React.FC = () => {
                         projectRoleId: roleId,
                         name: roleName,
                         permissions: permissionsMap,
+                        isNameChanged: false,
                     });
                 }
 
@@ -87,13 +101,17 @@ const AccessControlTable: React.FC = () => {
             } catch (err: any) {
                 console.error("Error fetching permissions:", err);
                 setError("Failed to load initial permissions.");
+                if (err.response && err.response.status === 401) {
+                    console.error("Unauthorized access. Redirecting to login.");
+                    navigate('/login');
+                }
             } finally {
                 setLoading(false);
             }
         };
 
         fetchPermissions();
-    }, []);
+    }, [navigate]);
 
     const handleAddRole = () => {
         const initialPermissions: PermissionState = {};
@@ -108,6 +126,7 @@ const AccessControlTable: React.FC = () => {
                 name: "",
                 isNew: true,
                 permissions: initialPermissions,
+                isNameChanged: true,
             },
         ]);
     };
@@ -115,53 +134,152 @@ const AccessControlTable: React.FC = () => {
     const handleRoleNameChange = (index: number, value: string) => {
         const updatedRoles = [...roles];
         updatedRoles[index].name = value;
+        updatedRoles[index].isNameChanged = true;
         setRoles(updatedRoles);
     };
 
-    const handleRoleNameSubmit = async (index: number) => {
+    const saveRoleName = useCallback(async (index: number) => {
         const role = roles[index];
+        const token = Cookies.get('authToken');
+
+        if (!token) {
+            console.error("Authentication token not found in cookie. Cannot save role name.");
+            alert("Authentication error. Please log in again.");
+            return;
+        }
 
         if (!role.name.trim()) {
             alert("Please enter a role name.");
             return;
         }
 
+        setIsSavingAll(true);
         try {
-            const res = await axios.post(
-                "http://localhost:5000/projects/3/roles",
-                { roleName: role.name },
+            if (role.isNew) {
+                const res = await axios.post(
+                    "http://localhost:5000/projects/3/roles",
+                    { roleName: role.name },
+                    { headers: { Authorization: `Bearer ${token}` } }
+                );
+                const newRoleId = res.data?.data?.id;
+                const updatedRoles = [...roles];
+                updatedRoles[index].projectRoleId = newRoleId;
+                updatedRoles[index].isNew = false;
+                updatedRoles[index].isNameChanged = false;
+                setRoles(updatedRoles);
+            } else if (role.isNameChanged) {
+                await axios.put(
+                    `http://localhost:5000/projects/3/roles/${role.projectRoleId}`,
+                    { roleName: role.name },
+                    { headers: { Authorization: `Bearer ${token}` } }
+                );
+                const updatedRoles = [...roles];
+                updatedRoles[index].isNameChanged = false;
+                setRoles(updatedRoles);
+            }
+        } catch (error: any) {
+            console.error("Error saving role name:", error);
+            let errorMessage = "Failed to save role name.";
+            if (error.response) {
+                errorMessage = `Failed to save role name. Server responded with: ${error.response.data?.message || error.response.status}`;
+                if (error.response.status === 401) {
+                    console.error("Unauthorized access during role name save. Redirecting to login.");
+                    navigate('/login');
+                    return;
+                }
+            } else if (error.request) {
+                errorMessage = "Failed to save role name. No response from server.";
+            } else {
+                errorMessage = "Failed to save role name. Error setting up the request.";
+            }
+            alert(errorMessage);
+        } finally {
+            setIsSavingAll(false);
+        }
+    }, [roles, navigate]);
+
+    const handleRoleNameBlur = (index: number) => {
+        if (roles[index].isNameChanged) {
+            saveRoleName(index);
+        }
+    };
+
+    const handleDeleteRole = async (index: number) => {
+        const roleToDelete = roles[index];
+        const token = Cookies.get('authToken');
+
+        if (!token) {
+            console.error("Authentication token not found in cookie. Cannot delete role.");
+            alert("Authentication error. Please log in again.");
+            return;
+        }
+
+        if (roleToDelete.isNew || roleToDelete.projectRoleId === 0) {
+            const updatedRoles = roles.filter((_, i) => i !== index);
+            setRoles(updatedRoles);
+            return;
+        }
+
+        const confirmDelete = window.confirm(`Are you sure you want to delete the role "${roleToDelete.name}" and its associated permissions?`);
+        if (!confirmDelete) {
+            return;
+        }
+
+        try {
+            const deletePermissionsUrl = `http://localhost:5000/role-permissions/role/${roleToDelete.projectRoleId}`;
+            await axios.delete(
+                deletePermissionsUrl,
                 {
                     headers: { Authorization: `Bearer ${token}` },
                 }
             );
+            console.log(`Role permissions for role ID ${roleToDelete.projectRoleId} deleted successfully.`);
 
-            const newRoleId = res.data?.data?.id;
+            const deleteRoleUrl = `http://localhost:5000/projects/3/roles/${roleToDelete.projectRoleId}`;
+            await axios.delete(
+                deleteRoleUrl,
+                {
+                    headers: { Authorization: `Bearer ${token}` },
+                }
+            );
+            console.log(`Role "${roleToDelete.name}" deleted successfully.`);
 
-            const updatedRoles = [...roles];
-            updatedRoles[index].projectRoleId = newRoleId;
-            updatedRoles[index].isNew = false;
+            const updatedRoles = roles.filter((_, i) => i !== index);
             setRoles(updatedRoles);
+            alert(`Role "${roleToDelete.name}" and its associated permissions deleted successfully.`);
+
         } catch (error: any) {
-            console.error("Error creating role:", error);
-            let errorMessage = "Failed to create role.";
+            console.error("Error deleting role and/or permissions:", error);
+            let errorMessage = "Failed to delete role and/or permissions.";
             if (error.response) {
-                errorMessage = `Failed to create role. Server responded with: ${error.response.data?.message || error.response.status}`;
+                errorMessage = `Failed to delete role and/or permissions. Server responded with: ${error.response.data?.message || error.response.status}`;
+                if (error.response.status === 401) {
+                    console.error("Unauthorized access during deletion. Redirecting to login.");
+                    navigate('/login');
+                    return;
+                } else if (error.response.status === 404) {
+                    console.error("Error: Role permissions endpoint not found.", error.response);
+                    errorMessage = "Error: Could not delete role permissions. Please contact an administrator.";
+                }
             } else if (error.request) {
-                errorMessage = "Failed to create role. No response from server.";
+                errorMessage = "Failed to delete role and/or permissions. No response from server.";
             } else {
-                errorMessage = "Failed to create role. Error setting up the request.";
+                errorMessage = "Failed to delete role and/or permissions. Error setting up the request.";
             }
             alert(errorMessage);
         }
     };
 
-
-    const handlePermissionToggle = async (
-        roleIndex: number,
-        permissionId: number
-    ) => {
+    const handlePermissionToggle = async (roleIndex: number, permissionId: number) => {
         const updatedRoles = [...roles];
         const role = updatedRoles[roleIndex];
+        const token = Cookies.get('authToken');
+
+        if (!token) {
+            console.error("Authentication token not found in cookie. Cannot toggle permission.");
+            alert("Authentication error. Please log in again.");
+            return;
+        }
 
         if (role.isNew || role.projectRoleId === 0) {
             alert("Please save the role name first.");
@@ -177,7 +295,7 @@ const AccessControlTable: React.FC = () => {
                 response = await axios.post(
                     "http://localhost:5000/role-permissions",
                     {
-                        roleId: role.projectRoleId, // <-- Changed field name to roleId
+                        roleId: role.projectRoleId,
                         permissionId: permissionId,
                     },
                     {
@@ -193,7 +311,6 @@ const AccessControlTable: React.FC = () => {
                         `http://localhost:5000/role-permissions/${rpId}`,
                         {
                             headers: { Authorization: `Bearer ${token}` },
-                            // data: { roleId: role.projectRoleId },
                         }
                     );
                     role.permissions[permissionId] = { checked: false };
@@ -210,6 +327,11 @@ const AccessControlTable: React.FC = () => {
             let errorMessage = "Something went wrong while updating permissions.";
             if (error.response) {
                 errorMessage = `Failed to update permissions. Server responded with: ${error.response.data?.message || error.response.status}`;
+                if (error.response.status === 401) {
+                    console.error("Unauthorized access during permission toggle. Redirecting to login.");
+                    navigate('/login');
+                    return;
+                }
             } else if (error.request) {
                 errorMessage = "Failed to update permissions. No response from server.";
             } else {
@@ -217,6 +339,14 @@ const AccessControlTable: React.FC = () => {
             }
             alert(errorMessage);
         }
+    };
+
+    const handleSaveAllRoles = () => {
+        roles.forEach((_, index) => {
+            if (roles[index].isNameChanged) {
+                saveRoleName(index);
+            }
+        });
     };
 
     const cellStyle = (isHeader: boolean = false) => ({
@@ -234,28 +364,51 @@ const AccessControlTable: React.FC = () => {
         return <Typography color="error">{error}</Typography>;
     }
 
+    const hasUnsavedChanges = roles.some(role => role.isNameChanged);
+
     return (
         <Box mb={6}>
             <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
                 <Typography variant="h5" fontWeight={700}>
                     Access Control
                 </Typography>
-                <Button
-                    variant="contained"
-                    onClick={handleAddRole}
-                    sx={{
-                        px: 2,
-                        py: 1.2,
-                        fontSize: "0.9rem",
-                        fontWeight: "bold",
-                        backgroundColor: "#1E3A8A",
-                        borderRadius: 1,
-                        textTransform: "none",
-                        minWidth: "140px",
-                    }}
-                >
-                    + ADD ROLE
-                </Button>
+                <Box display="flex" gap={1}>
+                    {hasUnsavedChanges && (
+                        <Button
+                            variant="contained"
+                            onClick={handleSaveAllRoles}
+                            startIcon={<SaveIcon />}
+                            disabled={isSavingAll}
+                            sx={{
+                                px: 2,
+                                py: 1.2,
+                                fontSize: "0.9rem",
+                                fontWeight: "bold",
+                                backgroundColor: isSavingAll ? "#ccc" : "#4CAF50",
+                                borderRadius: 1,
+                                textTransform: "none",
+                            }}
+                        >
+                            {isSavingAll ? "Saving..." : "Save All"}
+                        </Button>
+                    )}
+                    <Button
+                        variant="contained"
+                        onClick={handleAddRole}
+                        sx={{
+                            px: 2,
+                            py: 1.2,
+                            fontSize: "0.9rem",
+                            fontWeight: "bold",
+                            backgroundColor: "#1E3A8A",
+                            borderRadius: 1,
+                            textTransform: "none",
+                            minWidth: "140px",
+                        }}
+                    >
+                        + ADD ROLE
+                    </Button>
+                </Box>
             </Box>
 
             <Paper elevation={2} sx={{ borderRadius: 2, overflow: "hidden" }}>
@@ -274,38 +427,28 @@ const AccessControlTable: React.FC = () => {
                     <Grid container key={index}>
                         <Grid item xs={2.4} sx={cellStyle()}>
                             <Box display="flex" alignItems="center" gap={1}>
-                                {role.isNew ? (
-                                    <>
-                                        <TextField
-                                            fullWidth
-                                            value={role.name}
-                                            onChange={(e) => handleRoleNameChange(index, e.target.value)}
-                                            size="small"
-                                            variant="standard"
-                                            InputProps={{
-                                                disableUnderline: true,
-                                                sx: { fontSize: "0.9rem" },
-                                            }}
-                                        />
-                                        <Button
-                                            variant="outlined"
-                                            onClick={() => handleRoleNameSubmit(index)}
-                                            sx={{
-                                                fontSize: "0.75rem",
-                                                textTransform: "none",
-                                                minWidth: 60,
-                                            }}
-                                        >
-                                            Save
-                                        </Button>
-                                    </>
-                                ) : (
-                                    <Typography sx={{ flexGrow: 1 }}>{role.name}</Typography>
-                                    // Removed Delete Icon and related logic
-                                )}
+                                <TextField
+                                    fullWidth
+                                    value={role.name}
+                                    onChange={(e) => handleRoleNameChange(index, e.target.value)}
+                                    onBlur={() => handleRoleNameBlur(index)}
+                                    size="small"
+                                    variant="standard"
+                                    InputProps={{
+                                        disableUnderline: true,
+                                        sx: { fontSize: "0.9rem" },
+                                    }}
+                                />
+                                <IconButton
+                                    onClick={() => handleDeleteRole(index)}
+                                    size="small"
+                                    color="error"
+                                    disabled={role.isNew}
+                                >
+                                    <DeleteIcon />
+                                </IconButton>
                             </Box>
                         </Grid>
-
                         {permissions.map((perm) => (
                             <Grid item xs={2.4} key={perm.id} sx={cellStyle()}>
                                 <Switch

@@ -7,33 +7,28 @@ import {
   SelectChangeEvent,
 } from "@mui/material";
 import { DropdownArrow } from "./DropdownArrow";
-import { useState } from "react";
 
 interface FloatingLabelSelectProps {
   label: string;
-  placeholder: string; // not used now
+  placeholder?: string; // Not used now
+  value: string; // Add this line
+  onChange: (event: SelectChangeEvent) => void; // Add this line
 }
 
 export const FloatingLabelSelect: React.FC<FloatingLabelSelectProps> = ({
   label,
+  value,
+  onChange, // Accept the onChange function as a prop
 }) => {
-  const [value, setValue] = useState("");
-
-  const handleChange = (event: SelectChangeEvent) => {
-    setValue(event.target.value);
-  };
-
   const getOptions = () => {
     if (label === "Section Type") {
       return [
-        "Introduction",
-        "Theory",
-        "Practice",
-        "Assessment",
-        "Summary",
-        "Case Study",
-        "Exercise",
-        "Review",
+        "Pre Assessment",
+        "Mid Assessment",
+        "Post Assessment",
+        "Quiz",
+        "Custom Quiz",
+        "Custom Link",
       ];
     }
     if (label === "Select a Quiz") {
@@ -55,8 +50,8 @@ export const FloatingLabelSelect: React.FC<FloatingLabelSelectProps> = ({
     <FormControl fullWidth variant="outlined" size="small">
       <InputLabel>{label}</InputLabel>
       <Select
-        value={value}
-        onChange={handleChange}
+        value={value} // Controlled input
+        onChange={onChange} // Controlled onChange
         label={label}
         input={<OutlinedInput label={label} />}
         IconComponent={DropdownArrow}
@@ -78,4 +73,3 @@ export const FloatingLabelSelect: React.FC<FloatingLabelSelectProps> = ({
   );
 };
 export default FloatingLabelSelect;
-

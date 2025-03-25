@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
 import axios from "axios";
+import Cookies from 'js-cookie'; // Import js-cookie
 import { Permissions } from "../constants/Permissions";
 import { BACKEND_URL } from "../config";
 
@@ -21,16 +22,24 @@ export const PermissionsProvider: React.FC<{ children: React.ReactNode }> = ({ c
 
   useEffect(() => {
     const fetchPermissions = async () => {
+      const token = Cookies.get('authToken'); // Get token from cookie
+      if (!token) {
+        console.warn("Authentication token not found when fetching permissions.");
+        return; // Don't proceed without a token
+      }
       try {
         const res = await axios.get(`${BACKEND_URL}/auth/permissions`, {
-          withCredentials: true,
+          headers: {
+            Authorization: `Bearer ${token}`, // Explicitly set the Authorization header
+          },
+          withCredentials: true, // Keep this if your backend also relies on cookies
         });
-        
 
         setModulePermissions(res.data.modulePermissions || []);
         setProjectPermissionsFormatted(res.data.projectPermissionsFormatted || {});
       } catch (err) {
         console.error("Failed to fetch permissions", err);
+        // Consider handling unauthorized errors (e.g., redirect to login) here as well
       }
     };
 
