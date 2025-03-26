@@ -55,7 +55,7 @@ const QuizForm: React.FC = () => {
 
   const handleQuizSubmit = handleSubmit(async (data) => {
     const token =
-      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjIsInVzZXJFbWFpbCI6InRlc3R1c2VyQGV4YW1wbGUuY29tIiwiaWF0IjoxNzQyNzE5OTUxLCJleHAiOjE3NDI4MDYzNTF9.NeM0aPbZQioHi3ENiQlBSQUY2iORy0JCeTzEFIJv6vk";
+      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjIsInVzZXJFbWFpbCI6InRlc3R1c2VyQGV4YW1wbGUuY29tIiwiaWF0IjoxNzQyOTYyNjk1LCJleHAiOjE3NDMwNDkwOTV9.3z5JKUulVpeNRnnzrfo48D7qqs0Wuf3Mtk9Qh9tEA6A";
 
     const payload = {
       title,

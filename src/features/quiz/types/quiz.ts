@@ -1,20 +1,29 @@
 export interface Quiz {
+  id: number;
   title: string;
   description: string;
-  projectsUsed?: string[];
+  createdAt: string;
   createdBy?: {
     email?: string;
   };
-  createdDate?: string | Date;
+  sections: SectionWithProject[];
 }
 
-
+export interface SectionWithProject {
+  id: number;
+  sectionName: string;
+  sectionType: string;
+  linkUrl: string;
+  expiresAt: string | null;
+  isEnabled: boolean;
+  project?: Project;
+}
 
 export interface User {
   id: number;
   email: string;
   mobile?: string;
-  password?: string; // Optional: avoid exposing this on frontend if not needed
+  password?: string;
 }
 
 export interface Question {

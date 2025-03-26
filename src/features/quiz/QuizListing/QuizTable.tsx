@@ -95,6 +95,19 @@ const QuizTable: React.FC<QuizTableProps> = ({
             ) : (
               filteredQuizzes.map((quiz, index) => {
                 const isEditing = editIndex === index;
+
+                // Extract unique project names from sections
+                const projectNames = [...new Set(quiz.sections.map(section => section.project?.name).filter(Boolean))].join(', ');
+
+                // Format the created date
+                const createdDate = quiz.createdAt
+                  ? new Date(quiz.createdAt).toLocaleDateString("en-GB", {
+                      year: "numeric",
+                      month: "short",
+                      day: "numeric",
+                    })
+                  : "N/A";
+
                 return (
                   <TableRow key={index}>
                     {/* Title */}
@@ -123,7 +136,7 @@ const QuizTable: React.FC<QuizTableProps> = ({
 
                     {/* Project Used */}
                     <TableCell>
-                      {quiz.projectsUsed?.join(", ") || "N/A"}
+                      {projectNames || "N/A"}
                     </TableCell>
 
                     {/* Created By */}
@@ -133,13 +146,7 @@ const QuizTable: React.FC<QuizTableProps> = ({
 
                     {/* Created Date */}
                     <TableCell>
-                      {quiz.createdDate
-                        ? new Date(quiz.createdDate).toLocaleDateString("en-GB", {
-                            year: "numeric",
-                            month: "short",
-                            day: "numeric",
-                          })
-                        : "N/A"}
+                      {createdDate}
                     </TableCell>
 
                     {/* Actions */}

@@ -1,18 +1,17 @@
 import React, { useState, useEffect } from "react";
-import { Box, Container } from "@mui/material";
+import { Box, Container, CircularProgress } from "@mui/material";
 import FilterComponent from "./FilterComponent";
 import SearchComponent from "./SearchComponent";
 import QuizTableComponent from "./QuizTable";
 import PaginationComponent from "./PaginationComponent";
 import { QuizHeader } from "./Header";
 import CreateQuizButton from "./CreateQuizButton";
-import { Quiz } from "../types/quiz"; 
-import { useLocation } from "react-router-dom"; 
-import { getQuizzes } from "../services/quiz.service"; // Adjust relative path as needed
-
+import { Quiz } from "../types/quiz";
+import { useLocation } from "react-router-dom";
+import { getQuizzes } from "../services/quiz.service";
 
 const QuizList: React.FC = () => {
-  const location = useLocation(); // 
+  const location = useLocation();
   const [quizzes, setQuizzes] = useState<Quiz[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedProject, setSelectedProject] = useState<string | null>(null);
@@ -21,34 +20,35 @@ const QuizList: React.FC = () => {
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(3);
   const [loading, setLoading] = useState(true);
+  const [totalQuizzes, setTotalQuizzes] = useState(0);
 
-  const allProjects = [
-    ...new Set(quizzes.flatMap((quiz) => quiz.projectsUsed || [])),
+  // Extract all unique project names from the sections of all quizzes
+  const allProjects: string[] = [
+    ...new Set(
+      quizzes.flatMap((quiz) =>
+        quiz.sections
+          .map((section) => section.project?.name)
+          .filter((name): name is string => typeof name === 'string')
+      )
+    ),
   ];
 
- 
   useEffect(() => {
     const fetchQuizzes = async () => {
       try {
         setLoading(true);
-        const token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjIsInVzZXJFbWFpbCI6InRlc3R1c2VyQGV4YW1wbGUuY29tIiwiaWF0IjoxNzQyNzE5OTUxLCJleHAiOjE3NDI4MDYzNTF9.NeM0aPbZQioHi3ENiQlBSQUY2iORy0JCeTzEFIJv6vk"; // ← You may still need this if your backend requires it
-        
-        const data = await getQuizzes(); // 
-        setQuizzes(data);
+        const data = await getQuizzes(page + 1, rowsPerPage, searchQuery, selectedProject);
+        setQuizzes(data.quizzes);
+        setTotalQuizzes(data.totalCount);
       } catch (error) {
         console.error("Failed to fetch quizzes:", error);
       } finally {
         setLoading(false);
       }
     };
-  
-    fetchQuizzes();
-  }, [location]);
-  
-    
-    
 
-    
+    fetchQuizzes();
+  }, [page, rowsPerPage, searchQuery, selectedProject, location]);
 
   const handleEdit = (index: number) => {
     setEditIndex(index);
@@ -69,7 +69,7 @@ const QuizList: React.FC = () => {
     setQuizzes(updated);
   };
 
-  const handleChangeEditField = (field: string, value: any) => {
+  const handleChangeEditField = (field: keyof Quiz, value: any) => {
     setEditData((prev) =>
       prev
         ? {
@@ -84,9 +84,14 @@ const QuizList: React.FC = () => {
     const matchesSearch =
       quiz.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
       quiz.description.toLowerCase().includes(searchQuery.toLowerCase());
+
+    // Check if the quiz has a section belonging to the selected project
     const matchesProject = selectedProject
-      ? quiz.projectsUsed?.includes(selectedProject)
+      ? quiz.sections.some(
+          (section) => section.project?.name === selectedProject
+        )
       : true;
+
     return matchesSearch && matchesProject;
   });
 
@@ -143,7 +148,9 @@ const QuizList: React.FC = () => {
           </Box>
 
           {loading ? (
-            <p>Loading quizzes...</p>
+            <Box display="flex" justifyContent="center" alignItems="center" height={200}>
+              <CircularProgress />
+            </Box>
           ) : (
             <QuizTableComponent
               quizzes={paginatedQuizzes}
@@ -157,7 +164,7 @@ const QuizList: React.FC = () => {
           )}
 
           <PaginationComponent
-            count={filteredQuizzes.length}
+            count={totalQuizzes} // Use totalQuizzes from the API response
             page={page}
             rowsPerPage={rowsPerPage}
             handleChangePage={handleChangePage}

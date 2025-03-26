@@ -1,4 +1,3 @@
-"use client";
 import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { Box, Container, CircularProgress, Typography } from "@mui/material";
@@ -34,7 +33,7 @@ function AppContainer() {
     useEffect(() => {
       const loadQuestions = async () => {
         try {
-          const token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjIsInVzZXJFbWFpbCI6InRlc3R1c2VyQGV4YW1wbGUuY29tIiwiaWF0IjoxNzQyNzE5OTUxLCJleHAiOjE3NDI4MDYzNTF9.NeM0aPbZQioHi3ENiQlBSQUY2iORy0JCeTzEFIJv6vk";
+          const token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjIsInVzZXJFbWFpbCI6InRlc3R1c2VyQGV4YW1wbGUuY29tIiwiaWF0IjoxNzQyOTYyNjk1LCJleHAiOjE3NDMwNDkwOTV9.3z5JKUulVpeNRnnzrfo48D7qqs0Wuf3Mtk9Qh9tEA6A";
           const response = await fetch(`${BACKEND_URL}/quiz/${id}`,{
             headers: {
               "Content-Type": "application/json",

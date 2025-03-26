@@ -15,7 +15,7 @@ function App() {
       <CssBaseline />
       <Router>
         <Routes>
-          <Route path="/" element={<QuizList />} />
+          <Route path="/list" element={<QuizList />} />
           <Route path="/create" element={<QuizCreation />} />
           <Route path="/quizattend/:id" element={<QuizPage />} />
 
