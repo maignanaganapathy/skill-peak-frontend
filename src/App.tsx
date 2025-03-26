@@ -12,7 +12,7 @@ import Program from "./features/admin/Project/Program";
 import AccessControlPage from "./features/admin/ManagePermissions/AccessControlPage";
 
 // 🔹 Auth & Dashboard Features
-import Landingpage from "./features/landing/Landingpage";
+import {LandingPage} from "./features/landing/Landingpage"; // Ensure the correct file casing
 import Login from "./features/auth/pages/Login";
 import SignUp from "./features/auth/pages/Signup";
 import Dashboard from "./features/dashboard/Dashboard";
@@ -35,21 +35,23 @@ const App: React.FC = () => {
         <PermissionsProvider>
           <div className="flex flex-col min-h-screen">
             <Routes>
-              {/* User Routes */}
-              <Route path="/" element={<Landingpage />} />
+              {/* 🔹 Public Routes */}
+              <Route path="/" element={<LandingPage />} />
               <Route path="/login" element={<Login />} />
               <Route path="/signup" element={<SignUp />} />
+
+              {/* 🔹 Protected Routes */}
               <Route path="/dashboard" element={<Dashboard />} />
 
-              {/* Admin Routes */}
+              {/* 🔹 Admin Routes */}
               <Route path="/notification" element={<NotificationManager />} />
               <Route path="/program" element={<Program />} />
               <Route path="/access" element={<AccessControlPage />} />
 
-              {/* Quiz Routes */}
-              <Route path="/list" element={<QuizList />} />
-              <Route path="/create" element={<QuizCreation />} />
-              <Route path="/quizattend/:id" element={<QuizPage />} />
+              {/* 🔹 Quiz Routes */}
+              <Route path="/quiz/list" element={<QuizList />} />
+              <Route path="/quiz/create" element={<QuizCreation />} />
+              <Route path="/quiz/attend/:id" element={<QuizPage />} />
             </Routes>
 
             {/* Toast Notifications */}
