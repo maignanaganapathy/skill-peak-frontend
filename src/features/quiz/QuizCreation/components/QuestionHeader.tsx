@@ -47,6 +47,7 @@ export const QuestionHeader: React.FC<QuestionHeaderProps> = ({
         <QuestionTypeDropdown
           currentType={questionType}
           onTypeChange={onTypeChange}
+          // Removed onOptionsChange here
         />
       </Box>
 

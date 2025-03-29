@@ -40,11 +40,11 @@ export interface AnswerOption {
 }
 
 export enum QuestionTypeEnum {
-  SINGLE_CHOICE = "single",
-  MULTIPLE_CHOICE = "multiple",
-  TEXT = "text",
-  YES_NO = "yes_no",
-  CHECKBOXES = "checkboxes",
+  
+  IMG = "Image",
+  TEXT = "Text",
+  YES_NO = "Yes/No",
+  
 }
 
 export interface Section {

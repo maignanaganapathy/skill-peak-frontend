@@ -1,9 +1,10 @@
-"use client";
-
 import { useState, useRef, useEffect } from "react";
 import { QuestionTypeEnum } from "../../types/quiz";
 
 import Chevron from "../assets/Chevron.png";
+import { TextField, IconButton, Box, Typography } from "@mui/material";
+import AddIcon from "@mui/icons-material/Add";
+import DeleteIcon from "@mui/icons-material/Delete";
 
 interface QuestionTypeDropdownProps {
   currentType: QuestionTypeEnum;
@@ -31,13 +32,16 @@ export const QuestionTypeDropdown: React.FC<QuestionTypeDropdownProps> = ({
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
+  const handleTypeSelect = (type: QuestionTypeEnum) => {
+    onTypeChange(type);
+    setIsOpen(false);
+  };
+
   const questionTypes = [
     QuestionTypeEnum.YES_NO,
-    QuestionTypeEnum.MULTIPLE_CHOICE,
+    QuestionTypeEnum.IMG,
     QuestionTypeEnum.TEXT,
-    QuestionTypeEnum.CHECKBOXES,
   ];
-  
 
   return (
     <div className="relative inline-block" ref={dropdownRef}>
@@ -61,10 +65,7 @@ export const QuestionTypeDropdown: React.FC<QuestionTypeDropdownProps> = ({
             {questionTypes.map((type) => (
               <li key={type}>
                 <button
-                  onClick={() => {
-                    onTypeChange(type);
-                    setIsOpen(false);
-                  }}
+                  onClick={() => handleTypeSelect(type)}
                   className={`w-full text-left px-4 py-2 text-sm hover:bg-gray-100 transition-colors ${
                     currentType === type
                       ? "bg-blue-50 text-blue-600"
