@@ -15,8 +15,10 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import ManageAccountsIcon from "@mui/icons-material/ManageAccounts";
 import ModalWrapper from "../CreateProject/ModalWrapper";
-import axios from "../../../api/axiosInstance";
+import axios from "../../../api/axiosInstance"; // Assuming you have axiosInstance set up
 import SectionList from "../AddSection/SectionList"; // Import SectionList
+
+import { BACKEND_URL } from "../../../config";
 
 export const Program: React.FC = () => {
     const [expandedProjectId, setExpandedProjectId] = useState<number | null>(null);
@@ -42,7 +44,7 @@ export const Program: React.FC = () => {
                 return;
             }
 
-            const response = await axios.get("http://localhost:5000/projects", {
+            const response = await axios.get(`${BACKEND_URL}/projects`, {
                 headers: {
                     Authorization: `Bearer ${token}`,
                 },
@@ -57,6 +59,7 @@ export const Program: React.FC = () => {
     useEffect(() => {
         fetchProjects();
     }, []);
+
     const handleDeleteProject = async (projectId: string) => {
         try {
             const token = Cookies.get('authToken'); // Retrieve token from cookie
@@ -66,7 +69,7 @@ export const Program: React.FC = () => {
                 return;
             }
 
-            await axios.delete(`http://localhost:5000/projects/${projectId}`, {
+            await axios.delete(`${BACKEND_URL}/projects/${projectId}`, { // Changed URL here
                 headers: {
                     Authorization: `Bearer ${token}`,
                 },

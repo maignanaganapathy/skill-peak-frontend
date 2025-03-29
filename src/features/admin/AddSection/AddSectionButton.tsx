@@ -1,4 +1,4 @@
-import { Permissions } from "../../../constants/Permissions";
+
 import { usePermissions } from "../../../context/PermissionsContext";
 
 import { Paper, Button, Typography } from "@mui/material";

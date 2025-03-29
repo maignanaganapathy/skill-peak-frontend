@@ -17,6 +17,8 @@ import axios from "axios";
 import Cookies from 'js-cookie';
 import { useNavigate } from 'react-router-dom';
 
+import { BACKEND_URL } from "../../../config";
+
 const permissions = [
     { id: 1, name: "Read" },
     { id: 2, name: "Create" },
@@ -62,7 +64,7 @@ const AccessControlTable: React.FC = () => {
             }
 
             try {
-                const res = await axios.get("http://localhost:5000/auth/permissions", {
+                const res = await axios.get(`${BACKEND_URL}/auth/permissions`, {
                     headers: { Authorization: `Bearer ${token}` },
                 });
 
@@ -157,7 +159,7 @@ const AccessControlTable: React.FC = () => {
         try {
             if (role.isNew) {
                 const res = await axios.post(
-                    "http://localhost:5000/projects/3/roles",
+                    `${BACKEND_URL}/projects/3/roles`,
                     { roleName: role.name },
                     { headers: { Authorization: `Bearer ${token}` } }
                 );
@@ -169,7 +171,7 @@ const AccessControlTable: React.FC = () => {
                 setRoles(updatedRoles);
             } else if (role.isNameChanged) {
                 await axios.put(
-                    `http://localhost:5000/projects/3/roles/${role.projectRoleId}`,
+                    `${BACKEND_URL}/projects/3/roles/${role.projectRoleId}`,
                     { roleName: role.name },
                     { headers: { Authorization: `Bearer ${token}` } }
                 );
@@ -226,7 +228,7 @@ const AccessControlTable: React.FC = () => {
         }
 
         try {
-            const deletePermissionsUrl = `http://localhost:5000/role-permissions/role/${roleToDelete.projectRoleId}`;
+            const deletePermissionsUrl = `${BACKEND_URL}/role-permissions/role/${roleToDelete.projectRoleId}`;
             await axios.delete(
                 deletePermissionsUrl,
                 {
@@ -235,7 +237,7 @@ const AccessControlTable: React.FC = () => {
             );
             console.log(`Role permissions for role ID ${roleToDelete.projectRoleId} deleted successfully.`);
 
-            const deleteRoleUrl = `http://localhost:5000/projects/3/roles/${roleToDelete.projectRoleId}`;
+            const deleteRoleUrl = `${BACKEND_URL}/projects/3/roles/${roleToDelete.projectRoleId}`;
             await axios.delete(
                 deleteRoleUrl,
                 {
@@ -293,7 +295,7 @@ const AccessControlTable: React.FC = () => {
             let response;
             if (!isChecked) {
                 response = await axios.post(
-                    "http://localhost:5000/role-permissions",
+                    `${BACKEND_URL}/role-permissions`,
                     {
                         roleId: role.projectRoleId,
                         permissionId: permissionId,
@@ -308,7 +310,7 @@ const AccessControlTable: React.FC = () => {
                 const rpId = currentPermission.rpId;
                 if (rpId) {
                     await axios.delete(
-                        `http://localhost:5000/role-permissions/${rpId}`,
+                        `${BACKEND_URL}/role-permissions/${rpId}`,
                         {
                             headers: { Authorization: `Bearer ${token}` },
                         }

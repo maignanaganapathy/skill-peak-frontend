@@ -8,6 +8,7 @@ import { Section } from "./section";
 import axios from "axios"; // Import axios for making API calls
 import { useNavigate } from 'react-router-dom'; // Import useNavigate
 import Cookies from 'js-cookie'; // Import cookie library
+import { BACKEND_URL } from "../../../config"; // Import BACKEND_URL
 
 interface SectionCardProps {
     section: Section;
@@ -33,7 +34,7 @@ const SectionCard: React.FC<SectionCardProps> = ({ section, onDelete, onEdit, on
 
             try {
                 const response = await axios.post(
-                    `http://localhost:5000/quiz/${section.quizId}/attend`,
+                    `${BACKEND_URL}/quiz/${section.quizId}/attend`,
                     { sectionId: section.id },
                     {
                         headers: {

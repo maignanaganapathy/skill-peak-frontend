@@ -6,6 +6,7 @@ import axios from "axios";
 import { Section } from "./section";
 import { AddSectionButton } from "./AddSectionButton"; // Import the AddSectionButton component
 import Cookies from "js-cookie"; // Import js-cookie
+import { BACKEND_URL } from "../../../config"; // Import BACKEND_URL
 
 interface Project {
     id: number;
@@ -40,7 +41,7 @@ const SectionList: React.FC<SectionListProps> = ({ projectId }) => {
                 console.error("No authentication token found.");
                 return;
             }
-            const response = await axios.get(`http://localhost:5000/projects`, {
+            const response = await axios.get(`${BACKEND_URL}/projects`, {
                 headers: {
                     Authorization: `Bearer ${token}`,
                 },
@@ -60,7 +61,7 @@ const SectionList: React.FC<SectionListProps> = ({ projectId }) => {
                 return;
             }
             const response = await axios.post(
-                `http://localhost:5000/quiz/list`,
+                `${BACKEND_URL}/quiz/list`,
                 {}, // Assuming this is the correct endpoint and payload for fetching all quizzes
                 {
                     headers: {
@@ -104,14 +105,14 @@ const SectionList: React.FC<SectionListProps> = ({ projectId }) => {
                 console.error("No authentication token found.");
                 return;
             }
-    
+
             const payload = {
                 ...newSectionData,
                 quizId: newSectionData.quizId ? Number(newSectionData.quizId) : null, // Ensure quizId is correctly formatted
             };
-    
+
             const response = await axios.post(
-                `http://localhost:5000/sections`, // Use the correct endpoint
+                `${BACKEND_URL}/sections`, // Use the correct endpoint
                 payload,
                 {
                     headers: {
@@ -120,9 +121,9 @@ const SectionList: React.FC<SectionListProps> = ({ projectId }) => {
                     },
                 }
             );
-    
+
             console.log("API Response:", response.data);
-    
+
             setProjects((prevProjects) => {
                 return prevProjects.map((project) => {
                     if (project.id === projectId) {
@@ -134,9 +135,9 @@ const SectionList: React.FC<SectionListProps> = ({ projectId }) => {
                     return project;
                 });
             });
-    
+
             fetchProjects(); // Re-fetch projects to update the section list
-    
+
             setOpenProgramFormSectionId(null);
             setIsEditing(false);
             setSectionBeingEdited(undefined);
@@ -161,7 +162,7 @@ const SectionList: React.FC<SectionListProps> = ({ projectId }) => {
                 console.error("No authentication token found.");
                 return;
             }
-            await axios.put(`http://localhost:5000/sections/${updatedSection.id}`, updatedSection, {
+            await axios.put(`${BACKEND_URL}/sections/${updatedSection.id}`, updatedSection, {
                 headers: {
                     Authorization: `Bearer ${token}`,
                     "Content-Type": "application/json",
@@ -197,7 +198,7 @@ const SectionList: React.FC<SectionListProps> = ({ projectId }) => {
                 console.error("No authentication token found.");
                 return;
             }
-            await axios.delete(`http://localhost:5000/sections/${sectionId}`, {
+            await axios.delete(`${BACKEND_URL}/sections/${sectionId}`, {
                 headers: {
                     Authorization: `Bearer ${token}`,
                 },

@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { Box, Container, CircularProgress, Typography } from "@mui/material";
 import { Header } from "./Header";
@@ -9,6 +9,7 @@ import { FormValues, Question, QuizResult } from "./types";
 import { useParams, useNavigate } from "react-router-dom"; // Import useNavigate
 import { BACKEND_URL } from "../../../config";
 import Cookies from 'js-cookie'; // Import js-cookie
+import axios from 'axios'; // Import axios
 
 function AppContainer() {
     console.log("AppContainer rendered");
@@ -42,13 +43,14 @@ function AppContainer() {
                     navigate('/login'); // Redirect to login page
                     return;
                 }
-                const response = await fetch(`${BACKEND_URL}/quiz/${id}`,{
+                const response = await axios.get(`${BACKEND_URL}/quiz/${id}`, {
                     headers: {
                         "Content-Type": "application/json",
                         Authorization: `Bearer ${token}`,
                     },
                 });
-                const data = await response.json();
+
+                const data = response.data;
 
                 console.log("Fetched quiz data:", data);
 

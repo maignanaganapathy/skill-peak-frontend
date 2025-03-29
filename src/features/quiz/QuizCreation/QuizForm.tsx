@@ -15,6 +15,8 @@ import { UpdateQuizInput } from "../types/quiz";
 import { QuizHeader } from "./components/QuizHeader";
 import { useNavigate } from "react-router-dom";
 import Cookies from 'js-cookie'; // Import js-cookie
+import axios from 'axios'; // Import axios
+import { BACKEND_URL } from "../../../config"; // Import BACKEND_URL
 
 const QuizForm: React.FC = () => {
     const navigate = useNavigate();
@@ -78,27 +80,18 @@ const QuizForm: React.FC = () => {
         };
 
         try {
-            const response = await fetch("http://localhost:5000/quiz", {
-                method: "POST",
+            const response = await axios.post(`${BACKEND_URL}/quiz`, payload, {
                 headers: {
                     "Content-Type": "application/json",
                     Authorization: `Bearer ${token}`,
                 },
-                body: JSON.stringify(payload),
             });
 
-            if (!response.ok) {
-                const errorText = await response.text();
-                throw new Error(`Failed to submit quiz: ${errorText}`);
-            }
-
-            const result = await response.json();
-            console.log("✅ Quiz submitted successfully:", result);
-
+            console.log("✅ Quiz submitted successfully:", response.data);
             navigate("/");
-        } catch (error) {
-            console.error("⚠️ Submission error:", error);
-
+        } catch (error: any) {
+            console.error("⚠️ Submission error:", error.response ? error.response.data : error.message);
+            // Optionally display an error message to the user
         }
     });
 

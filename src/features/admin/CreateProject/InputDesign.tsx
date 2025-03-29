@@ -7,6 +7,7 @@ import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 import axios from "../../../api/axiosInstance"; // your axios instance
+import { BACKEND_URL } from "../../../config"; // Corrected import path
 
 interface InputDesignProps {
   onProjectCreated: () => void;
@@ -35,14 +36,14 @@ const InputDesign: React.FC<InputDesignProps> = ({
 
       if (project?.id) {
         // Edit Mode – PUT request
-        await axios.put(`http://localhost:5000/projects/${project.id}`, payload, {
+        await axios.put(`${BACKEND_URL}/projects/${project.id}`, payload, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
         });
       } else {
         // Create Mode – POST request
-        await axios.post("http://localhost:5000/projects", payload, {
+        await axios.post(`${BACKEND_URL}/projects`, payload, {
           headers: {
             Authorization: `Bearer ${token}`,
           },

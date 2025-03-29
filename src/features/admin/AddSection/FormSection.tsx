@@ -11,6 +11,7 @@ import FloatingLabelSelect from "./FloatingLabelSelect"; // Keep this import
 import { Section } from "./section";
 import Cookies from 'js-cookie'; // Import js-cookie
 import axios from 'axios'; // Import axios
+import { BACKEND_URL } from "../../../config"; // Import BACKEND_URL
 
 interface FormSectionProps {
     isExpanded: boolean;
@@ -27,10 +28,10 @@ export const FormSection: React.FC<FormSectionProps> = ({
     sectionToEdit,
     quizzes, // Received quizzes prop
 }) => {
-    const [sectionName, setSectionName] = useState("");
-    const [sectionType, setSectionType] = useState("");
-    const [quizId, setQuizId] = useState("");
-    const [description, setDescription] = useState("");
+    const [sectionName, setSectionName] = useState(sectionToEdit?.sectionName || "");
+    const [sectionType, setSectionType] = useState(sectionToEdit?.sectionType || "");
+    const [quizId, setQuizId] = useState(sectionToEdit?.quizId ? String(sectionToEdit.quizId) : "");
+    const [description, setDescription] = useState(sectionToEdit?.description || "");
     const [quizOptions, setQuizOptions] = useState<
         { id: string; title: string }[]
     >([]);
@@ -66,7 +67,7 @@ export const FormSection: React.FC<FormSectionProps> = ({
                 description: description.trim() || undefined,
                 projectId: projectId,
                 sectionType: sectionType.trim(),
-                linkUrl: "https://example.com",
+                linkUrl: "https://example.com", // Assuming a default link URL if not provided
                 quizId: quizId ? Number(quizId) : null, // Send null if no quiz is selected
             };
 
@@ -76,7 +77,7 @@ export const FormSection: React.FC<FormSectionProps> = ({
             if (sectionToEdit) {
                 // Editing existing section - use PUT request
                 response = await axios.put(
-                    `http://localhost:5000/sections/${sectionToEdit.id}`,
+                    `${BACKEND_URL}/sections/${sectionToEdit.id}`,
                     payload,
                     {
                         headers: {
@@ -88,7 +89,7 @@ export const FormSection: React.FC<FormSectionProps> = ({
                 );
             } else {
                 // Creating new section - use POST request
-                response = await axios.post("http://localhost:5000/sections", payload, {
+                response = await axios.post(`${BACKEND_URL}/sections`, payload, {
                     headers: {
                         Authorization: `Bearer ${token}`,
                         "Content-Type": "application/json",

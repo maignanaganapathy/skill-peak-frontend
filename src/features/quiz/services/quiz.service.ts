@@ -1,11 +1,16 @@
 // In quiz.service.ts (or .js)
 import axios from 'axios';
+import { BACKEND_URL } from '../../../config'; // Adjust the path as needed
 
-const token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjMsInVzZXJFbWFpbCI6Im1uYnZAZ21haWwuY29tIiwiaWF0IjoxNzQzMTUxMzE3LCJleHAiOjE3NDMyMzc3MTd9.5LzGHU1crAbCCvrHFwY8bpRjxb_-KQNw_dOXzuh5hUc"; // Replace with your actual token
+
+const getToken = () => {
+  return localStorage.getItem('authToken'); // Example using localStorage
+};
 
 export const getQuizzes = async (page: number, rowsPerPage: number, search: string, selectedProject: string | null) => {
+  const token = getToken();
   try {
-    const response = await axios.post("http://localhost:5000/quiz/list", {
+    const response = await axios.post(`${BACKEND_URL}/quiz/list`, {
       page: page,
       rowsPerPage: rowsPerPage,
       search: search,
@@ -24,8 +29,9 @@ export const getQuizzes = async (page: number, rowsPerPage: number, search: stri
 };
 
 export const updateQuiz = async (quizId: number, quizData: any) => {
+  const token = getToken();
   try {
-    const response = await axios.put(`http://localhost:5000/quiz/${quizId}`, quizData, {
+    const response = await axios.put(`${BACKEND_URL}/quiz/${quizId}`, quizData, {
       headers: {
         Authorization: `Bearer ${token}`,
         'Content-Type': 'application/json',
@@ -39,8 +45,9 @@ export const updateQuiz = async (quizId: number, quizData: any) => {
 };
 
 export const deleteQuiz = async (quizId: number) => {
+  const token = getToken();
   try {
-    const response = await axios.delete(`http://localhost:5000/quiz/${quizId}`, {
+    const response = await axios.delete(`${BACKEND_URL}/quiz/${quizId}`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
