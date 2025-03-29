@@ -51,7 +51,7 @@ const App: React.FC = () => {
               {/* 🔹 Quiz Routes */}
               <Route path="/quiz/list" element={<QuizList />} />
               <Route path="/quiz/create" element={<QuizCreation />} />
-              <Route path="/quiz/attend/:id" element={<QuizPage />} />
+              <Route path="/quiz/:id/attend" element={<QuizPage />} />
             </Routes>
 
             {/* Toast Notifications */}

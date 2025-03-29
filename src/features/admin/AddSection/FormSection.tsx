@@ -1,41 +1,51 @@
-import { Paper, Stack, Button, Box, Collapse } from "@mui/material";
+import {
+    Paper,
+    Stack,
+    Button,
+    Box,
+    Collapse,
+} from "@mui/material";
 import { useState, useEffect } from "react";
 import { FloatingLabelInput } from "./FloatingLabelInput";
-import FloatingLabelSelect from "./FloatingLabelSelect";
-import axios from "axios";
-import Cookies from "js-cookie";
+import FloatingLabelSelect from "./FloatingLabelSelect"; // Keep this import
 import { Section } from "./section";
+import Cookies from 'js-cookie'; // Import js-cookie
+import axios from 'axios'; // Import axios
+
 interface FormSectionProps {
-  isExpanded: boolean;
-  onSectionCreated: (section: Section) => void;
-  projectId: number;
-  sectionToEdit?: Section; // Optional prop for the section being edited
-  quizzes: any[]; // ADD THIS LINE - This is the crucial step!
+    isExpanded: boolean;
+    onSectionCreated: (section: Section) => void;
+    projectId: number;
+    sectionToEdit?: Section;
+    quizzes: any[]; // Receive quizzes as a prop
 }
 
-export const FormSection = ({ isExpanded, onSectionCreated, projectId, sectionToEdit }: FormSectionProps) => {
+export const FormSection: React.FC<FormSectionProps> = ({
+    isExpanded,
+    onSectionCreated,
+    projectId,
+    sectionToEdit,
+    quizzes, // Received quizzes prop
+}) => {
     const [sectionName, setSectionName] = useState("");
     const [sectionType, setSectionType] = useState("");
     const [quizId, setQuizId] = useState("");
     const [description, setDescription] = useState("");
+    const [quizOptions, setQuizOptions] = useState<
+        { id: string; title: string }[]
+    >([]);
 
     useEffect(() => {
-        if (sectionToEdit) {
-            setSectionName(sectionToEdit.sectionName);
-            setSectionType(sectionToEdit.sectionType);
-            setQuizId(sectionToEdit.quizId ? String(sectionToEdit.quizId) : "");
-            setDescription(sectionToEdit.description || "");
-        } else {
-            setSectionName("");
-            setSectionType("");
-            setQuizId("");
-            setDescription("");
-        }
-    }, [sectionToEdit]);
+        // Use the quizzes prop directly
+        setQuizOptions(quizzes.map((quiz: any) => ({
+            id: String(quiz.id),
+            title: quiz.title,
+        })));
+    }, [quizzes]); // Re-run effect when quizzes prop changes
 
     const handleSubmit = async () => {
         try {
-            const token = Cookies.get("token");
+            const token = Cookies.get("authToken");
 
             if (!token) {
                 console.error("No authentication token found.");
@@ -44,7 +54,9 @@ export const FormSection = ({ isExpanded, onSectionCreated, projectId, sectionTo
             }
 
             if (!sectionName.trim() || !sectionType.trim()) {
-                console.error("Validation failed: Section Name and Section Type are required.");
+                console.error(
+                    "Validation failed: Section Name and Section Type are required."
+                );
                 alert("Section Name and Section Type are required.");
                 return;
             }
@@ -55,23 +67,25 @@ export const FormSection = ({ isExpanded, onSectionCreated, projectId, sectionTo
                 projectId: projectId,
                 sectionType: sectionType.trim(),
                 linkUrl: "https://example.com",
-                quizId:1 // You might want to allow editing this
+                quizId: quizId ? Number(quizId) : null, // Send null if no quiz is selected
             };
-
-            
 
             console.log("Payload being sent:", payload);
 
             let response;
             if (sectionToEdit) {
                 // Editing existing section - use PUT request
-                response = await axios.put(`http://localhost:5000/sections/${sectionToEdit.id}`, payload, {
-                    headers: {
-                        Authorization: `Bearer ${token}`,
-                        "Content-Type": "application/json",
-                    },
-                    withCredentials: true,
-                });
+                response = await axios.put(
+                    `http://localhost:5000/sections/${sectionToEdit.id}`,
+                    payload,
+                    {
+                        headers: {
+                            Authorization: `Bearer ${token}`,
+                            "Content-Type": "application/json",
+                        },
+                        withCredentials: true,
+                    }
+                );
             } else {
                 // Creating new section - use POST request
                 response = await axios.post("http://localhost:5000/sections", payload, {
@@ -84,7 +98,7 @@ export const FormSection = ({ isExpanded, onSectionCreated, projectId, sectionTo
             }
 
             console.log("API Response:", response.data);
-            alert(`Section ${sectionToEdit ? 'updated' : 'created'} successfully!`);
+            alert(`Section ${sectionToEdit ? "updated" : "created"} successfully!`);
 
             onSectionCreated(response.data); // Notify parent component
 
@@ -92,10 +106,13 @@ export const FormSection = ({ isExpanded, onSectionCreated, projectId, sectionTo
             setSectionType("");
             setQuizId("");
             setDescription("");
-
         } catch (error: any) {
             if (error.response) {
-                console.error("Server responded with:", error.response.status, error.response.data);
+                console.error(
+                    "Server responded with:",
+                    error.response.status,
+                    error.response.data
+                );
                 alert(`Error: ${JSON.stringify(error.response.data)}`);
             } else {
                 console.error("Error creating/updating section:", error.message);
@@ -140,6 +157,7 @@ export const FormSection = ({ isExpanded, onSectionCreated, projectId, sectionTo
                                 placeholder="Select a Quiz"
                                 value={quizId}
                                 onChange={(e) => setQuizId(e.target.value)}
+                                options={quizOptions} // Use the quizOptions derived from the prop
                             />
                         </Box>
                     </Stack>
@@ -164,7 +182,7 @@ export const FormSection = ({ isExpanded, onSectionCreated, projectId, sectionTo
                             }}
                             onClick={handleSubmit}
                         >
-                            {sectionToEdit ? 'Update' : 'Save'} {/* Change button text */}
+                            {sectionToEdit ? "Update" : "Save"}
                         </Button>
                     </Stack>
                 </Stack>
@@ -172,3 +190,5 @@ export const FormSection = ({ isExpanded, onSectionCreated, projectId, sectionTo
         </Collapse>
     );
 };
+
+export default FormSection;

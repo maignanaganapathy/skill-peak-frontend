@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Cookies from "js-cookie";
 import { Button } from "@mui/material";
 import { useNavigate } from "react-router-dom";
@@ -19,7 +19,7 @@ import axios from "../../../api/axiosInstance";
 import SectionList from "../AddSection/SectionList"; // Import SectionList
 
 export const Program: React.FC = () => {
-    const [expandedProjectId, setExpandedProjectId] = useState<number | null>(null); // Track which project is expanded
+    const [expandedProjectId, setExpandedProjectId] = useState<number | null>(null);
     const [projects, setProjects] = useState<any[]>([]);
     const navigate = useNavigate();
     const [selectedProject, setSelectedProject] = useState<any>(null);
@@ -35,10 +35,10 @@ export const Program: React.FC = () => {
 
     const fetchProjects = async () => {
         try {
-            const token = Cookies.get("token");
-
+            const token = Cookies.get('authToken'); // Retrieve token from cookie
             if (!token) {
-                console.error("Token missing");
+                console.error("Authentication token not found.");
+                // Handle unauthenticated access, maybe redirect to login
                 return;
             }
 
@@ -54,16 +54,15 @@ export const Program: React.FC = () => {
         }
     };
 
-    React.useEffect(() => {
+    useEffect(() => {
         fetchProjects();
     }, []);
-
     const handleDeleteProject = async (projectId: string) => {
         try {
-            const token = Cookies.get("token");
-
+            const token = Cookies.get('authToken'); // Retrieve token from cookie
             if (!token) {
-                console.error("Token missing");
+                console.error("Authentication token not found.");
+                // Handle unauthenticated access, maybe redirect to login
                 return;
             }
 
@@ -135,103 +134,100 @@ export const Program: React.FC = () => {
                 </Button>
             </Box>
 
-            {/* ✅ Render Projects */}
+            {/* Render Projects and their SectionLists */}
             {projects.map((project) => (
-                <Card
-                    key={project.id}
-                    sx={{
-                        border: "2px solid",
-                        borderColor: "grey.300",
-                        borderRadius: 4,
-                        mb: 2,
-                    }}
-                >
-                    <CardContent
+                <React.Fragment key={project.id}>
+                    <Card
                         sx={{
-                            display: "flex",
-                            gap: 3,
-                            alignItems: "flex-start",
-                            position: "relative",
+                            border: "2px solid",
+                            borderColor: "grey.300",
+                            borderRadius: 4,
+                            mb: 2,
                         }}
                     >
-                        <Box
+                        <CardContent
                             sx={{
-                                width: 82,
-                                height: 80,
-                                borderRadius: "50%",
-                                border: "1px solid #1E4D92",
-                                backgroundColor: "#f0f0f0",
-                            }}
-                        />
-
-                        <Stack spacing={1} sx={{ flexGrow: 1, minHeight: 80 }}>
-                            <Typography variant="subtitle1" fontWeight={600}>
-                                {project.name}
-                            </Typography>
-                            <Typography variant="body2" fontWeight="medium">
-                                {project.description}
-                            </Typography>
-                            <Typography variant="body2" fontWeight="medium">
-                                {new Date(project.date).toLocaleDateString()}
-                            </Typography>
-                        </Stack>
-
-                        <Box
-                            sx={{
-                                position: "absolute",
-                                bottom: 16,
-                                right: 16,
                                 display: "flex",
-                                gap: 2.5,
-                                alignItems: "center",
+                                gap: 3,
+                                alignItems: "flex-start",
+                                position: "relative",
                             }}
                         >
-                            <IconButton size="small" onClick={() => {
-                                setSelectedProject(project);
-                                setIsModalOpen(true);
-                            }}>
-                                <EditIcon sx={{ fontSize: 20, color: "#000" }} />
-                            </IconButton>
-
-                            <IconButton size="small" onClick={() => handleDeleteProject(project.id)}>
-                                <DeleteIcon sx={{ fontSize: 20, color: "#000" }} />
-                            </IconButton>
-
-                            <IconButton size="small" onClick={handleManagePermissions}>
-                                <ManageAccountsIcon sx={{ fontSize: 20, color: "#000" }} />
-                            </IconButton>
-                            <IconButton
-                                size="small"
-                                onClick={() => handleToggle(project.id)} // Pass project ID to handleToggle
+                            <Box
                                 sx={{
-                                    width: 25,
-                                    height: 25,
-                                    bgcolor: "primary.main",
+                                    width: 82,
+                                    height: 80,
                                     borderRadius: "50%",
-                                    "&:hover": { bgcolor: "primary.dark" },
+                                    border: "1px solid #1E4D92",
+                                    backgroundColor: "#f0f0f0",
+                                }}
+                            />
+
+                            <Stack spacing={1} sx={{ flexGrow: 1, minHeight: 80 }}>
+                                <Typography variant="subtitle1" fontWeight={600}>
+                                    {project.name}
+                                </Typography>
+                                <Typography variant="body2" fontWeight="medium">
+                                    {project.description}
+                                </Typography>
+                                <Typography variant="body2" fontWeight="medium">
+                                    {new Date(project.date).toLocaleDateString()}
+                                </Typography>
+                            </Stack>
+
+                            <Box
+                                sx={{
+                                    position: "absolute",
+                                    bottom: 16,
+                                    right: 16,
+                                    display: "flex",
+                                    gap: 2.5,
+                                    alignItems: "center",
                                 }}
                             >
-                                <KeyboardArrowDownIcon
-                                    sx={{
-                                        fontSize: 27,
-                                        color: "#fff",
-                                        transform: expandedProjectId === project.id ? "rotate(180deg)" : "rotate(0deg)",
-                                        transition: "transform 0.3s ease",
-                                    }}
-                                />
-                            </IconButton>
-                        </Box>
-                    </CardContent>
-                </Card>
-            ))}
+                                <IconButton size="small" onClick={() => {
+                                    setSelectedProject(project);
+                                    setIsModalOpen(true);
+                                }}>
+                                    <EditIcon sx={{ fontSize: 20, color: "#000" }} />
+                                </IconButton>
 
-            {/* ✅ Render SectionList when the project is expanded */}
-            {projects.map(project => (
-                expandedProjectId === project.id && (
-                    <Box mt={2} key={`section-list-${project.id}`}>
-                        <SectionList projectId={project.id} />
-                    </Box>
-                )
+                                <IconButton size="small" onClick={() => handleDeleteProject(project.id)}>
+                                    <DeleteIcon sx={{ fontSize: 20, color: "#000" }} />
+                                </IconButton>
+
+                                <IconButton size="small" onClick={handleManagePermissions}>
+                                    <ManageAccountsIcon sx={{ fontSize: 20, color: "#000" }} />
+                                </IconButton>
+                                <IconButton
+                                    size="small"
+                                    onClick={() => handleToggle(project.id)} // Pass project ID to handleToggle
+                                    sx={{
+                                        width: 25,
+                                        height: 25,
+                                        bgcolor: "primary.main",
+                                        borderRadius: "50%",
+                                        "&:hover": { bgcolor: "primary.dark" },
+                                    }}
+                                >
+                                    <KeyboardArrowDownIcon
+                                        sx={{
+                                            fontSize: 27,
+                                            color: "#fff",
+                                            transform: expandedProjectId === project.id ? "rotate(180deg)" : "rotate(0deg)",
+                                            transition: "transform 0.3s ease",
+                                        }}
+                                    />
+                                </IconButton>
+                            </Box>
+                        </CardContent>
+                    </Card>
+                    {expandedProjectId === project.id && (
+                        <Box mt={2}>
+                            <SectionList projectId={project.id} />
+                        </Box>
+                    )}
+                </React.Fragment>
             ))}
         </Box>
     );

@@ -25,7 +25,7 @@ const InputDesign: React.FC<InputDesignProps> = ({
 
   const handleSubmit = async () => {
     try {
-      const token = Cookies.get("token");
+      const token = Cookies.get("authToken");
 
       const payload = {
         name,

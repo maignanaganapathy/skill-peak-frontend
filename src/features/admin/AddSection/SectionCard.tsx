@@ -1,12 +1,13 @@
-// SectionCard.tsx
 import React from "react";
 import { Box, Paper, Typography, Button, IconButton } from "@mui/material";
 import DescriptionIcon from "@mui/icons-material/Description";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import OpenInNewIcon from "@mui/icons-material/OpenInNew";
-import AddIcon from "@mui/icons-material/Add";
 import { Section } from "./section";
+import axios from "axios"; // Import axios for making API calls
+import { useNavigate } from 'react-router-dom'; // Import useNavigate
+import Cookies from 'js-cookie'; // Import cookie library
 
 interface SectionCardProps {
     section: Section;
@@ -16,6 +17,50 @@ interface SectionCardProps {
 }
 
 const SectionCard: React.FC<SectionCardProps> = ({ section, onDelete, onEdit, onAddProgram }) => {
+    const isQuizSection = ["Pre Assessment", "Post Assessment", "Mid Assessment", "Quiz"].includes(section.sectionType);
+    const isCustomOrLinkSection = ["Custom Quiz", "Custom Link"].includes(section.sectionType);
+    const navigate = useNavigate(); // Initialize useNavigate
+
+    const handleCheckLink = async () => {
+        if (isQuizSection && section.quizId) {
+            const token = Cookies.get('authToken'); // Retrieve the token from the cookie
+
+            if (!token) {
+                console.error("Authorization token not found.");
+                // Handle the case where the token is missing (e.g., redirect to login)
+                return;
+            }
+
+            try {
+                const response = await axios.post(
+                    `http://localhost:5000/quiz/${section.quizId}/attend`,
+                    { sectionId: section.id },
+                    {
+                        headers: {
+                            Authorization: `Bearer ${token}`, // Include the token from the cookie
+                            'Content-Type': 'application/json',
+                        },
+                    }
+                );
+                // Handle the response if needed (e.g., show a success message)
+                console.log("Quiz Attend Response:", response.data);
+                navigate(`/quiz/${section.quizId}/attend`);
+            } catch (error: any) {
+                console.error("Error attending quiz:", error);
+                if (error.response && error.response.status === 401) {
+                    console.error("Authorization failed.");
+                    // Handle unauthorized access
+                } else {
+                    // Handle other errors
+                }
+            }
+        } else if (isCustomOrLinkSection) {
+            navigate('/empty-page');
+        } else {
+            window.open(section.linkUrl, '_blank');
+        }
+    };
+
     return (
         <Paper
             elevation={2}
@@ -59,6 +104,8 @@ const SectionCard: React.FC<SectionCardProps> = ({ section, onDelete, onEdit, on
                     color="primary"
                     endIcon={<OpenInNewIcon />}
                     sx={{ width: "130px", fontSize: "11px" }}
+                    onClick={handleCheckLink} // Use the dynamic handler
+                    disabled={(isQuizSection && !section.quizId) || isCustomOrLinkSection} // Disable if it's a quiz or custom/link section
                 >
                     Check link
                 </Button>
@@ -70,9 +117,6 @@ const SectionCard: React.FC<SectionCardProps> = ({ section, onDelete, onEdit, on
                     </IconButton>
                     <IconButton color="default" onClick={onDelete}>
                         <DeleteIcon />
-                    </IconButton>
-                    <IconButton color="default" onClick={() => onAddProgram(section.id)}> {/* Updated prop name */}
-                        <AddIcon />
                     </IconButton>
                 </Box>
             </Box>

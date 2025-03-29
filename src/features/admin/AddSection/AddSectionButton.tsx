@@ -11,7 +11,7 @@ interface AddSectionButtonProps {
 export const AddSectionButton = ({
   isExpanded,
   onToggle,
-}: AddSectionButtonProps) => {
+}: AddSectionButtonProps) =>{
   const { checkHasPermission } = usePermissions();
 
  /* if (!checkHasPermission(Permissions.CREATE_SECTION)) {
