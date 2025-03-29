@@ -11,10 +11,8 @@ import { Visibility, VisibilityOff, Close } from "@mui/icons-material";
 import { useNavigate, Link } from "react-router-dom";
 import logo from "../../../assets/logo.svg";
 import Button from "../components/Button";
-import { signup } from "../services/api"; 
+import { signup } from "../services/api";
 import { toast } from "react-toastify";
-
-
 
 const SignUp: React.FC = () => {
   const navigate = useNavigate();
@@ -24,7 +22,40 @@ const SignUp: React.FC = () => {
     mobile: "",
     password: "",
   });
-  
+  const [errors, setErrors] = React.useState({
+    email: "",
+    mobile: "",
+    password: "",
+  });
+
+  const validateEmail = (email: string) => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email) ? "" : "Invalid email address";
+  };
+
+  const validateMobile = (mobile: string) => {
+    const mobileRegex = /^[0-9]{10}$/;
+    return mobileRegex.test(mobile) ? "" : "Invalid mobile number (10 digits required)";
+  };
+
+  const validatePassword = (password: string) => {
+    if (password.length < 8) {
+      return "Password must be at least 8 characters";
+    }
+    if (!/[a-z]/.test(password)) {
+      return "Password must contain at least one lowercase letter";
+    }
+    if (!/[A-Z]/.test(password)) {
+      return "Password must contain at least one uppercase letter";
+    }
+    if (!/[0-9]/.test(password)) {
+      return "Password must contain at least one number";
+    }
+    if (!/[^a-zA-Z0-9]/.test(password)) {
+      return "Password must contain at least one special character";
+    }
+    return "";
+  };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -32,10 +63,29 @@ const SignUp: React.FC = () => {
       ...prev,
       [name]: value,
     }));
+
+    // Clear the error for the changed field
+    setErrors((prevErrors) => ({
+      ...prevErrors,
+      [name]: "",
+    }));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    const emailError = validateEmail(formData.email);
+    const mobileError = validateMobile(formData.mobile);
+    const passwordError = validatePassword(formData.password);
+
+    if (emailError || mobileError || passwordError) {
+      setErrors({
+        email: emailError,
+        mobile: mobileError,
+        password: passwordError,
+      });
+      return;
+    }
+
     try {
       await signup(formData.email, formData.mobile, formData.password);
       toast.success("Signup successful!");
@@ -44,8 +94,7 @@ const SignUp: React.FC = () => {
       toast.error(error.message || "Signup failed");
     }
   };
-  
-  
+
   return (
     <Box
       sx={{
@@ -69,7 +118,7 @@ const SignUp: React.FC = () => {
         {/* Close Button */}
         <IconButton
           onClick={() => navigate("/")}
-          sx={{ position: "absolute", top: 16, right: 16,color: "secondary.main" }}
+          sx={{ position: "absolute", top: 16, right: 16, color: "secondary.main" }}
         >
           <Close />
         </IconButton>
@@ -86,99 +135,113 @@ const SignUp: React.FC = () => {
 
         {/* Form */}
         <form onSubmit={handleSubmit}>
-          {/* Name */}
           {/* Email */}
-<Box sx={{ mb: 2 }}>
-  <Typography variant="caption" color="textSecondary" mb={0.5} display="block">
-    Email*
-  </Typography>
-  <Box
-    component="input"
-    type="email"
-    name="email"
-    value={formData.email}
-    onChange={handleChange}
-    placeholder="Enter your Email"
-    required
-    sx={{
-      width: "100%",
-      px: 2,
-      py: 1,
-      border: "1px solid #ccc",
-      borderRadius: 1,
-      fontSize: "14px",
-      outline: "none",
-    }}
-  />
-</Box>
+          <Box sx={{ mb: 2 }}>
+            <Typography variant="caption" color="textSecondary" mb={0.5} display="block">
+              Email*
+            </Typography>
+            <Box
+              component="input"
+              type="email"
+              name="email"
+              value={formData.email}
+              onChange={handleChange}
+              placeholder="Enter your Email"
+              required
+              sx={{
+                width: "100%",
+                px: 2,
+                py: 1,
+                border: `1px solid ${errors.email ? "red" : "#ccc"}`,
+                borderRadius: 1,
+                fontSize: "14px",
+                outline: "none",
+              }}
+            />
+            {errors.email && (
+              <Typography variant="caption" color="error" display="block">
+                {errors.email}
+              </Typography>
+            )}
+          </Box>
 
-{/* Mobile */}
-<Box sx={{ mb: 2 }}>
-  <Typography variant="caption" color="textSecondary" mb={0.5} display="block">
-    Mobile*
-  </Typography>
-  <Box
-    component="input"
-    type="tel"
-    name="mobile"
-    value={formData.mobile}
-    onChange={handleChange}
-    placeholder="Enter your Mobile Number"
-    required
-    sx={{
-      width: "100%",
-      px: 2,
-      py: 1,
-      border: "1px solid #ccc",
-      borderRadius: 1,
-      fontSize: "14px",
-      outline: "none",
-    }}
-  />
-</Box>
+          {/* Mobile */}
+          <Box sx={{ mb: 2 }}>
+            <Typography variant="caption" color="textSecondary" mb={0.5} display="block">
+              Mobile*
+            </Typography>
+            <Box
+              component="input"
+              type="tel"
+              name="mobile"
+              value={formData.mobile}
+              onChange={handleChange}
+              placeholder="Enter your Mobile Number"
+              required
+              sx={{
+                width: "100%",
+                px: 2,
+                py: 1,
+                border: `1px solid ${errors.mobile ? "red" : "#ccc"}`,
+                borderRadius: 1,
+                fontSize: "14px",
+                outline: "none",
+              }}
+            />
+            {errors.mobile && (
+              <Typography variant="caption" color="error" display="block">
+                {errors.mobile}
+              </Typography>
+            )}
+          </Box>
 
-{/* Password */}
-<Box sx={{ mb: 3 }}>
-  <Typography variant="caption" color="textSecondary" mb={0.5} display="block">
-    Password*
-  </Typography>
-  <Box
-    sx={{
-      position: "relative",
-    }}
-  >
-    <Box
-      component="input"
-      type={showPassword ? "text" : "password"}
-      name="password"
-      value={formData.password}
-      onChange={handleChange}
-      placeholder="Enter a Password"
-      required
-      sx={{
-        width: "100%",
-        px: 2,
-        py: 1,
-        border: "1px solid #ccc",
-        borderRadius: 1,
-        fontSize: "14px",
-        outline: "none",
-      }}
-    />
-    <IconButton
-      onClick={() => setShowPassword(!showPassword)}
-      sx={{
-        position: "absolute",
-        right: 8,
-        top: "50%",
-        transform: "translateY(-50%)",
-        padding: 0.5,
-      }}
-    >
-      {showPassword ? <VisibilityOff fontSize="small" /> : <Visibility fontSize="small" />}
-    </IconButton>
-  </Box>
-</Box>
+          {/* Password */}
+          <Box sx={{ mb: 3 }}>
+            <Typography variant="caption" color="textSecondary" mb={0.5} display="block">
+              Password*
+            </Typography>
+            <Box
+              sx={{
+                position: "relative",
+              }}
+            >
+              <Box
+                component="input"
+                type={showPassword ? "text" : "password"}
+                name="password"
+                value={formData.password}
+                onChange={handleChange}
+                placeholder="Enter a Password"
+                required
+                sx={{
+                  width: "100%",
+                  px: 2,
+                  py: 1,
+                  border: `1px solid ${errors.password ? "red" : "#ccc"}`,
+                  borderRadius: 1,
+                  fontSize: "14px",
+                  outline: "none",
+                }}
+              />
+              <IconButton
+                onClick={() => setShowPassword(!showPassword)}
+                sx={{
+                  position: "absolute",
+                  right: 8,
+                  top: "50%",
+                  transform: "translateY(-50%)",
+                  padding: 0.5,
+                }}
+              >
+                {showPassword ? <VisibilityOff fontSize="small" /> : <Visibility fontSize="small" />}
+              </IconButton>
+            </Box>
+            {errors.password && (
+              <Typography variant="caption" color="error" display="block">
+                {errors.password}
+              </Typography>
+            )}
+          </Box>
 
           {/* Submit Button */}
           <Button type="submit">Create Account</Button>
