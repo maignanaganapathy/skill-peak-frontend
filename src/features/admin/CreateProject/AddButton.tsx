@@ -3,9 +3,10 @@ import { Button } from "@mui/material";
 
 interface AddButtonProps {
   onClick?: () => void;
+  marginTop?: string | number; // Add marginTop prop
 }
 
-export const AddButton: React.FC<AddButtonProps> = ({ onClick }) => {
+export const AddButton: React.FC<AddButtonProps> = ({ onClick, marginTop }) => {
   return (
     <Button
       variant="contained"
@@ -23,6 +24,7 @@ export const AddButton: React.FC<AddButtonProps> = ({ onClick }) => {
         "&:hover": {
           backgroundColor: "#1e40af", // hover effect
         },
+        marginTop: marginTop || 0, // Apply marginTop or default to 0
       }}
     >
       Add
