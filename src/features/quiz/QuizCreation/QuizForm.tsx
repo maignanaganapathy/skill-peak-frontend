@@ -75,7 +75,7 @@ const QuizForm: React.FC = () => {
             // Call the createQuiz function from your service
             const response = await createQuiz(payload);
             console.log("✅ Quiz submitted successfully:", response.data);
-            navigate("/");
+            navigate("/quiz/list"); // Updated navigation path to QuizList
         } catch (error: any) {
             console.error("⚠️ Submission error:", error.response ? error.response.data : error.message);
             // Optionally display an error message to the user

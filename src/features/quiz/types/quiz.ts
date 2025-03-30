@@ -38,13 +38,10 @@ export interface AnswerOption {
   text: string;
   isCorrect: boolean;
 }
-
 export enum QuestionTypeEnum {
-  
-  IMG = "Image",
-  TEXT = "Text",
-  YES_NO = "Yes/No",
-  
+  IMG = "IMG",
+  TEXT = "TEXT",
+  YES_NO = "YES_NO", // Or whatever your backend expects for Yes/No, if it's different
 }
 
 export interface Section {

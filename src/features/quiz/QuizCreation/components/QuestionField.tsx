@@ -1,5 +1,5 @@
 import React from "react";
-import { Box, TextField, IconButton, Typography } from "@mui/material";
+import { Box, TextField, IconButton, Typography, Checkbox, FormControlLabel } from "@mui/material";
 import { Controller, useFieldArray } from "react-hook-form";
 import AddIcon from "@mui/icons-material/Add";
 import DeleteIcon from "@mui/icons-material/Delete";
@@ -22,6 +22,12 @@ interface Props {
   isLast: boolean;
 }
 
+interface ImageOption {
+  id: string;
+  url: string;
+  isCorrect: boolean;
+}
+
 const QuestionField: React.FC<Props> = ({
   index,
   control,
@@ -38,7 +44,7 @@ const QuestionField: React.FC<Props> = ({
   const currentType: QuestionTypeEnum = watch(`questions.${index}.optionType`);
   const { fields: imageOptionFields, append: appendImageOption, remove: removeImageOption } = useFieldArray({
     control,
-    name: `questions.${index}.imageOptions`, // New field array for image URLs
+    name: `questions.${index}.imageOptions`, // Field array for image URLs
   });
 
   const handleTypeChange = (type: QuestionTypeEnum) => {
@@ -52,6 +58,14 @@ const QuestionField: React.FC<Props> = ({
       setValue(`questions.${index}.options`, []);
       setValue(`questions.${index}.imageOptions`, undefined);
     }
+  };
+
+  const handleImageCorrectChange = (imgIndex: number, isChecked: boolean) => {
+    const updatedImageOptions = imageOptionFields.map((field, i) => ({
+      ...watch(`questions.${index}.imageOptions.${i}`),
+      isCorrect: i === imgIndex ? isChecked : false, // Only one can be correct
+    }));
+    setValue(`questions.${index}.imageOptions`, updatedImageOptions);
   };
 
   return (
@@ -84,16 +98,26 @@ const QuestionField: React.FC<Props> = ({
             <Box key={item.id} display="flex" alignItems="center" mb={1}>
               <TextField
                 label={`URL ${imgIndex + 1}`}
-                fullWidth
                 size="small"
+                sx={{ width: '35%' }} // Adjust width as needed
                 {...register(`questions.${index}.imageOptions.${imgIndex}.url`)}
+              />
+              <FormControlLabel
+                control={
+                  <Checkbox
+                    checked={watch(`questions.${index}.imageOptions.${imgIndex}.isCorrect`) || false}
+                    onChange={(e) => handleImageCorrectChange(imgIndex, e.target.checked)}
+                  />
+                }
+                label="Correct"
+                sx={{ ml: 1 }} // Add left margin here
               />
               <IconButton onClick={() => removeImageOption(imgIndex)} size="small" aria-label="delete image url">
                 <DeleteIcon />
               </IconButton>
             </Box>
           ))}
-          <IconButton onClick={() => appendImageOption({ url: '' })} size="small" aria-label="add image url">
+          <IconButton onClick={() => appendImageOption({ url: '', isCorrect: false })} size="small" aria-label="add image url">
             <AddIcon />
           </IconButton>
         </Box>

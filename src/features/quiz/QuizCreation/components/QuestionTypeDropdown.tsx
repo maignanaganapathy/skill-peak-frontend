@@ -4,7 +4,6 @@ import { QuestionTypeEnum } from "../../types/quiz";
 import Chevron from "../assets/Chevron.png";
 import { TextField, IconButton, Box, Typography } from "@mui/material";
 
-
 interface QuestionTypeDropdownProps {
   currentType: QuestionTypeEnum;
   onTypeChange: (type: QuestionTypeEnum) => void;
@@ -37,10 +36,24 @@ export const QuestionTypeDropdown: React.FC<QuestionTypeDropdownProps> = ({
   };
 
   const questionTypes = [
-    QuestionTypeEnum.YES_NO,
-    QuestionTypeEnum.IMG,
     QuestionTypeEnum.TEXT,
+    QuestionTypeEnum.IMG,
+    // If you're still using YES_NO in the frontend, keep it here
+    QuestionTypeEnum.YES_NO,
   ];
+
+  const formatQuestionType = (type: QuestionTypeEnum): string => {
+    switch (type) {
+      case QuestionTypeEnum.TEXT:
+        return "Text";
+      case QuestionTypeEnum.IMG:
+        return "Image";
+      case QuestionTypeEnum.YES_NO:
+        return "Yes/No";
+      default:
+        return type; // Fallback to the enum value if not matched
+    }
+  };
 
   return (
     <div className="relative inline-block" ref={dropdownRef}>
@@ -48,7 +61,7 @@ export const QuestionTypeDropdown: React.FC<QuestionTypeDropdownProps> = ({
         onClick={() => setIsOpen(!isOpen)}
         className="flex items-center px-4 py-1.5 ml-16 bg-white rounded hover:bg-gray-50 transition-colors"
       >
-        <span className="mr-2.5 text-sm text-black">{currentType}</span>
+        <span className="mr-2.5 text-sm text-black">{formatQuestionType(currentType)}</span>
         <img
           src={Chevron}
           className={`w-3 h-3 transition-transform duration-200 ${
@@ -71,7 +84,7 @@ export const QuestionTypeDropdown: React.FC<QuestionTypeDropdownProps> = ({
                       : "text-gray-700"
                   }`}
                 >
-                  {type}
+                  {formatQuestionType(type)}
                 </button>
               </li>
             ))}
