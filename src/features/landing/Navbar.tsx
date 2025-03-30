@@ -2,51 +2,59 @@
 
 import React from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { AppBar, Toolbar, Button, Box } from "@mui/material";
+import { styled } from "@mui/material/styles";
 
-export default function Navbar() {
+const StyledToolbar = styled(Toolbar)(({ theme }) => ({
+  justifyContent: "flex-end",
+  width: "100%",
+  paddingLeft: theme.spacing(2),
+  paddingRight: theme.spacing(2),
+}));
+
+const NavLink = styled(Link)(({ theme }) => ({
+  textDecoration: "none",
+  color: theme.palette.text.primary,
+  fontWeight: theme.typography.fontWeightBold, // Make text bold
+  marginRight: theme.spacing(3),
+  "&:hover": {
+    color: theme.palette.primary.main,
+  },
+}));
+
+const AuthButton = styled(Button)(({ theme }) => ({
+  borderRadius: theme.shape.borderRadius * 3, // Increase border radius for rounded corners
+}));
+
+const Navbar: React.FC = () => {
   const navigate = useNavigate();
 
   return (
-    <header className="fixed top-0 left-0 w-full bg-white shadow-md py-4 px-10">
-      <nav className="flex justify-end items-center max-w-screen-xl mx-auto">
-        {/* Navigation Links */}
-        <ul className="flex gap-6 items-center font-medium text-black">
-          <li>
-            <Link to="/" className="hover:text-blue-500 transition-colors">
-              Home
-            </Link>
-          </li>
-          <li>
-            <Link to="/about" className="hover:text-blue-500 transition-colors">
-              About Us
-            </Link>
-          </li>
-          <li>
-            <Link to="/contact" className="hover:text-blue-500 transition-colors">
-              Contact Us
-            </Link>
-          </li>
-        </ul>
-
-        {/* Auth Buttons */}
-        <div className="flex gap-4 ml-8">
-  <button
-    className="w-[100px] h-[40px] text-white rounded-xl transition-colors flex justify-center items-center"
-    style={{ backgroundColor: "#1E4D92" }}
-    onClick={() => navigate("/login")}
-  >
-    Login
-  </button>
-
-  <button
-    className="w-[100px] h-[40px] bg-gray-300 rounded-xl text-gray-900 hover:bg-gray-400 transition-colors flex justify-center items-center"
-    onClick={() => navigate("/signup")}
-  >
-    Sign up
-  </button>
-</div>
-
-      </nav>
-    </header>
+    <AppBar position="fixed" color="inherit" elevation={1}>
+      <StyledToolbar>
+        <Box sx={{ display: "flex", gap: 3 }}>
+          <NavLink to="/">Home</NavLink>
+          <NavLink to="#about-us-section">About Us</NavLink> {/* Link to the About Us section on the landing page */}
+          <NavLink to="/contact">Contact Us</NavLink>
+        </Box>
+        <Box sx={{ display: "flex", gap: 3, ml: 4 }}>
+          <AuthButton
+            variant="contained"
+            color="primary"
+            onClick={() => navigate("/login")}
+          >
+            Login
+          </AuthButton>
+          <AuthButton
+            variant="outlined"
+            onClick={() => navigate("/signup")}
+          >
+            Sign up
+          </AuthButton>
+        </Box>
+      </StyledToolbar>
+    </AppBar>
   );
-}
+};
+
+export default Navbar;
