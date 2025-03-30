@@ -6,18 +6,19 @@ import {
   IconButton,
   Link as MuiLink,
 } from "@mui/material";
-import { Link, useNavigate } from "react-router-dom"; 
+import { Link, useNavigate } from "react-router-dom";
 import CloseIcon from "@mui/icons-material/Close";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
 import logo from "../../../assets/logo.svg";
-import { login } from "../services/api"; 
+import { login } from "../services/api"; // Assuming your login API function is here
 import Button from "../components/Button";
 import { toast } from "react-toastify";
 import Cookies from "js-cookie";
+import { setAuthToken } from "../../../utils/axiosConfig"; // Import the setAuthToken function
 
 const Login: React.FC = () => {
-  const navigate = useNavigate(); 
+  const navigate = useNavigate();
 
   const [showPassword, setShowPassword] = React.useState(false);
   const [formData, setFormData] = React.useState({
@@ -35,24 +36,25 @@ const Login: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-  
+
     try {
       const response = await login(formData.email, formData.password);
-  
+
       // ✅ Set token and userId in cookies
-      Cookies.set("authToken", response.token, { expires: 1 }); 
+      Cookies.set("authToken", response.token, { expires: 1 });
       Cookies.set("userId", response.userId.toString(), { expires: 1 });
-  
+
+      // Call setAuthToken after setting the cookie
+      setAuthToken();
+
       toast.success("Login successful!");
-  
-     
+
       navigate("/dashboard");
     } catch (error: any) {
       toast.error(error.message || "Login failed. Please try again.");
     }
   };
-  
-  
+
 
   return (
     <Box
@@ -76,7 +78,7 @@ const Login: React.FC = () => {
         <IconButton
           size="small"
           sx={{ position: "absolute", top: 10, right: 10, color: "secondary.main" }}
-          onClick={() => navigate("/")} 
+          onClick={() => navigate("/")}
         >
           <CloseIcon />
         </IconButton>

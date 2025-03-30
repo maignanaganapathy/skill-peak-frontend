@@ -2,10 +2,10 @@ import React, { useState, useEffect } from "react";
 import { Box } from "@mui/material";
 import SectionCard from "./SectionCard";
 import { FormSection } from "./FormSection"; // Using FormSection
-import axios from "axios";
+import { api } from "../../../utils/axiosConfig"; // Import the configured api instance
 import { Section } from "./section";
 import { AddSectionButton } from "./AddSectionButton"; // Import the AddSectionButton component
-import Cookies from "js-cookie"; // Import js-cookie
+
 import { BACKEND_URL } from "../../../config"; // Import BACKEND_URL
 
 interface Project {
@@ -36,16 +36,7 @@ const SectionList: React.FC<SectionListProps> = ({ projectId }) => {
 
     const fetchProjects = async () => {
         try {
-            const token = Cookies.get('authToken');
-            if (!token) {
-                console.error("No authentication token found.");
-                return;
-            }
-            const response = await axios.get(`${BACKEND_URL}/projects`, {
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                },
-            });
+            const response = await api.get(`${BACKEND_URL}/projects`);
             setProjects(response.data);
         } catch (error: any) {
             console.error("Error fetching data:", error);
@@ -55,20 +46,7 @@ const SectionList: React.FC<SectionListProps> = ({ projectId }) => {
 
     const fetchAllQuizzes = async () => {
         try {
-            const token = Cookies.get('authToken');
-            if (!token) {
-                console.error("No authentication token found.");
-                return;
-            }
-            const response = await axios.post(
-                `${BACKEND_URL}/quiz/list`,
-                {}, // Assuming this is the correct endpoint and payload for fetching all quizzes
-                {
-                    headers: {
-                        Authorization: `Bearer ${token}`,
-                    },
-                }
-            );
+            const response = await api.post(`${BACKEND_URL}/quiz/list`, {}); // Assuming this is the correct endpoint and payload
             const options = response.data.quizzes.map((quiz: any) => ({
                 id: String(quiz.id),
                 title: quiz.title,
@@ -96,31 +74,20 @@ const SectionList: React.FC<SectionListProps> = ({ projectId }) => {
         setIsEditing(false);
     };
 
-    const addSection = async ( // Still using addSection as per your original code
+    const addSection = async (
         newSectionData: Omit<Section, "id" | "createdAt" | "updatedAt" | "createdById" | "updatedById">
     ) => {
         try {
-            const token = Cookies.get('authToken');
-            if (!token) {
-                console.error("No authentication token found.");
-                return;
-            }
-
             const payload = {
                 ...newSectionData,
                 quizId: newSectionData.quizId ? Number(newSectionData.quizId) : null, // Ensure quizId is correctly formatted
             };
 
-            const response = await axios.post(
-                `${BACKEND_URL}/sections`, // Use the correct endpoint
-                payload,
-                {
-                    headers: {
-                        Authorization: `Bearer ${token}`,
-                        "Content-Type": "application/json",
-                    },
-                }
-            );
+            const response = await api.post(`${BACKEND_URL}/sections`, payload, {
+                headers: {
+                    "Content-Type": "application/json",
+                },
+            });
 
             console.log("API Response:", response.data);
 
@@ -157,14 +124,8 @@ const SectionList: React.FC<SectionListProps> = ({ projectId }) => {
 
     const updateSection = async (updatedSection: Section) => {
         try {
-            const token = Cookies.get('authToken');
-            if (!token) {
-                console.error("No authentication token found.");
-                return;
-            }
-            await axios.put(`${BACKEND_URL}/sections/${updatedSection.id}`, updatedSection, {
+            await api.put(`${BACKEND_URL}/sections/${updatedSection.id}`, updatedSection, {
                 headers: {
-                    Authorization: `Bearer ${token}`,
                     "Content-Type": "application/json",
                 },
             });
@@ -193,16 +154,7 @@ const SectionList: React.FC<SectionListProps> = ({ projectId }) => {
 
     const deleteSection = async (sectionId: number) => {
         try {
-            const token = Cookies.get('authToken');
-            if (!token) {
-                console.error("No authentication token found.");
-                return;
-            }
-            await axios.delete(`${BACKEND_URL}/sections/${sectionId}`, {
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                },
-            });
+            await api.delete(`${BACKEND_URL}/sections/${sectionId}`);
             setProjects((prevProjects) =>
                 prevProjects.map((project) =>
                     project.id === projectId

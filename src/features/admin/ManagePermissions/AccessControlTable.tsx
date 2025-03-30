@@ -1,4 +1,4 @@
-"use client";
+
 
 import React, { useEffect, useState, useCallback } from "react";
 import {
@@ -13,8 +13,7 @@ import {
 } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
 import SaveIcon from "@mui/icons-material/Save";
-import axios from "axios";
-import Cookies from 'js-cookie';
+import { api } from "../../../utils/axiosConfig"; // Import the configured api instance
 import { useNavigate } from 'react-router-dom';
 
 import { BACKEND_URL } from "../../../config";
@@ -55,18 +54,9 @@ const AccessControlTable: React.FC = () => {
         const fetchPermissions = async () => {
             setLoading(true);
             setError(null);
-            const token = Cookies.get('authToken');
-
-            if (!token) {
-                console.warn("Authentication token not found when fetching permissions.");
-                navigate('/login');
-                return;
-            }
 
             try {
-                const res = await axios.get(`${BACKEND_URL}/auth/permissions`, {
-                    headers: { Authorization: `Bearer ${token}` },
-                });
+                const res = await api.get(`${BACKEND_URL}/auth/permissions`);
 
                 const formatted: Record<string, PermissionResponse[]> =
                     res.data.projectPermissionsFormatted || {};
@@ -142,13 +132,6 @@ const AccessControlTable: React.FC = () => {
 
     const saveRoleName = useCallback(async (index: number) => {
         const role = roles[index];
-        const token = Cookies.get('authToken');
-
-        if (!token) {
-            console.error("Authentication token not found in cookie. Cannot save role name.");
-            alert("Authentication error. Please log in again.");
-            return;
-        }
 
         if (!role.name.trim()) {
             alert("Please enter a role name.");
@@ -157,11 +140,11 @@ const AccessControlTable: React.FC = () => {
 
         setIsSavingAll(true);
         try {
+            let res;
             if (role.isNew) {
-                const res = await axios.post(
+                res = await api.post(
                     `${BACKEND_URL}/projects/3/roles`,
-                    { roleName: role.name },
-                    { headers: { Authorization: `Bearer ${token}` } }
+                    { roleName: role.name }
                 );
                 const newRoleId = res.data?.data?.id;
                 const updatedRoles = [...roles];
@@ -170,10 +153,9 @@ const AccessControlTable: React.FC = () => {
                 updatedRoles[index].isNameChanged = false;
                 setRoles(updatedRoles);
             } else if (role.isNameChanged) {
-                await axios.put(
+                await api.put(
                     `${BACKEND_URL}/projects/3/roles/${role.projectRoleId}`,
-                    { roleName: role.name },
-                    { headers: { Authorization: `Bearer ${token}` } }
+                    { roleName: role.name }
                 );
                 const updatedRoles = [...roles];
                 updatedRoles[index].isNameChanged = false;
@@ -208,13 +190,6 @@ const AccessControlTable: React.FC = () => {
 
     const handleDeleteRole = async (index: number) => {
         const roleToDelete = roles[index];
-        const token = Cookies.get('authToken');
-
-        if (!token) {
-            console.error("Authentication token not found in cookie. Cannot delete role.");
-            alert("Authentication error. Please log in again.");
-            return;
-        }
 
         if (roleToDelete.isNew || roleToDelete.projectRoleId === 0) {
             const updatedRoles = roles.filter((_, i) => i !== index);
@@ -229,21 +204,11 @@ const AccessControlTable: React.FC = () => {
 
         try {
             const deletePermissionsUrl = `${BACKEND_URL}/role-permissions/role/${roleToDelete.projectRoleId}`;
-            await axios.delete(
-                deletePermissionsUrl,
-                {
-                    headers: { Authorization: `Bearer ${token}` },
-                }
-            );
+            await api.delete(deletePermissionsUrl);
             console.log(`Role permissions for role ID ${roleToDelete.projectRoleId} deleted successfully.`);
 
             const deleteRoleUrl = `${BACKEND_URL}/projects/3/roles/${roleToDelete.projectRoleId}`;
-            await axios.delete(
-                deleteRoleUrl,
-                {
-                    headers: { Authorization: `Bearer ${token}` },
-                }
-            );
+            await api.delete(deleteRoleUrl);
             console.log(`Role "${roleToDelete.name}" deleted successfully.`);
 
             const updatedRoles = roles.filter((_, i) => i !== index);
@@ -275,13 +240,6 @@ const AccessControlTable: React.FC = () => {
     const handlePermissionToggle = async (roleIndex: number, permissionId: number) => {
         const updatedRoles = [...roles];
         const role = updatedRoles[roleIndex];
-        const token = Cookies.get('authToken');
-
-        if (!token) {
-            console.error("Authentication token not found in cookie. Cannot toggle permission.");
-            alert("Authentication error. Please log in again.");
-            return;
-        }
 
         if (role.isNew || role.projectRoleId === 0) {
             alert("Please save the role name first.");
@@ -292,16 +250,12 @@ const AccessControlTable: React.FC = () => {
         const isChecked = currentPermission?.checked;
 
         try {
-            let response;
             if (!isChecked) {
-                response = await axios.post(
+                const response = await api.post(
                     `${BACKEND_URL}/role-permissions`,
                     {
                         roleId: role.projectRoleId,
                         permissionId: permissionId,
-                    },
-                    {
-                        headers: { Authorization: `Bearer ${token}` },
                     }
                 );
                 const rpId = response.data?.data?.id;
@@ -309,11 +263,8 @@ const AccessControlTable: React.FC = () => {
             } else {
                 const rpId = currentPermission.rpId;
                 if (rpId) {
-                    await axios.delete(
-                        `${BACKEND_URL}/role-permissions/${rpId}`,
-                        {
-                            headers: { Authorization: `Bearer ${token}` },
-                        }
+                    await api.delete(
+                        `${BACKEND_URL}/role-permissions/${rpId}`
                     );
                     role.permissions[permissionId] = { checked: false };
                 } else {

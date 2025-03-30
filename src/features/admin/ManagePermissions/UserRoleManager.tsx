@@ -14,9 +14,11 @@ import {
 } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
 import SaveIcon from "@mui/icons-material/Save";
-import axios from "axios";
-import Cookies from 'js-cookie';
+import { api } from "../../../utils/axiosConfig"; // Import the configured api instance
+
 import { useNavigate } from 'react-router-dom';
+
+import { BACKEND_URL } from "../../../config";
 
 interface Role {
     id: number;
@@ -42,22 +44,8 @@ const UserRoleManager: React.FC = () => {
 
     useEffect(() => {
         const fetchRoles = async () => {
-            const token = Cookies.get('authToken');
-            if (!token) {
-                console.warn("Authentication token not found when fetching roles.");
-                navigate('/login');
-                return;
-            }
-
             try {
-                const response = await axios.get(
-                    "http://localhost:5000/projects/3/roles",
-                    {
-                        headers: {
-                            Authorization: `Bearer ${token}`,
-                        },
-                    }
-                );
+                const response = await api.get(`${BACKEND_URL}/projects/3/roles`);
 
                 const uniqueRoles = Array.from(
                     new Map<number, Role>(
@@ -136,13 +124,6 @@ const UserRoleManager: React.FC = () => {
     };
 
     const saveUser = async (index: number) => {
-        const token = Cookies.get('authToken');
-        if (!token) {
-            console.error("Authentication token not found when saving user.");
-            navigate('/login');
-            return;
-        }
-
         const row = rows[index];
         if (!row.mail || !row.mobile || !row.role) {
             alert("Please fill in all fields for the user.");
@@ -151,19 +132,11 @@ const UserRoleManager: React.FC = () => {
 
         setIsSaving(true);
         try {
-            const res = await axios.post(
-                "http://localhost:5000/projects/3/users",
-                {
-                    mail: row.mail,
-                    mobile: row.mobile,
-                    roleId: row.role,
-                },
-                {
-                    headers: {
-                        Authorization: `Bearer ${token}`,
-                    },
-                }
-            );
+            const res = await api.post(`${BACKEND_URL}/projects/3/users`, {
+                mail: row.mail,
+                mobile: row.mobile,
+                roleId: row.role,
+            });
             console.log("User added:", res.data);
             const newRows = [...rows];
             delete newRows[index].isNew; // Remove isNew flag after successful save
@@ -188,13 +161,6 @@ const UserRoleManager: React.FC = () => {
     };
 
     const handleSaveAllUsers = async () => {
-        const token = Cookies.get('authToken');
-        if (!token) {
-            console.error("Authentication token not found when submitting users.");
-            navigate('/login');
-            return;
-        }
-
         setIsSaving(true);
         try {
             for (const row of rows) {
@@ -203,19 +169,11 @@ const UserRoleManager: React.FC = () => {
                     continue;
                 }
 
-                await axios.post(
-                    "http://localhost:5000/projects/3/users",
-                    {
-                        mail: row.mail,
-                        mobile: row.mobile,
-                        roleId: row.role,
-                    },
-                    {
-                        headers: {
-                            Authorization: `Bearer ${token}`,
-                        },
-                    }
-                );
+                await api.post(`${BACKEND_URL}/projects/3/users`, {
+                    mail: row.mail,
+                    mobile: row.mobile,
+                    roleId: row.role,
+                });
                 console.log("User added:", row.mail);
             }
             alert("All users saved successfully!");

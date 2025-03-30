@@ -3,8 +3,7 @@ import { QuestionTypeEnum } from "../../types/quiz";
 
 import Chevron from "../assets/Chevron.png";
 import { TextField, IconButton, Box, Typography } from "@mui/material";
-import AddIcon from "@mui/icons-material/Add";
-import DeleteIcon from "@mui/icons-material/Delete";
+
 
 interface QuestionTypeDropdownProps {
   currentType: QuestionTypeEnum;

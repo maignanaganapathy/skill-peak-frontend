@@ -7,9 +7,8 @@ import { NavigationFooter } from "./NavigationFooter";
 import { ScoreCard } from "./ScoreCard";
 import { FormValues, Question, QuizResult } from "./types";
 import { useParams, useNavigate } from "react-router-dom"; // Import useNavigate
-import { BACKEND_URL } from "../../../config";
-import Cookies from 'js-cookie'; // Import js-cookie
-import axios from 'axios'; // Import axios
+import { getQuizDetails } from "../services/quiz.service"; // Import the service function
+import axios, { AxiosError } from 'axios'; // Import AxiosError
 
 function AppContainer() {
     console.log("AppContainer rendered");
@@ -36,21 +35,15 @@ function AppContainer() {
 
     useEffect(() => {
         const loadQuestions = async () => {
+            setIsLoading(true);
+            if (!id) {
+                console.error("Quiz ID is missing from the URL.");
+                setIsLoading(false);
+                // Optionally redirect the user or show an error message
+                return;
+            }
             try {
-                const token = Cookies.get('authToken'); // Retrieve token from cookie
-                if (!token) {
-                    console.error("Authentication token not found.");
-                    navigate('/login'); // Redirect to login page
-                    return;
-                }
-                const response = await axios.get(`${BACKEND_URL}/quiz/${id}`, {
-                    headers: {
-                        "Content-Type": "application/json",
-                        Authorization: `Bearer ${token}`,
-                    },
-                });
-
-                const data = response.data;
+                const data = await getQuizDetails(id);
 
                 console.log("Fetched quiz data:", data);
 
@@ -80,8 +73,11 @@ function AppContainer() {
                 console.error("Error loading questions:", error);
                 setIsLoading(false);
                 setQuestions([]); // optionally clear existing questions
+                // Handle unauthorized access by checking the error status
+                if (axios.isAxiosError(error) && error.response && error.response.status === 401) {
+                    navigate('/login');
+                }
             }
-
         };
 
         loadQuestions();

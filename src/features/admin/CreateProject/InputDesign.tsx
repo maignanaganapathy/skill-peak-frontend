@@ -6,7 +6,7 @@ import Cookies from "js-cookie";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
-import axios from "../../../api/axiosInstance"; // your axios instance
+import { api } from "../../../utils/axiosConfig"; // Import the configured api instance
 import { BACKEND_URL } from "../../../config"; // Corrected import path
 
 interface InputDesignProps {
@@ -26,8 +26,6 @@ const InputDesign: React.FC<InputDesignProps> = ({
 
   const handleSubmit = async () => {
     try {
-      const token = Cookies.get("authToken");
-
       const payload = {
         name,
         description,
@@ -36,18 +34,10 @@ const InputDesign: React.FC<InputDesignProps> = ({
 
       if (project?.id) {
         // Edit Mode – PUT request
-        await axios.put(`${BACKEND_URL}/projects/${project.id}`, payload, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
+        await api.put(`${BACKEND_URL}/projects/${project.id}`, payload);
       } else {
         // Create Mode – POST request
-        await axios.post(`${BACKEND_URL}/projects`, payload, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
+        await api.post(`${BACKEND_URL}/projects`, payload);
       }
 
       onProjectCreated();

@@ -1,3 +1,4 @@
+// src/features/quiz/QuizCreation/QuizForm.tsx
 import React, { useState } from "react";
 import { useForm, useFieldArray } from "react-hook-form";
 import {
@@ -14,9 +15,7 @@ import QuestionField from "./components/QuestionField";
 import { UpdateQuizInput } from "../types/quiz";
 import { QuizHeader } from "./components/QuizHeader";
 import { useNavigate } from "react-router-dom";
-import Cookies from 'js-cookie'; // Import js-cookie
-import axios from 'axios'; // Import axios
-import { BACKEND_URL } from "../../../config"; // Import BACKEND_URL
+import { createQuiz } from "../services/quiz.service"; // Import createQuiz
 
 const QuizForm: React.FC = () => {
     const navigate = useNavigate();
@@ -59,13 +58,6 @@ const QuizForm: React.FC = () => {
     };
 
     const handleQuizSubmit = handleSubmit(async (data) => {
-        const token = Cookies.get('authToken'); // Retrieve token from cookie
-        if (!token) {
-            console.error("Authentication token not found.");
-            // Handle unauthenticated access, maybe redirect to login
-            return;
-        }
-
         const payload = {
             title,
             description,
@@ -80,13 +72,8 @@ const QuizForm: React.FC = () => {
         };
 
         try {
-            const response = await axios.post(`${BACKEND_URL}/quiz`, payload, {
-                headers: {
-                    "Content-Type": "application/json",
-                    Authorization: `Bearer ${token}`,
-                },
-            });
-
+            // Call the createQuiz function from your service
+            const response = await createQuiz(payload);
             console.log("✅ Quiz submitted successfully:", response.data);
             navigate("/");
         } catch (error: any) {

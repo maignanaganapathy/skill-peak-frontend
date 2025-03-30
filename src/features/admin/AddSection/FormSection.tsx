@@ -9,8 +9,8 @@ import { useState, useEffect } from "react";
 import { FloatingLabelInput } from "./FloatingLabelInput";
 import FloatingLabelSelect from "./FloatingLabelSelect"; // Keep this import
 import { Section } from "./section";
-import Cookies from 'js-cookie'; // Import js-cookie
-import axios from 'axios'; // Import axios
+import { api } from "../../../utils/axiosConfig"; // Import the configured api instance
+import Cookies from 'js-cookie'; // Import js-cookie (You might not need this anymore)
 import { BACKEND_URL } from "../../../config"; // Import BACKEND_URL
 
 interface FormSectionProps {
@@ -46,14 +46,6 @@ export const FormSection: React.FC<FormSectionProps> = ({
 
     const handleSubmit = async () => {
         try {
-            const token = Cookies.get("authToken");
-
-            if (!token) {
-                console.error("No authentication token found.");
-                alert("No authentication token found.");
-                return;
-            }
-
             if (!sectionName.trim() || !sectionType.trim()) {
                 console.error(
                     "Validation failed: Section Name and Section Type are required."
@@ -76,25 +68,21 @@ export const FormSection: React.FC<FormSectionProps> = ({
             let response;
             if (sectionToEdit) {
                 // Editing existing section - use PUT request
-                response = await axios.put(
+                response = await api.put(
                     `${BACKEND_URL}/sections/${sectionToEdit.id}`,
                     payload,
                     {
                         headers: {
-                            Authorization: `Bearer ${token}`,
                             "Content-Type": "application/json",
                         },
-                        withCredentials: true,
                     }
                 );
             } else {
                 // Creating new section - use POST request
-                response = await axios.post(`${BACKEND_URL}/sections`, payload, {
+                response = await api.post(`${BACKEND_URL}/sections`, payload, {
                     headers: {
-                        Authorization: `Bearer ${token}`,
                         "Content-Type": "application/json",
                     },
-                    withCredentials: true,
                 });
             }
 

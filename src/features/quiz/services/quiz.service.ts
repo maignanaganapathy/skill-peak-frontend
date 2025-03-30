@@ -1,25 +1,14 @@
-// In quiz.service.ts (or .js)
-import axios from 'axios';
+// src/services/quiz.service.ts
+import { api } from '../../../utils/axiosConfig'; // Adjust the import path based on your file structure
 import { BACKEND_URL } from '../../../config'; // Adjust the path as needed
 
-
-const getToken = () => {
-  return localStorage.getItem('authToken'); // Example using localStorage
-};
-
 export const getQuizzes = async (page: number, rowsPerPage: number, search: string, selectedProject: string | null) => {
-  const token = getToken();
   try {
-    const response = await axios.post(`${BACKEND_URL}/quiz/list`, {
+    const response = await api.post(`${BACKEND_URL}/quiz/list`, {
       page: page,
       rowsPerPage: rowsPerPage,
       search: search,
       projectIds: selectedProject ? [selectedProject] : undefined, // Adjust based on your backend
-    }, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-        'Content-Type': 'application/json',
-      },
     });
     return response.data;
   } catch (error) {
@@ -29,14 +18,8 @@ export const getQuizzes = async (page: number, rowsPerPage: number, search: stri
 };
 
 export const updateQuiz = async (quizId: number, quizData: any) => {
-  const token = getToken();
   try {
-    const response = await axios.put(`${BACKEND_URL}/quiz/${quizId}`, quizData, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-        'Content-Type': 'application/json',
-      },
-    });
+    const response = await api.put(`${BACKEND_URL}/quiz/${quizId}`, quizData);
     return response.data;
   } catch (error) {
     console.error("Error updating quiz:", error);
@@ -45,16 +28,33 @@ export const updateQuiz = async (quizId: number, quizData: any) => {
 };
 
 export const deleteQuiz = async (quizId: number) => {
-  const token = getToken();
   try {
-    const response = await axios.delete(`${BACKEND_URL}/quiz/${quizId}`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
+    const response = await api.delete(`${BACKEND_URL}/quiz/${quizId}`);
     return response.data;
   } catch (error) {
     console.error("Error deleting quiz:", error);
     throw error;
   }
 };
+
+export const createQuiz = async (quizData: any) => {
+  try {
+    const response = await api.post(`${BACKEND_URL}/quiz`, quizData);
+    return response.data;
+  } catch (error) {
+    console.error("Error creating quiz:", error);
+    throw error;
+  }
+};
+
+export const getQuizDetails = async (quizId: string) => { // Changed quizId to string to match useParams
+  try {
+    const response = await api.get(`${BACKEND_URL}/quiz/${quizId}`);
+    return response.data;
+  } catch (error) {
+    console.error(`Error fetching quiz details for ID ${quizId}:`, error);
+    throw error;
+  }
+};
+
+// Add other quiz related API calls here as needed

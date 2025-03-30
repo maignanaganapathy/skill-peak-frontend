@@ -5,9 +5,9 @@ import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import OpenInNewIcon from "@mui/icons-material/OpenInNew";
 import { Section } from "./section";
-import axios from "axios"; // Import axios for making API calls
+import { api } from "../../../utils/axiosConfig"; // Import the configured api instance
 import { useNavigate } from 'react-router-dom'; // Import useNavigate
-import Cookies from 'js-cookie'; // Import cookie library
+
 import { BACKEND_URL } from "../../../config"; // Import BACKEND_URL
 
 interface SectionCardProps {
@@ -24,21 +24,12 @@ const SectionCard: React.FC<SectionCardProps> = ({ section, onDelete, onEdit, on
 
     const handleCheckLink = async () => {
         if (isQuizSection && section.quizId) {
-            const token = Cookies.get('authToken'); // Retrieve the token from the cookie
-
-            if (!token) {
-                console.error("Authorization token not found.");
-                // Handle the case where the token is missing (e.g., redirect to login)
-                return;
-            }
-
             try {
-                const response = await axios.post(
+                const response = await api.post(
                     `${BACKEND_URL}/quiz/${section.quizId}/attend`,
                     { sectionId: section.id },
                     {
                         headers: {
-                            Authorization: `Bearer ${token}`, // Include the token from the cookie
                             'Content-Type': 'application/json',
                         },
                     }
@@ -50,7 +41,7 @@ const SectionCard: React.FC<SectionCardProps> = ({ section, onDelete, onEdit, on
                 console.error("Error attending quiz:", error);
                 if (error.response && error.response.status === 401) {
                     console.error("Authorization failed.");
-                    // Handle unauthorized access
+                    // Handle unauthorized access (the api instance should already be handling token refresh/redirection)
                 } else {
                     // Handle other errors
                 }
