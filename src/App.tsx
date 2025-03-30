@@ -15,7 +15,6 @@ import AccessControlPage from "./features/admin/ManagePermissions/AccessControlP
 import {LandingPage} from "./features/landing/Landingpage"; // Ensure the correct file casing
 import Login from "./features/auth/pages/Login";
 import SignUp from "./features/auth/pages/Signup";
-import Dashboard from "./features/dashboard/Dashboard";
 
 // 🔹 Quiz Features
 import QuizList from "./features/quiz/QuizListing/QuizList";
@@ -26,6 +25,7 @@ import QuizPage from "./features/quiz/QuizAttending/AppContainer";
 import { PermissionsProvider } from "./context/PermissionsContext";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import ProtectedRoutes from "./routes/ProtectedRoutes"; // Import ProtectedRoutes
 
 const App: React.FC = () => {
   return (
@@ -41,17 +41,15 @@ const App: React.FC = () => {
               <Route path="/signup" element={<SignUp />} />
 
               {/* 🔹 Protected Routes */}
-              <Route path="/dashboard" element={<Dashboard />} />
-
-              {/* 🔹 Admin Routes */}
-              <Route path="/notification" element={<NotificationManager />} />
-              <Route path="/program" element={<Program />} />
-              <Route path="/access" element={<AccessControlPage />} />
-
-              {/* 🔹 Quiz Routes */}
-              <Route path="/quiz/list" element={<QuizList />} />
-              <Route path="/quiz/create" element={<QuizCreation />} />
-              <Route path="/quiz/:id/attend" element={<QuizPage />} />
+              <Route element={<ProtectedRoutes />}>
+                <Route path="/notification" element={<NotificationManager />} />
+                <Route path="/program" element={<Program />} />
+                <Route path="/access" element={<AccessControlPage />} />
+                <Route path="/quiz/list" element={<QuizList />} />
+                <Route path="/quiz/create" element={<QuizCreation />} />
+                <Route path="/quiz/:id/attend" element={<QuizPage />} />
+                {/* Add other protected routes here */}
+              </Route>
             </Routes>
 
             {/* Toast Notifications */}
