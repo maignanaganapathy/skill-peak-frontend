@@ -42,13 +42,24 @@ const Navbar: React.FC<NavbarProps> = ({ onLogout }) => {
     navigate(route);
   };
 
+  const handleLogoClick = () => {
+    navigate('/'); // Navigate to the home route
+  };
+
   return (
     <AppBar position="static" sx={{ backgroundColor: 'primary.main', height: '80px', display: 'flex', justifyContent: 'center', alignItems: 'center' }}> {/* Center AppBar content */}
       <Toolbar sx={{ minHeight: '80px', width: '100%', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}> {/* Distribute items in Toolbar */}
         {/* Logo on the left */}
-        <Box sx={{ display: 'flex', alignItems: 'center' }}>
-          <img src={Logo} alt="Logo" style={{ height: 50, marginRight: 9 }} />
-        </Box>
+        <IconButton
+          onClick={handleLogoClick}
+          edge="start"
+          color="inherit"
+          aria-label="logo"
+        >
+          <Box sx={{ display: 'flex', alignItems: 'center' }}>
+            <img src={Logo} alt="Logo" style={{ height: 50, marginRight: 9 }} />
+          </Box>
+        </IconButton>
 
         {/* Centered "Dashboard" Text */}
         <Typography
