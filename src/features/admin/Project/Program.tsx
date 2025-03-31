@@ -9,6 +9,8 @@ import {
   Stack,
   IconButton,
   Button,
+  Skeleton,
+  Avatar,
 } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
@@ -87,6 +89,12 @@ export const Program: React.FC = () => {
     navigate('/login');
   };
 
+  const getInitials = (name: string): string => {
+    const words = name.split(' ');
+    const initials = words.map(word => word.charAt(0).toUpperCase()).join('');
+    return initials;
+  };
+
   return (
     <Box>
       {/* Include the Navbar component */}
@@ -117,7 +125,7 @@ export const Program: React.FC = () => {
               color: "#000",
             }}
           >
-            Program Creation
+            Programs
           </Typography>
 
           {/* ✅ Pass refresh callback to ModalWrapper */}
@@ -154,7 +162,9 @@ export const Program: React.FC = () => {
         )}
 
         {loadingQuizzes && (
-          <Typography sx={{ mb: 2 }}>Loading quizzes...</Typography>
+          <Box sx={{ mb: 2 }}>
+            <Skeleton />
+          </Box>
         )}
 
         {/* Render Projects and their SectionLists */}
@@ -176,15 +186,20 @@ export const Program: React.FC = () => {
                   position: "relative",
                 }}
               >
-                <Box
+                <Avatar
                   sx={{
-                    width: 82,
-                    height: 80,
+                    width: 80, // Or 82, match the desired size
+                    height: 80, // Or 82, match the desired size
                     borderRadius: "50%",
                     border: "1px solid #1E4D92",
-                    backgroundColor: "#f0f0f0",
+                    backgroundColor: "#f0f0f0", // You can customize this
+                    fontSize: "1.5rem", // Adjust font size as needed
+                    fontWeight: 600,
+                    color: "#333", // Adjust text color as needed
                   }}
-                />
+                >
+                  {getInitials(project.name)}
+                </Avatar>
 
                 <Stack spacing={1} sx={{ flexGrow: 1, minHeight: 80 }}>
                   <Typography variant="subtitle1" fontWeight={600}>
