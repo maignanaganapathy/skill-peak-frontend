@@ -1,7 +1,7 @@
-// Header.tsx
 import React from "react";
 import { Box, Typography, Button } from "@mui/material";
 import logo from "./assets/logo.svg";
+import { useTheme } from '@mui/material/styles'; // Import useTheme
 
 interface HeaderProps {
   showSubmit?: boolean;
@@ -16,6 +16,8 @@ export const Header: React.FC<HeaderProps> = ({
   onSubmit,
   isScoreView = false,
 }) => {
+  const theme = useTheme(); // Get access to the Material UI theme
+
   return (
     <Box
       component="header"
@@ -26,8 +28,8 @@ export const Header: React.FC<HeaderProps> = ({
         px: { xs: 2.5, md: 10 },
         py: 0,
         width: "100%",
-        height: { xs: 70, sm: 85 },
-        bgcolor: "white",
+        height: { xs: 80, sm: 80 }, // Match previous Navbar height
+        backgroundColor: theme.palette.primary.main, // Match previous Navbar background color
         boxShadow: "0px 4px 8px rgba(0, 0, 0, 0.25)",
         position: "relative",
       }}
@@ -47,13 +49,13 @@ export const Header: React.FC<HeaderProps> = ({
         sx={{
           fontWeight: 600,
           fontSize: { xs: "1rem", sm: "1.25rem" },
-          color: "black",
+          color: "white", // Assuming you want white text on the primary background
           position: isScoreView ? "absolute" : "static",
           left: isScoreView ? "50%" : undefined,
           transform: isScoreView ? "translateX(-50%)" : undefined,
         }}
       >
-        Pre Training Assessment
+        PRE TRAINING ASSESSMENT
       </Typography>
 
       {showSubmit && (
@@ -67,9 +69,9 @@ export const Header: React.FC<HeaderProps> = ({
             fontSize: { xs: "0.875rem", sm: "1rem" },
             fontWeight: 800,
             borderRadius: "12px",
-            bgcolor: isComplete ? "primary.dark" : "grey.400",
+            bgcolor: isComplete ? theme.palette.secondary.main : "grey.400", // Use secondary for submit
             "&:hover": {
-              bgcolor: isComplete ? "primary.main" : "grey.400",
+              bgcolor: isComplete ? theme.palette.secondary.dark : "grey.400",
             },
           }}
           title={

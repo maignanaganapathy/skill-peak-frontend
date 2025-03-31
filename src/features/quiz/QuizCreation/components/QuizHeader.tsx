@@ -1,14 +1,20 @@
 import React from "react";
 import logo from "../../../../assets/logo.svg";
 import { Button, Typography, Box } from "@mui/material"; // Import Box
+import { useTheme } from '@mui/material/styles'; // Import useTheme
 
 interface Props {
   onSubmit: () => void;
 }
 
 export const QuizHeader: React.FC<Props> = ({ onSubmit }) => {
+  const theme = useTheme(); // Get access to the Material UI theme
+
   return (
-    <header className="fixed top-0 left-0 w-full z-50 flex items-center justify-between px-8 py-0 bg-[#3E7CB1] h-[91px] max-sm:h-[70px]">
+    <header
+      className="fixed top-0 left-0 w-full z-50 flex items-center justify-between px-8 py-0 h-[80px] max-sm:h-[70px]" // Adjusted height
+      style={{ backgroundColor: theme.palette.primary.main }} // Set background color from theme
+    >
       <Box display="flex" alignItems="center">
         <img
           src={logo}
@@ -32,11 +38,11 @@ export const QuizHeader: React.FC<Props> = ({ onSubmit }) => {
       </Typography>
       <Button
         variant="contained"
-        color="primary"
+        color="secondary" // Changed color to 'secondary'
         onClick={onSubmit}
         sx={{ mr: 3, fontWeight: 'bold' }}
       >
-        Submit 
+        Submit
       </Button>
     </header>
   );
