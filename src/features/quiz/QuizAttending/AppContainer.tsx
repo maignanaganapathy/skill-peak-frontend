@@ -9,6 +9,7 @@ import { FormValues, Question, QuizResult } from "./types";
 import { useParams, useNavigate } from "react-router-dom"; // Import useNavigate
 import { getQuizDetails } from "../services/quiz.service"; // Import the service function
 import axios, { AxiosError } from 'axios'; // Import AxiosError
+import { api } from "../../../utils/axiosConfig"; // Import your Axios instance
 
 function AppContainer() {
     console.log("AppContainer rendered");
@@ -107,36 +108,33 @@ function AppContainer() {
         }
     };
 
-    const handleSubmit = () => {
+    const handleSubmit = async () => {
         if (!isAllQuestionsAnswered) {
             return;
         }
 
-        const submittedAnswers = questions.map((question) => {
-            const selected = Number(answers[question.id]) || 0;
-            return {
-                questionId: question.id,
-                selectedAnswer: selected,
-                correctAnswer: question.correctOptionId,
-                isCorrect: selected === question.correctOptionId,
-            };
-        });
+        const responses = questions.map((question) => ({
+            questionId: question.id,
+            selectedOptionId: Number(answers[question.id]) || 0,
+        }));
 
-        const correctAnswers = submittedAnswers.filter((a) => a.isCorrect).length;
-        const score = correctAnswers / questions.length;
+        const submitData = {
+            userId: 1, // Replace with the actual user ID
+            sectionId: 20, // Replace with the actual section ID
+            responses: responses,
+        };
 
-        setQuizResult({
-            totalQuestions: questions.length,
-            correctAnswers,
-            score,
-            answers: submittedAnswers
-                .filter((a): a is {
-                    questionId: number;
-                    selectedAnswer: number;
-                    correctAnswer: number;
-                    isCorrect: boolean;
-                } => a.correctAnswer !== null)
-        });
+        try {
+            const response = await api.post(`/quiz/${id}/submit`, submitData);
+            console.log("Quiz submission response:", response.data);
+            setQuizResult(response.data); // Assuming the response matches the QuizResult type
+
+            // Optionally navigate to a score view or display the score directly
+            // navigate(`/quiz/${id}/score`);
+        } catch (error) {
+            console.error("Error submitting quiz:", error);
+            // Handle submission error (e.g., show an error message to the user)
+        }
     };
 
     const currentQuestion = questions[currentQuestionIndex];
