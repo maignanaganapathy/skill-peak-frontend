@@ -1,26 +1,29 @@
 import React from "react";
-import { Box, Paper, Typography, Button, IconButton } from "@mui/material";
+import { Box, Paper, Typography, Button, IconButton, SvgIcon, Avatar } from "@mui/material"; // Removed SvgIcon import if not used elsewhere
 import DescriptionIcon from "@mui/icons-material/Description";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import OpenInNewIcon from "@mui/icons-material/OpenInNew";
 import { Section } from "./section";
-import { api } from "../../../utils/axiosConfig"; // Import the configured api instance
-import { useNavigate } from 'react-router-dom'; // Import useNavigate
+import { api } from "../../../utils/axiosConfig";
+import { useNavigate } from 'react-router-dom';
+import { BACKEND_URL } from "../../../config";
 
-import { BACKEND_URL } from "../../../config"; // Import BACKEND_URL
+import PreAssessmentPng from './assets/pre.png';
+import PostAssessmentPng from './assets/post.png';
+import MidAssessmentPng from './assets/mid.png';
 
 interface SectionCardProps {
     section: Section;
     onDelete: () => void;
     onEdit: (section: Section) => void;
-    onAddProgram: (sectionId: number) => void; // Renamed prop
+    onAddProgram: (sectionId: number) => void;
 }
 
 const SectionCard: React.FC<SectionCardProps> = ({ section, onDelete, onEdit, onAddProgram }) => {
-    const isQuizSection = ["Pre Assessment", "Post Assessment", "Mid Assessment", "Quiz"].includes(section.sectionType);
+    const isQuizSection = ["Pre Assessment", "Post Assessment", "Mid Assessment"].includes(section.sectionType);
     const isCustomOrLinkSection = ["Custom Quiz", "Custom Link"].includes(section.sectionType);
-    const navigate = useNavigate(); // Initialize useNavigate
+    const navigate = useNavigate();
 
     const handleCheckLink = async () => {
         if (isQuizSection && section.quizId) {
@@ -34,16 +37,12 @@ const SectionCard: React.FC<SectionCardProps> = ({ section, onDelete, onEdit, on
                         },
                     }
                 );
-                // Handle the response if needed (e.g., show a success message)
                 console.log("Quiz Attend Response:", response.data);
                 navigate(`/quiz/${section.quizId}/attend`);
             } catch (error: any) {
                 console.error("Error attending quiz:", error);
                 if (error.response && error.response.status === 401) {
                     console.error("Authorization failed.");
-                    // Handle unauthorized access (the api instance should already be handling token refresh/redirection)
-                } else {
-                    // Handle other errors
                 }
             }
         } else if (isCustomOrLinkSection) {
@@ -52,6 +51,22 @@ const SectionCard: React.FC<SectionCardProps> = ({ section, onDelete, onEdit, on
             window.open(section.linkUrl, '_blank');
         }
     };
+
+    let sectionIcon;
+    const iconStyle = {
+        width: '32px', // Adjust as needed
+        height: '34px', // Adjust as needed
+    };
+
+    if (section.sectionType === "Pre Assessment") {
+        sectionIcon = <Avatar src={PreAssessmentPng} style={iconStyle} variant="rounded" />;
+    } else if (section.sectionType === "Post Assessment") {
+        sectionIcon = <Avatar src={PostAssessmentPng} style={iconStyle} variant="rounded" />;
+    } else if (section.sectionType === "Mid Assessment") {
+        sectionIcon = <Avatar src={MidAssessmentPng} style={iconStyle} variant="rounded" />;
+    } else {
+        sectionIcon = <DescriptionIcon fontSize="large" />;
+    }
 
     return (
         <Paper
@@ -67,7 +82,6 @@ const SectionCard: React.FC<SectionCardProps> = ({ section, onDelete, onEdit, on
                 width: "100%",
             }}
         >
-            {/* Left Section: Icon and Text */}
             <Box display="flex" alignItems="center" gap={2}>
                 <Box
                     sx={{
@@ -75,9 +89,11 @@ const SectionCard: React.FC<SectionCardProps> = ({ section, onDelete, onEdit, on
                         padding: 1.2,
                         borderRadius: 2,
                         display: "flex",
+                        justifyContent: 'center',
+                        alignItems: 'center',
                     }}
                 >
-                    <DescriptionIcon fontSize="large" />
+                    {sectionIcon}
                 </Box>
                 <Box>
                     <Typography variant="h6" fontWeight="bold">
@@ -89,20 +105,18 @@ const SectionCard: React.FC<SectionCardProps> = ({ section, onDelete, onEdit, on
                 </Box>
             </Box>
 
-            {/* Right Section: Button and Actions (Stacked) */}
             <Box display="flex" flexDirection="column" alignItems="flex-end" gap={1}>
                 <Button
                     variant="contained"
                     color="primary"
                     endIcon={<OpenInNewIcon />}
                     sx={{ width: "130px", fontSize: "11px" }}
-                    onClick={handleCheckLink} // Use the dynamic handler
-                    disabled={(isQuizSection && !section.quizId) || isCustomOrLinkSection} // Disable if it's a quiz or custom/link section
+                    onClick={handleCheckLink}
+                    disabled={(isQuizSection && !section.quizId) || isCustomOrLinkSection}
                 >
-                    Check link
+                    Start Quiz
                 </Button>
 
-                {/* Second row: Icons */}
                 <Box display="flex" gap={2}>
                     <IconButton color="default" onClick={() => onEdit(section)}>
                         <EditIcon />

@@ -84,8 +84,31 @@ const SectionList: React.FC<SectionListProps> = ({ projectId, projects, allQuizz
   };
 
   const updateSection = async (updatedSection: Section) => {
-    // ... (rest of the updateSection logic - no change needed here)
+    try {
+      const response = await api.put(`${BACKEND_URL}/sections/${updatedSection.id}`, updatedSection);
+  
+      const updatedProjects = projects.map((project) => {
+        if (project.id === projectId) {
+          return {
+            ...project,
+            sections: project.sections.map((section) =>
+              section.id === updatedSection.id ? response.data : section
+            ),
+          };
+        }
+        return project;
+      });
+  
+      onProjectsUpdated(updatedProjects);
+      setIsEditing(false);
+      setOpenProgramFormSectionId(null);
+      setSectionBeingEdited(undefined);
+    } catch (error) {
+      console.error("Error updating section:", error);
+      alert("Failed to update section.");
+    }
   };
+  
 
   const deleteSection = async (sectionId: number) => {
     try {
