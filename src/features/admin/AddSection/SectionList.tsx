@@ -35,12 +35,12 @@ const SectionList: React.FC<SectionListProps> = ({ projectId, projects, allQuizz
   const [isAddSectionExpanded, setIsAddSectionExpanded] = useState(false);
   const formSectionRef = useRef<HTMLDivElement>(null);
 
-  // No need to fetch projects here anymore, they are passed as props
-
   const handleOpenProgramForm = (sectionId: number | null = null) => {
     setOpenProgramFormSectionId(sectionId);
-    setIsEditing(false);
+    setIsEditing(true);
     setIsAddSectionExpanded(false);
+    const sectionToEdit = projects.find(p => p.id === projectId)?.sections.find(s => s.id === sectionId);
+    setSectionBeingEdited(sectionToEdit);
   };
 
   const handleAddSectionToggle = () => {
@@ -48,53 +48,31 @@ const SectionList: React.FC<SectionListProps> = ({ projectId, projects, allQuizz
     setOpenProgramFormSectionId(null);
     setIsEditing(false);
 
-    // Scroll to the form if it's being opened
     if (!isAddSectionExpanded) {
-      setTimeout(() => { // Use setTimeout to wait for the form to render
+      setTimeout(() => {
         formSectionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
       }, 0);
     }
   };
 
-  const addSection = async (
-    newSectionData: Omit<Section, "id" | "createdAt" | "updatedAt" | "createdById" | "updatedById">
-  ) => {
-    try {
-      const payload = {
-        ...newSectionData,
-        quizId: newSectionData.quizId ? Number(newSectionData.quizId) : null,
-      };
+  const addSection = (newSection: Section) => {
+    console.log("addSection function called (from FormSection callback)");
+    // Update the local projects state with the newly created section
+    const updatedProjects = projects.map((project) => {
+      if (project.id === projectId) {
+        return {
+          ...project,
+          sections: [...(project.sections || []), newSection],
+        };
+      }
+      return project;
+    });
+    // Consider how to update the Program component's state if needed
 
-      const response = await api.post(`${BACKEND_URL}/sections`, payload, {
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
-
-      console.log("API Response:", response.data);
-
-      // Update the local projects state (you might need to adjust how this is done)
-      const updatedProjects = projects.map((project) => {
-        if (project.id === projectId) {
-          return {
-            ...project,
-            sections: [...(project.sections || []), response.data],
-          };
-        }
-        return project;
-      });
-      // Consider how to update the Program component's state if needed
-
-      setOpenProgramFormSectionId(null);
-      setIsEditing(false);
-      setSectionBeingEdited(undefined);
-      setIsAddSectionExpanded(false);
-    } catch (error: any) {
-      console.error("Error creating section:", error);
-      // Remove the alert
-      // alert("Failed to create section.");
-      // Optionally, you could set an error state here if you want to display a message later
-    }
+    setOpenProgramFormSectionId(null);
+    setIsEditing(false);
+    setSectionBeingEdited(undefined);
+    setIsAddSectionExpanded(false);
   };
 
   const handleEditClick = (section: Section) => {
@@ -111,15 +89,15 @@ const SectionList: React.FC<SectionListProps> = ({ projectId, projects, allQuizz
           "Content-Type": "application/json",
         },
       });
-      // Update the local projects state (adjust as needed)
+      // Update the local projects state
       const updatedProjects = projects.map((project) =>
         project.id === projectId
           ? {
-              ...project,
-              sections: project.sections.map((section) =>
-                section.id === updatedSection.id ? updatedSection : section
-              ),
-            }
+            ...project,
+            sections: project.sections.map((section) =>
+              section.id === updatedSection.id ? updatedSection : section
+            ),
+          }
           : project
       );
       // Consider updating Program's state
@@ -130,28 +108,25 @@ const SectionList: React.FC<SectionListProps> = ({ projectId, projects, allQuizz
       setSectionBeingEdited(undefined);
     } catch (error) {
       console.error("Error updating section:", error);
-      // Remove the alert
-      // alert("Failed to update section.");
-      // Optionally, you could set an error state here
     }
   };
 
   const deleteSection = async (sectionId: number) => {
     try {
       await api.delete(`${BACKEND_URL}/sections/${sectionId}`);
-      // Update the local projects state (adjust as needed)
+      // Update the local projects state
       const updatedProjects = projects.map((project) =>
         project.id === projectId
           ? {
-              ...project,
-              sections: project.sections.filter((section) => section.id !== sectionId),
-            }
+            ...project,
+            sections: project.sections.filter((section) => section.id !== sectionId),
+          }
           : project
       );
       // Consider updating Program's state
     } catch (error) {
       console.error("Error deleting section:", error);
-      alert("Failed to delete section."); // Keep this alert for deletion feedback
+      alert("Failed to delete section.");
     }
   };
 
@@ -168,12 +143,13 @@ const SectionList: React.FC<SectionListProps> = ({ projectId, projects, allQuizz
             onEdit={handleEditClick}
             onAddProgram={() => handleOpenProgramForm(section.id)}
           />
-          {openProgramFormSectionId === section.id && !isEditing && (
-            <FormSection // Using FormSection
+          {openProgramFormSectionId === section.id && (
+            <FormSection // Using FormSection for editing
               isExpanded={openProgramFormSectionId === section.id}
-              onSectionCreated={addSection} // Using addSection
+              onSectionCreated={updateSection} // Using updateSection here
               projectId={projectId}
-              quizzes={allQuizzes} // Use allQuizzes here
+              quizzes={allQuizzes}
+              sectionToEdit={sectionBeingEdited}
             />
           )}
         </React.Fragment>
