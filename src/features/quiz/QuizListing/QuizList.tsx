@@ -1,4 +1,3 @@
-// In your QuizList component
 import React, { useState, useEffect } from "react";
 import { Box, Container, CircularProgress } from "@mui/material";
 import FilterComponent from "./FilterComponent";
@@ -34,21 +33,21 @@ const QuizList: React.FC = () => {
         ),
     ];
 
-    useEffect(() => {
-        const fetchQuizzesData = async () => {
-            try {
-                setLoading(true);
-                console.log("Frontend - Fetching page:", page + 1); // Log the page being sent
-                const data = await getQuizzes(page + 1, rowsPerPage, searchQuery, selectedProject);
-                setQuizzes(data.quizzes);
-                setTotalQuizzes(data.totalCount);
-            } catch (error) {
-                console.error("Failed to fetch quizzes:", error);
-            } finally {
-                setLoading(false);
-            }
-        };
+    const fetchQuizzesData = async () => {
+        try {
+            setLoading(true);
+            console.log("Frontend - Fetching page:", page + 1); // Log the page being sent
+            const data = await getQuizzes(page + 1, rowsPerPage, searchQuery, selectedProject);
+            setQuizzes(data.quizzes);
+            setTotalQuizzes(data.totalCount);
+        } catch (error) {
+            console.error("Failed to fetch quizzes:", error);
+        } finally {
+            setLoading(false);
+        }
+    };
 
+    useEffect(() => {
         fetchQuizzesData();
     }, [page, rowsPerPage, searchQuery, selectedProject, location]);
 
@@ -61,27 +60,27 @@ const QuizList: React.FC = () => {
         if (editIndex === null || !editData) return;
         try {
             await updateQuiz(editData.id, editData);
-            const updatedQuizzes = [...quizzes];
-            updatedQuizzes[editIndex] = editData;
-            setQuizzes(updatedQuizzes);
             setEditIndex(null);
             // Optionally, show a success message
         } catch (error) {
             console.error("Error saving quiz:", error);
             // Optionally, show an error message to the user
+        } finally {
+            // Fetch quizzes again to update the list and total count
+            fetchQuizzesData();
         }
     };
 
     const handleDelete = async (index: number) => {
         try {
             await deleteQuiz(quizzes[index].id);
-            const updatedQuizzes = [...quizzes];
-            updatedQuizzes.splice(index, 1);
-            setQuizzes(updatedQuizzes);
             // Optionally, show a success message
         } catch (error) {
             console.error("Error deleting quiz:", error);
             // Optionally, show an error message to the user
+        } finally {
+            // Fetch quizzes again to update the list and total count
+            fetchQuizzesData();
         }
     };
 
