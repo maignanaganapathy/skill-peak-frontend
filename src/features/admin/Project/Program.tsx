@@ -1,4 +1,3 @@
-// Program.tsx
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import {
@@ -22,9 +21,23 @@ import { api } from "../../../utils/axiosConfig";
 import { BACKEND_URL } from "../../../config";
 import Navbar from "./Navbar";
 
+interface Project {
+  id: number;
+  name: string;
+  description: string;
+  date: string;
+  createdAt: string;
+  createdById: number;
+  updatedAt: string;
+  updatedById: number;
+  sections: any[]; // Define the correct type for sections
+  createdBy: { id: number; email: string };
+  updatedBy: { id: number; email: string };
+}
+
 export const Program: React.FC = () => {
   const [expandedProjectId, setExpandedProjectId] = useState<number | null>(null);
-  const [projects, setProjects] = useState<any[]>([]);
+  const [projects, setProjects] = useState<Project[]>([]);
   const [allQuizzes, setAllQuizzes] = useState<any[]>([]); // State for all quizzes
   const [loadingQuizzes, setLoadingQuizzes] = useState(false);
   const [quizFetchError, setQuizFetchError] = useState<string | null>(null);
@@ -44,6 +57,7 @@ export const Program: React.FC = () => {
     try {
       const response = await api.get(`${BACKEND_URL}/projects`);
       setProjects(response.data);
+      console.log("Projects fetched after potential section delete:", response.data); // Add this line
     } catch (error) {
       console.error("Error fetching projects:", error);
     }
@@ -75,7 +89,7 @@ export const Program: React.FC = () => {
 
   const handleDeleteProject = async (projectId: string) => {
     try {
-      await api.delete(`${BACKEND_URL}/projects/${projectId}`);
+      await api.delete(`<span class="math-inline">\{BACKEND\_URL\}/projects/</span>{projectId}`);
       fetchProjects();
     } catch (error) {
       console.error("Error deleting project:", error);
@@ -230,7 +244,7 @@ export const Program: React.FC = () => {
                     <EditIcon sx={{ fontSize: 20, color: "#000" }} />
                   </IconButton>
 
-                  <IconButton size="small" onClick={() => handleDeleteProject(project.id)}>
+                  <IconButton size="small" onClick={() => handleDeleteProject(String(project.id))}>
                     <DeleteIcon sx={{ fontSize: 20, color: "#000" }} />
                   </IconButton>
 
@@ -262,8 +276,13 @@ export const Program: React.FC = () => {
             </Card>
             {expandedProjectId === project.id && (
               <Box mt={2}>
-                {/* ✅ Pass projects and allQuizzes as props */}
-                <SectionList projectId={project.id} projects={projects} allQuizzes={allQuizzes} />
+                {/* ✅ Pass projects and allQuizzes as props, and the update function */}
+                <SectionList
+                  projectId={project.id}
+                  projects={projects}
+                  allQuizzes={allQuizzes}
+                  onProjectsUpdated={setProjects}
+                />
               </Box>
             )}
           </React.Fragment>
