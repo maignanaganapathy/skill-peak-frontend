@@ -5,9 +5,7 @@ import {
   IconButton,
   Typography,
   Menu,
-  MenuItem,
   Box,
-  Avatar,
   Divider,
   List,
   ListItem,
@@ -19,11 +17,11 @@ import MenuIcon from '@mui/icons-material/Menu';
 import DashboardIcon from '@mui/icons-material/Dashboard';
 import QuizIcon from '@mui/icons-material/Quiz';
 import ExitToAppIcon from '@mui/icons-material/ExitToApp';
-import Logo from '../../../assets/logo.svg'; // Import your logo
+import Logo from './assets/whitelogo.svg'; // Import your logo
 import { useNavigate } from 'react-router-dom';
 
 interface NavbarProps {
-  onLogout: () => void; 
+  onLogout: () => void;
 }
 
 const Navbar: React.FC<NavbarProps> = ({ onLogout }) => {
@@ -44,21 +42,32 @@ const Navbar: React.FC<NavbarProps> = ({ onLogout }) => {
     navigate(route);
   };
 
+  const handleLogoClick = () => {
+    navigate('/'); // Navigate to the home route
+  };
+
   return (
-    <AppBar position="static" sx={{ backgroundColor: 'primary.main' }}>
-      <Toolbar>
+    <AppBar position="static" sx={{ backgroundColor: 'primary.main', height: '80px', display: 'flex', justifyContent: 'center', alignItems: 'center' }}> {/* Center AppBar content */}
+      <Toolbar sx={{ minHeight: '80px', width: '100%', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}> {/* Distribute items in Toolbar */}
         {/* Logo on the left */}
-        <Box sx={{ display: 'flex', alignItems: 'center' }}>
-          <img src={Logo} alt="Logo" style={{ height: 40, marginRight: 8 }} />
-        </Box>
+        <IconButton
+          onClick={handleLogoClick}
+          edge="start"
+          color="inherit"
+          aria-label="logo"
+        >
+          <Box sx={{ display: 'flex', alignItems: 'center' }}>
+            <img src={Logo} alt="Logo" style={{ height: 50, marginRight: 9 }} />
+          </Box>
+        </IconButton>
 
         {/* Centered "Dashboard" Text */}
         <Typography
           variant="h6"
           component="div"
-          sx={{ flexGrow: 1, textAlign: 'center' }}
+          sx={{ fontWeight: 'bold', fontSize: '1.5rem', }}
         >
-          Dashboard
+          DASHBOARD
         </Typography>
 
         {/* Hamburger Menu on the right */}
@@ -90,7 +99,7 @@ const Navbar: React.FC<NavbarProps> = ({ onLogout }) => {
               </ListItemButton>
             </ListItem>
             <ListItem disablePadding>
-              <ListItemButton onClick={() => handleMenuItemClick('/quiz/list')}>
+              <ListItemButton onClick={() => handleMenuItemClick('/quizzes')}>
                 <ListItemIcon>
                   <QuizIcon color="primary" />
                 </ListItemIcon>

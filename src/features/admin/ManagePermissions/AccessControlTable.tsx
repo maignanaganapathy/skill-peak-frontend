@@ -1,5 +1,3 @@
-
-
 import React, { useEffect, useState, useCallback } from "react";
 import {
     Box,
@@ -14,7 +12,7 @@ import {
 import DeleteIcon from "@mui/icons-material/Delete";
 import SaveIcon from "@mui/icons-material/Save";
 import { api } from "../../../utils/axiosConfig"; // Import the configured api instance
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams, useSearchParams } from 'react-router-dom'; // Import useSearchParams
 
 import { BACKEND_URL } from "../../../config";
 
@@ -48,15 +46,29 @@ const AccessControlTable: React.FC = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const navigate = useNavigate();
+    const { projectId } = useParams<{ projectId: string }>();
+    const [searchParams] = useSearchParams(); // Use useSearchParams
     const [isSavingAll, setIsSavingAll] = useState(false);
 
+    // Redirect to /access with projectId if the current route is /projects/:projectId/roles
     useEffect(() => {
-        const fetchPermissions = async () => {
-            setLoading(true);
-            setError(null);
+        if (projectId) {
+            navigate(`/access?projectId=${projectId}`, { replace: true });
+        }
+    }, [navigate, projectId]);
 
-            try {
-                const res = await api.get(`${BACKEND_URL}/auth/permissions`);
+
+    const projectIdFromURL = searchParams.get('projectId');
+
+    const fetchPermissions = useCallback(async () => {
+        setLoading(true);
+        setError(null);
+
+        try {
+            if (projectIdFromURL) {
+                console.log("Fetching permissions for projectId:", projectIdFromURL); // Debug log
+                const res = await api.get(`${BACKEND_URL}/auth/permissions?projectId=${projectIdFromURL}`);
+                console.log("Permissions data received:", res.data); // Debug log
 
                 const formatted: Record<string, PermissionResponse[]> =
                     res.data.projectPermissionsFormatted || {};
@@ -90,20 +102,24 @@ const AccessControlTable: React.FC = () => {
                 }
 
                 setRoles(roleList);
-            } catch (err: any) {
-                console.error("Error fetching permissions:", err);
-                setError("Failed to load initial permissions.");
-                if (err.response && err.response.status === 401) {
-                    console.error("Unauthorized access. Redirecting to login.");
-                    navigate('/login');
-                }
-            } finally {
-                setLoading(false);
             }
-        };
+        } catch (err: any) {
+            console.error("Error fetching permissions:", err);
+            setError("Failed to load initial permissions.");
+            if (err.response && err.response.status === 401) {
+                console.error("Unauthorized access. Redirecting to login.");
+                navigate('/login');
+            }
+        } finally {
+            setLoading(false);
+        }
+    }, [navigate, projectIdFromURL]);
 
-        fetchPermissions();
-    }, [navigate]);
+    useEffect(() => {
+        if (projectIdFromURL) {
+            fetchPermissions();
+        }
+    }, [fetchPermissions, projectIdFromURL]);
 
     const handleAddRole = () => {
         const initialPermissions: PermissionState = {};
@@ -141,25 +157,45 @@ const AccessControlTable: React.FC = () => {
         setIsSavingAll(true);
         try {
             let res;
+            console.log("saveRoleName called for role:", role); // Debug
+            console.log("projectIdFromURL:", projectIdFromURL); // Debug
+
             if (role.isNew) {
-                res = await api.post(
-                    `${BACKEND_URL}/projects/3/roles`,
-                    { roleName: role.name }
-                );
-                const newRoleId = res.data?.data?.id;
-                const updatedRoles = [...roles];
-                updatedRoles[index].projectRoleId = newRoleId;
-                updatedRoles[index].isNew = false;
-                updatedRoles[index].isNameChanged = false;
-                setRoles(updatedRoles);
+                if (projectIdFromURL) {
+                    const url = `${BACKEND_URL}/projects/${projectIdFromURL}/roles`;
+                    console.log("Creating new role at:", url, "with data:", { roleName: role.name }); // Debug
+                    res = await api.post(
+                        url,
+                        { roleName: role.name }
+                    );
+                    console.log("New role created:", res.data); // Debug
+                    // Update local state immediately
+                    const newRoleId = res.data?.data?.id;
+                    const updatedRoles = [...roles];
+                    updatedRoles[index].projectRoleId = newRoleId;
+                    updatedRoles[index].isNew = false;
+                    updatedRoles[index].isNameChanged = false;
+                    setRoles(updatedRoles);
+                    // Re-fetch data to ensure consistency (optional but recommended)
+                    fetchPermissions();
+                } else {
+                    alert("Project ID is missing.");
+                }
             } else if (role.isNameChanged) {
-                await api.put(
-                    `${BACKEND_URL}/projects/3/roles/${role.projectRoleId}`,
-                    { roleName: role.name }
-                );
-                const updatedRoles = [...roles];
-                updatedRoles[index].isNameChanged = false;
-                setRoles(updatedRoles);
+                if (projectIdFromURL) {
+                    const url = `${BACKEND_URL}/projects/${projectIdFromURL}/roles/${role.projectRoleId}`;
+                    console.log("Updating role at:", url, "with data:", { roleName: role.name }); // Debug
+                    await api.put(
+                        url,
+                        { roleName: role.name }
+                    );
+                    console.log("Role name updated successfully"); // Debug
+                    const updatedRoles = [...roles];
+                    updatedRoles[index].isNameChanged = false;
+                    setRoles(updatedRoles);
+                } else {
+                    alert("Project ID is missing.");
+                }
             }
         } catch (error: any) {
             console.error("Error saving role name:", error);
@@ -180,7 +216,7 @@ const AccessControlTable: React.FC = () => {
         } finally {
             setIsSavingAll(false);
         }
-    }, [roles, navigate]);
+    }, [roles, navigate, projectIdFromURL, fetchPermissions]);
 
     const handleRoleNameBlur = (index: number) => {
         if (roles[index].isNameChanged) {
@@ -203,17 +239,23 @@ const AccessControlTable: React.FC = () => {
         }
 
         try {
-            const deletePermissionsUrl = `${BACKEND_URL}/role-permissions/role/${roleToDelete.projectRoleId}`;
-            await api.delete(deletePermissionsUrl);
-            console.log(`Role permissions for role ID ${roleToDelete.projectRoleId} deleted successfully.`);
+            if (projectIdFromURL) {
+                const deletePermissionsUrl = `${BACKEND_URL}/role-permissions/role/${roleToDelete.projectRoleId}`;
+                await api.delete(deletePermissionsUrl);
+                console.log(`Role permissions for role ID ${roleToDelete.projectRoleId} deleted successfully.`);
 
-            const deleteRoleUrl = `${BACKEND_URL}/projects/3/roles/${roleToDelete.projectRoleId}`;
-            await api.delete(deleteRoleUrl);
-            console.log(`Role "${roleToDelete.name}" deleted successfully.`);
+                const deleteRoleUrl = `${BACKEND_URL}/projects/${projectIdFromURL}/roles/${roleToDelete.projectRoleId}`;
+                await api.delete(deleteRoleUrl);
+                console.log(`Role "${roleToDelete.name}" deleted successfully.`);
 
-            const updatedRoles = roles.filter((_, i) => i !== index);
-            setRoles(updatedRoles);
-            alert(`Role "${roleToDelete.name}" and its associated permissions deleted successfully.`);
+                const updatedRoles = roles.filter((_, i) => i !== index);
+                setRoles(updatedRoles);
+                alert(`Role "${roleToDelete.name}" and its associated permissions deleted successfully.`);
+                // Re-fetch data to update the table
+                fetchPermissions();
+            } else {
+                alert("Project ID is missing.");
+            }
 
         } catch (error: any) {
             console.error("Error deleting role and/or permissions:", error);
@@ -250,31 +292,35 @@ const AccessControlTable: React.FC = () => {
         const isChecked = currentPermission?.checked;
 
         try {
-            if (!isChecked) {
-                const response = await api.post(
-                    `${BACKEND_URL}/role-permissions`,
-                    {
-                        roleId: role.projectRoleId,
-                        permissionId: permissionId,
-                    }
-                );
-                const rpId = response.data?.data?.id;
-                role.permissions[permissionId] = { checked: true, rpId };
-            } else {
-                const rpId = currentPermission.rpId;
-                if (rpId) {
-                    await api.delete(
-                        `${BACKEND_URL}/role-permissions/${rpId}`
+            if (projectIdFromURL) {
+                if (!isChecked) {
+                    const response = await api.post(
+                        `${BACKEND_URL}/role-permissions`,
+                        {
+                            roleId: role.projectRoleId,
+                            permissionId: permissionId,
+                        }
                     );
-                    role.permissions[permissionId] = { checked: false };
+                    const rpId = response.data?.data?.id;
+                    role.permissions[permissionId] = { checked: true, rpId };
                 } else {
-                    console.error("Permission ID not found for deletion.");
-                    alert("Permission ID not found. Try refreshing.");
-                    return;
+                    const rpId = currentPermission.rpId;
+                    if (rpId) {
+                        await api.delete(
+                            `${BACKEND_URL}/role-permissions/${rpId}`
+                        );
+                        role.permissions[permissionId] = { checked: false };
+                    } else {
+                        console.error("Permission ID not found for deletion.");
+                        alert("Permission ID not found. Try refreshing.");
+                        return;
+                    }
                 }
-            }
 
-            setRoles(updatedRoles);
+                setRoles(updatedRoles);
+            } else {
+                alert("Project ID is missing.");
+            }
         } catch (error: any) {
             console.error("Error toggling permission:", error);
             let errorMessage = "Something went wrong while updating permissions.";
@@ -315,6 +361,11 @@ const AccessControlTable: React.FC = () => {
 
     if (error) {
         return <Typography color="error">{error}</Typography>;
+    }
+
+    // Conditional rendering to prevent errors if projectId is missing initially
+    if (!projectIdFromURL) {
+        return <Typography color="error">Project ID is missing from the URL.</Typography>;
     }
 
     const hasUnsavedChanges = roles.some(role => role.isNameChanged);

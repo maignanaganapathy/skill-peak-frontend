@@ -28,7 +28,7 @@ export const FloatingLabelSelect: React.FC<FloatingLabelSelectProps> = ({
               "Pre Assessment",
               "Mid Assessment",
               "Post Assessment",
-              "Quiz",
+              "CertificateLink",
               "Custom Quiz",
               "Custom Link",
           ];

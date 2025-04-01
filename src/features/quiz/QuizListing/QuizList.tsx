@@ -1,4 +1,3 @@
-// In your QuizList component
 import React, { useState, useEffect } from "react";
 import { Box, Container, CircularProgress } from "@mui/material";
 import FilterComponent from "./FilterComponent";
@@ -8,16 +7,15 @@ import PaginationComponent from "./PaginationComponent";
 import { QuizHeader } from "./Header";
 import CreateQuizButton from "./CreateQuizButton";
 import { Quiz } from "../types/quiz";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { getQuizzes, updateQuiz, deleteQuiz } from "../services/quiz.service"; // Import the new functions
 
 const QuizList: React.FC = () => {
     const location = useLocation();
+    const navigate = useNavigate();
     const [quizzes, setQuizzes] = useState<Quiz[]>([]);
     const [searchQuery, setSearchQuery] = useState("");
     const [selectedProject, setSelectedProject] = useState<string | null>(null);
-    const [editIndex, setEditIndex] = useState<number | null>(null);
-    const [editData, setEditData] = useState<Quiz | null>(null);
     const [page, setPage] = useState(0);
     const [rowsPerPage, setRowsPerPage] = useState(3);
     const [loading, setLoading] = useState(true);
@@ -34,66 +32,48 @@ const QuizList: React.FC = () => {
         ),
     ];
 
-    useEffect(() => {
-        const fetchQuizzesData = async () => {
-            try {
-                setLoading(true);
-                console.log("Frontend - Fetching page:", page + 1); // Log the page being sent
-                const data = await getQuizzes(page + 1, rowsPerPage, searchQuery, selectedProject);
-                setQuizzes(data.quizzes);
-                setTotalQuizzes(data.totalCount);
-            } catch (error) {
-                console.error("Failed to fetch quizzes:", error);
-            } finally {
-                setLoading(false);
-            }
-        };
+    const fetchQuizzesData = async () => {
+        try {
+            setLoading(true);
+            console.log("Frontend - Fetching page:", page + 1); // Log the page being sent
+            const data = await getQuizzes(page + 1, rowsPerPage, searchQuery, selectedProject);
+            setQuizzes(data.quizzes);
+            setTotalQuizzes(data.totalCount);
+        } catch (error) {
+            console.error("Failed to fetch quizzes:", error);
+        } finally {
+            setLoading(false);
+        }
+    };
 
+    useEffect(() => {
         fetchQuizzesData();
     }, [page, rowsPerPage, searchQuery, selectedProject, location]);
 
-    const handleEdit = (index: number) => {
-        setEditIndex(index);
-        setEditData({ ...quizzes[index] });
+    const handleEdit = (id: number) => {
+        navigate(`/quiz/edit/${id}`);
     };
 
     const handleSave = async () => {
-        if (editIndex === null || !editData) return;
-        try {
-            await updateQuiz(editData.id, editData);
-            const updatedQuizzes = [...quizzes];
-            updatedQuizzes[editIndex] = editData;
-            setQuizzes(updatedQuizzes);
-            setEditIndex(null);
-            // Optionally, show a success message
-        } catch (error) {
-            console.error("Error saving quiz:", error);
-            // Optionally, show an error message to the user
-        }
+        // This function is no longer directly used for editing in this component
+        // as editing is moved to the QuizCreation component.
+        console.warn("handleSave called in QuizList, but editing is now in QuizCreation.");
+        fetchQuizzesData(); // Refresh the list after potential external changes
     };
 
-    const handleDelete = async (index: number) => {
+    const handleDelete = async (id: number) => {
         try {
-            await deleteQuiz(quizzes[index].id);
-            const updatedQuizzes = [...quizzes];
-            updatedQuizzes.splice(index, 1);
-            setQuizzes(updatedQuizzes);
-            // Optionally, show a success message
+            await deleteQuiz(id);
         } catch (error) {
             console.error("Error deleting quiz:", error);
-            // Optionally, show an error message to the user
+        } finally {
+            fetchQuizzesData();
         }
     };
 
+    // This function is no longer directly used for editing fields in this component.
     const handleChangeEditField = (field: keyof Quiz, value: any) => {
-        setEditData((prev) =>
-            prev
-                ? {
-                    ...prev,
-                    [field]: value,
-                }
-                : null
-        );
+        console.warn("handleChangeEditField called in QuizList, but editing is now in QuizCreation.");
     };
 
     const filteredQuizzes = quizzes.filter((quiz) => {
@@ -171,11 +151,11 @@ const QuizList: React.FC = () => {
                     ) : (
                         <QuizTableComponent
                             quizzes={paginatedQuizzes}
-                            editIndex={editIndex}
-                            editData={editData}
-                            handleEdit={handleEdit}
+                            editIndex={null} // editIndex is no longer used here
+                            editData={null}    // editData is no longer used here
+                            handleEdit={(index) => handleEdit(quizzes[index].id)} // Pass the quiz ID to handleEdit
                             handleSave={handleSave}
-                            handleDelete={handleDelete}
+                            handleDelete={(index) => handleDelete(quizzes[index].id)} // Pass the quiz ID to handleDelete
                             handleChangeEditField={handleChangeEditField}
                         />
                     )}

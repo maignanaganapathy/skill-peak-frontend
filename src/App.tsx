@@ -1,3 +1,4 @@
+// App.tsx
 import React from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { ThemeProvider } from "@mui/material/styles";
@@ -5,8 +6,6 @@ import CssBaseline from "@mui/material/CssBaseline";
 import theme from "./theme"; // Your custom MUI theme
 
 // 🔹 Admin Features
-import ModalWrapper from "./features/admin/CreateProject/ModalWrapper";
-import SectionList from "./features/admin/AddSection/SectionList";
 import { NotificationManager } from "./features/admin/Notification/NotificationManager";
 import Program from "./features/admin/Project/Program";
 import AccessControlPage from "./features/admin/ManagePermissions/AccessControlPage";
@@ -18,7 +17,7 @@ import SignUp from "./features/auth/pages/Signup";
 
 // 🔹 Quiz Features
 import QuizList from "./features/quiz/QuizListing/QuizList";
-import QuizCreation from "./features/quiz/QuizCreation/QuizForm";
+import QuizCreation from "./features/quiz/QuizCreation/QuizForm"; // Assuming QuizForm is the correct component
 import QuizPage from "./features/quiz/QuizAttending/AppContainer";
 
 // 🔹 Contexts and Toasts
@@ -43,11 +42,13 @@ const App: React.FC = () => {
               {/* 🔹 Protected Routes */}
               <Route element={<ProtectedRoutes />}>
                 <Route path="/notification" element={<NotificationManager />} />
-                <Route path="/program" element={<Program />} />
+                <Route path="/dashboard" element={<Program />} />
                 <Route path="/access" element={<AccessControlPage />} />
-                <Route path="/quiz/list" element={<QuizList />} />
+                <Route path="/projects/:projectId/roles" element={<AccessControlPage />} /> {/* Add this line */}
+                <Route path="/quizzes" element={<QuizList />} />
                 <Route path="/quiz/create" element={<QuizCreation />} />
-                <Route path="/quiz/:id/attend" element={<QuizPage />} />
+                <Route path="/quiz/edit/:id" element={<QuizCreation />} /> {/* Add this route for editing */}
+                <Route path="/quizzes/:id" element={<QuizPage />} />
                 {/* Add other protected routes here */}
               </Route>
             </Routes>

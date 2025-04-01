@@ -17,6 +17,7 @@ export interface SectionWithProject {
   expiresAt: string | null;
   isEnabled: boolean;
   project?: Project;
+  questions?: Question[]; // Changed QuizQuestion to Question
 }
 
 export interface User {

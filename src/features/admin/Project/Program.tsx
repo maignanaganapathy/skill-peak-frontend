@@ -1,4 +1,3 @@
-// Program.tsx
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import {
@@ -9,6 +8,8 @@ import {
   Stack,
   IconButton,
   Button,
+  Skeleton,
+  Avatar,
 } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
@@ -20,9 +21,23 @@ import { api } from "../../../utils/axiosConfig";
 import { BACKEND_URL } from "../../../config";
 import Navbar from "./Navbar";
 
+interface Project {
+  id: number;
+  name: string;
+  description: string;
+  date: string;
+  createdAt: string;
+  createdById: number;
+  updatedAt: string;
+  updatedById: number;
+  sections: any[]; // Define the correct type for sections
+  createdBy: { id: number; email: string };
+  updatedBy: { id: number; email: string };
+}
+
 export const Program: React.FC = () => {
   const [expandedProjectId, setExpandedProjectId] = useState<number | null>(null);
-  const [projects, setProjects] = useState<any[]>([]);
+  const [projects, setProjects] = useState<Project[]>([]);
   const [allQuizzes, setAllQuizzes] = useState<any[]>([]); // State for all quizzes
   const [loadingQuizzes, setLoadingQuizzes] = useState(false);
   const [quizFetchError, setQuizFetchError] = useState<string | null>(null);
@@ -34,14 +49,15 @@ export const Program: React.FC = () => {
     setExpandedProjectId(prevId => prevId === projectId ? null : projectId);
   };
 
-  const handleManagePermissions = () => {
-    navigate("/access");
+  const handleManagePermissions = (projectId: number) => {
+    navigate(`/projects/${projectId}/roles`); // Navigate to the roles management page
   };
 
   const fetchProjects = async () => {
     try {
       const response = await api.get(`${BACKEND_URL}/projects`);
       setProjects(response.data);
+      console.log("Projects fetched after potential section delete:", response.data); // Add this line
     } catch (error) {
       console.error("Error fetching projects:", error);
     }
@@ -87,6 +103,12 @@ export const Program: React.FC = () => {
     navigate('/login');
   };
 
+  const getInitials = (name: string): string => {
+    const words = name.split(' ');
+    const initials = words.map(word => word.charAt(0).toUpperCase()).join('');
+    return initials;
+  };
+
   return (
     <Box>
       {/* Include the Navbar component */}
@@ -117,7 +139,7 @@ export const Program: React.FC = () => {
               color: "#000",
             }}
           >
-            Program Creation
+            Programs
           </Typography>
 
           {/* ✅ Pass refresh callback to ModalWrapper */}
@@ -154,7 +176,9 @@ export const Program: React.FC = () => {
         )}
 
         {loadingQuizzes && (
-          <Typography sx={{ mb: 2 }}>Loading quizzes...</Typography>
+          <Box sx={{ mb: 2 }}>
+            <Skeleton />
+          </Box>
         )}
 
         {/* Render Projects and their SectionLists */}
@@ -176,15 +200,20 @@ export const Program: React.FC = () => {
                   position: "relative",
                 }}
               >
-                <Box
+                <Avatar
                   sx={{
-                    width: 82,
-                    height: 80,
+                    width: 80, // Or 82, match the desired size
+                    height: 80, // Or 82, match the desired size
                     borderRadius: "50%",
                     border: "1px solid #1E4D92",
-                    backgroundColor: "#f0f0f0",
+                    backgroundColor: "#f0f0f0", // You can customize this
+                    fontSize: "1.5rem", // Adjust font size as needed
+                    fontWeight: 600,
+                    color: "#333", // Adjust text color as needed
                   }}
-                />
+                >
+                  {getInitials(project.name)}
+                </Avatar>
 
                 <Stack spacing={1} sx={{ flexGrow: 1, minHeight: 80 }}>
                   <Typography variant="subtitle1" fontWeight={600}>
@@ -215,13 +244,13 @@ export const Program: React.FC = () => {
                     <EditIcon sx={{ fontSize: 20, color: "#000" }} />
                   </IconButton>
 
-                  <IconButton size="small" onClick={() => handleDeleteProject(project.id)}>
+                  <IconButton size="small" onClick={() => handleDeleteProject(String(project.id))}>
                     <DeleteIcon sx={{ fontSize: 20, color: "#000" }} />
                   </IconButton>
 
-                  <IconButton size="small" onClick={handleManagePermissions}>
-                    <ManageAccountsIcon sx={{ fontSize: 20, color: "#000" }} />
-                  </IconButton>
+                  <IconButton size="small" component="button" onClick={() => handleManagePermissions(project.id)}>
+  <ManageAccountsIcon sx={{ fontSize: 20, color: "#000" }} />
+</IconButton>
                   <IconButton
                     size="small"
                     onClick={() => handleToggle(project.id)} // Pass project ID to handleToggle
@@ -247,8 +276,13 @@ export const Program: React.FC = () => {
             </Card>
             {expandedProjectId === project.id && (
               <Box mt={2}>
-                {/* ✅ Pass projects and allQuizzes as props */}
-                <SectionList projectId={project.id} projects={projects} allQuizzes={allQuizzes} />
+                {/* ✅ Pass projects and allQuizzes as props, and the update function */}
+                <SectionList
+                  projectId={project.id}
+                  projects={projects}
+                  allQuizzes={allQuizzes}
+                  onProjectsUpdated={setProjects}
+                />
               </Box>
             )}
           </React.Fragment>
