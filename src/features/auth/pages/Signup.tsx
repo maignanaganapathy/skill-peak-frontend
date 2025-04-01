@@ -113,7 +113,7 @@ const SignUp: React.FC = () => {
             setAuthToken();
 
             toast.success("Signup successful!");
-            navigate("/program"); // Navigate to the dashboard after successful signup
+            navigate("/dashboard"); // Navigate to the dashboard after successful signup
         } catch (error: any) {
             toast.error(error.message || "Signup failed");
         }

@@ -61,12 +61,12 @@ const QuizList: React.FC = () => {
         try {
             await updateQuiz(editData.id, editData);
             setEditIndex(null);
-            // Optionally, show a success message
+         
         } catch (error) {
             console.error("Error saving quiz:", error);
-            // Optionally, show an error message to the user
+           
         } finally {
-            // Fetch quizzes again to update the list and total count
+         
             fetchQuizzesData();
         }
     };
@@ -74,12 +74,11 @@ const QuizList: React.FC = () => {
     const handleDelete = async (index: number) => {
         try {
             await deleteQuiz(quizzes[index].id);
-            // Optionally, show a success message
+          
         } catch (error) {
             console.error("Error deleting quiz:", error);
-            // Optionally, show an error message to the user
+       
         } finally {
-            // Fetch quizzes again to update the list and total count
             fetchQuizzesData();
         }
     };

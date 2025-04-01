@@ -99,7 +99,7 @@ const Navbar: React.FC<NavbarProps> = ({ onLogout }) => {
               </ListItemButton>
             </ListItem>
             <ListItem disablePadding>
-              <ListItemButton onClick={() => handleMenuItemClick('/quiz/list')}>
+              <ListItemButton onClick={() => handleMenuItemClick('/quizzes')}>
                 <ListItemIcon>
                   <QuizIcon color="primary" />
                 </ListItemIcon>

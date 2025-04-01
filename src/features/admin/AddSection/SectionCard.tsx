@@ -38,7 +38,7 @@ const SectionCard: React.FC<SectionCardProps> = ({ section, onDelete, onEdit, on
                     }
                 );
                 console.log("Quiz Attend Response:", response.data);
-                navigate(`/quiz/${section.quizId}/attend`);
+                navigate(`/quizzes/${section.quizId}`);
             } catch (error: any) {
                 console.error("Error attending quiz:", error);
                 if (error.response && error.response.status === 401) {

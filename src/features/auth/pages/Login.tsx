@@ -50,7 +50,7 @@ const Login: React.FC = () => {
             toast.success("Login successful!");
 
             // Redirect to the /program route
-            navigate("/program");
+            navigate("/dashboard");
         } catch (error: any) {
             toast.error(error.message || "Login failed. Please try again.");
         }

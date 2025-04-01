@@ -14,7 +14,7 @@ export const QuizHeader = () => {
   };
 
   const handleBackClick = () => {
-    navigate('/program'); // Navigate to the /project route
+    navigate('/dashboard'); // Navigate to the /project route
   };
 
   return (
