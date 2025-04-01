@@ -30,10 +30,15 @@ interface FormOption {
 }
 
 interface FormQuestion {
+    id?: number; // Optional ID for existing questions
     question: string;
-    optionType: string; // Use string directly as QuestionTypeEnum might cause issues with form values
-    options: FormOption[];
+    optionType: string;
+    options: FormOptionWithBackendId[];
     imageOptions?: { url: string; isCorrect: boolean }[];
+}
+
+interface FormOptionWithBackendId extends FormOption {
+    backendId?: number; // Optional ID from the backend
 }
 
 interface QuizFormValues {
@@ -74,13 +79,7 @@ const QuizForm: React.FC = () => {
         defaultValues: {
             title: "",
             description: "",
-            questions: [
-                {
-                    question: "",
-                    optionType: "TEXT",
-                    options: [{ id: 'yes', option: "Yes", isCorrect: false }, { id: 'no', option: "No", isCorrect: false }],
-                },
-            ],
+            questions: [],
         },
     });
 
@@ -95,27 +94,40 @@ const QuizForm: React.FC = () => {
     useEffect(() => {
         if (isEditing && quizId) {
             setLoading(true);
-            getQuizDetails(quizId) // Use getQuizDetails
-                .then((data: Quiz) => {
+            getQuizDetails(quizId)
+                .then((data: any) => {
                     setTitle(data.title);
                     setDescription(data.description);
+
+                    const transformedQuestions: FormQuestion[] = data.questions.map((q: any) => {
+                        const correctOptionId = q.correctOptions[0]?.optionId;
+
+                        const transformedOptions: FormOptionWithBackendId[] = q.options.map((opt: any) => ({
+                            id: opt.id.toString(),
+                            backendId: opt.id,
+                            option: opt.option,
+                            isCorrect: opt.id === correctOptionId,
+                        }));
+
+                        return {
+                            id: q.id,
+                            question: q.question,
+                            optionType: q.optionType,
+                            options: transformedOptions,
+                        };
+                    });
+
                     reset({
                         title: data.title,
                         description: data.description,
-                        questions: data.sections.flatMap((section: SectionWithProject) => section.questions || []).map((q: QuizQuestion) => ({
-                            question: q.questionText,
-                            optionType: q.type,
-                            options: q.options.map((opt: AnswerOption) => ({ id: opt.id, option: opt.text, isCorrect: opt.isCorrect })),
-                            // Handle imageOptions if needed
-                        })),
+                        questions: transformedQuestions,
                     });
-                    // Set edit mode to true when loading data for editing
+
                     setEditTitle(true);
                     setEditDescription(true);
                 })
                 .catch((error) => {
                     console.error("Error fetching quiz for edit:", error);
-                    // Handle error, maybe redirect or show a message
                 })
                 .finally(() => setLoading(false));
         }
@@ -187,13 +199,15 @@ const QuizForm: React.FC = () => {
             return;
         }
 
-        const payload: UpdateQuizInput = {
+        const payload = {
             title: data.title,
             description: data.description,
             questions: data.questions.map((q) => ({
+                id: q.id,
                 question: q.question,
                 optionType: q.optionType,
                 options: q.options.map((opt) => ({
+                    id: opt.backendId,
                     option: opt.option,
                     isCorrect: opt.isCorrect,
                 })),
@@ -204,7 +218,7 @@ const QuizForm: React.FC = () => {
             setLoading(true);
             let response;
             if (isEditing && quizId) {
-                response = await updateQuiz(parseInt(quizId, 10), payload); // Parse quizId to number for updateQuiz
+                response = await updateQuiz(parseInt(quizId, 10), payload);
                 console.log("✅ Quiz updated successfully:", response);
             } else {
                 response = await createQuiz(payload);
@@ -232,9 +246,7 @@ const QuizForm: React.FC = () => {
 
             <Box sx={{ pt: "110px", px: 3 }}>
                 <Paper elevation={3} sx={{ p: 3 }}>
-                    {formErrors.title && (
-                        <FormHelperText error>{formErrors.title}</FormHelperText>
-                    )}
+                    {formErrors.title && <FormHelperText error>{formErrors.title}</FormHelperText>}
                     {formErrors.questions && (
                         <FormHelperText error>{formErrors.questions}</FormHelperText>
                     )}
@@ -300,7 +312,9 @@ const QuizForm: React.FC = () => {
                     </Box>
 
                     {fields.map((field, index) => {
-                        const isYesNoQuestion = watch(`questions.${index}.optionType`) === "YES_NO";
+                        const question = watch(`questions.${index}`);
+                        const isYesNoQuestion = question?.optionType === "YES_NO";
+
                         return (
                             <Box key={field.id}>
                                 <QuestionField
@@ -326,18 +340,30 @@ const QuizForm: React.FC = () => {
                                             <RadioGroup
                                                 aria-label={`question-${index}-options`}
                                                 name={`questions.${index}.correctOption`}
-                                                value={watch(`questions.${index}.options`).find((opt) => opt.isCorrect)?.id || ''}
+                                                value={
+                                                    question?.options.find((opt) => opt.isCorrect)?.id || ""
+                                                }
                                                 onChange={(e) => {
                                                     const selectedValue = e.target.value;
-                                                    const updatedOptions = watch(`questions.${index}.options`).map((option) => ({
-                                                        ...option,
-                                                        isCorrect: option.id === selectedValue,
-                                                    }));
+                                                    const updatedOptions = question?.options.map(
+                                                        (option) => ({
+                                                            ...option,
+                                                            isCorrect: option.id === selectedValue,
+                                                        })
+                                                    );
                                                     setValue(`questions.${index}.options`, updatedOptions);
                                                 }}
                                             >
-                                                <FormControlLabel value="yes" control={<Radio />} label="Yes" />
-                                                <FormControlLabel value="no" control={<Radio />} label="No" />
+                                                <FormControlLabel
+                                                    value="yes"
+                                                    control={<Radio checked={question?.options.some(opt => opt.id === 'yes' && opt.isCorrect)} />}
+                                                    label="Yes"
+                                                />
+                                                <FormControlLabel
+                                                    value="no"
+                                                    control={<Radio checked={question?.options.some(opt => opt.id === 'no' && opt.isCorrect)} />}
+                                                    label="No"
+                                                />
                                             </RadioGroup>
                                         </FormControl>
                                     )}
