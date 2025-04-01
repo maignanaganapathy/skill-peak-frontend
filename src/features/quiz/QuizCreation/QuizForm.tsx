@@ -1,5 +1,5 @@
 // src/features/quiz/QuizCreation/QuizForm.tsx
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useForm, useFieldArray, Control, UseFormRegister, FieldArrayWithId } from "react-hook-form";
 import {
     Box,
@@ -13,14 +13,15 @@ import {
     RadioGroup,
     FormControlLabel,
     Radio,
+    CircularProgress,
 } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
 import CheckIcon from "@mui/icons-material/Check";
 import QuestionField from "./components/QuestionField";
-import { UpdateQuizInput } from "../types/quiz";
+import { UpdateQuizInput, Quiz, SectionWithProject, Question as QuizQuestion, AnswerOption } from "../types/quiz";
 import { QuizHeader } from "./components/QuizHeader";
-import { useNavigate } from "react-router-dom";
-import { createQuiz } from "../services/quiz.service";
+import { useNavigate, useParams } from "react-router-dom";
+import { createQuiz, updateQuiz, getQuizDetails } from "../services/quiz.service"; // Import getQuizDetails
 
 interface FormOption {
     id: string;
@@ -30,7 +31,7 @@ interface FormOption {
 
 interface FormQuestion {
     question: string;
-    optionType: "TEXT" | "IMG" | "YES_NO";
+    optionType: string; // Use string directly as QuestionTypeEnum might cause issues with form values
     options: FormOption[];
     imageOptions?: { url: string; isCorrect: boolean }[];
 }
@@ -43,6 +44,9 @@ interface QuizFormValues {
 
 const QuizForm: React.FC = () => {
     const navigate = useNavigate();
+    const { id: quizIdParam } = useParams<{ id?: string }>();
+    const isEditing = !!quizIdParam;
+    const quizId = quizIdParam; // Keep quizId as string to match service
 
     const [title, setTitle] = useState("Untitled");
     const [editTitle, setEditTitle] = useState(false);
@@ -55,6 +59,7 @@ const QuizForm: React.FC = () => {
         options?: string[];
         correctOption?: string[];
     }>({});
+    const [loading, setLoading] = useState(false);
 
     const {
         control,
@@ -64,6 +69,7 @@ const QuizForm: React.FC = () => {
         setValue,
         getValues,
         formState: { errors },
+        reset,
     } = useForm<QuizFormValues>({
         defaultValues: {
             title: "",
@@ -86,11 +92,40 @@ const QuizForm: React.FC = () => {
         },
     });
 
+    useEffect(() => {
+        if (isEditing && quizId) {
+            setLoading(true);
+            getQuizDetails(quizId) // Use getQuizDetails
+                .then((data: Quiz) => {
+                    setTitle(data.title);
+                    setDescription(data.description);
+                    reset({
+                        title: data.title,
+                        description: data.description,
+                        questions: data.sections.flatMap((section: SectionWithProject) => section.questions || []).map((q: QuizQuestion) => ({
+                            question: q.questionText,
+                            optionType: q.type,
+                            options: q.options.map((opt: AnswerOption) => ({ id: opt.id, option: opt.text, isCorrect: opt.isCorrect })),
+                            // Handle imageOptions if needed
+                        })),
+                    });
+                    // Set edit mode to true when loading data for editing
+                    setEditTitle(true);
+                    setEditDescription(true);
+                })
+                .catch((error) => {
+                    console.error("Error fetching quiz for edit:", error);
+                    // Handle error, maybe redirect or show a message
+                })
+                .finally(() => setLoading(false));
+        }
+    }, [isEditing, quizId, reset]);
+
     const handleAddQuestion = () => {
         append({
             question: "",
             optionType: "TEXT",
-            options: [{ id: 'option1', option: "", isCorrect: false }],
+            options: [{ id: `option-${Date.now()}`, option: "", isCorrect: false }],
         });
         setFormErrors({});
     };
@@ -152,7 +187,7 @@ const QuizForm: React.FC = () => {
             return;
         }
 
-        const payload = {
+        const payload: UpdateQuizInput = {
             title: data.title,
             description: data.description,
             questions: data.questions.map((q) => ({
@@ -166,13 +201,30 @@ const QuizForm: React.FC = () => {
         };
 
         try {
-            const response = await createQuiz(payload);
-            console.log("✅ Quiz submitted successfully:", response.data);
+            setLoading(true);
+            let response;
+            if (isEditing && quizId) {
+                response = await updateQuiz(parseInt(quizId, 10), payload); // Parse quizId to number for updateQuiz
+                console.log("✅ Quiz updated successfully:", response);
+            } else {
+                response = await createQuiz(payload);
+                console.log("✅ Quiz submitted successfully:", response.data);
+            }
             navigate("/quizzes");
         } catch (error: any) {
             console.error("⚠️ Submission error:", error.response ? error.response.data : error.message);
+        } finally {
+            setLoading(false);
         }
     });
+
+    if (loading) {
+        return (
+            <Box display="flex" justifyContent="center" alignItems="center" height="80vh">
+                <CircularProgress />
+            </Box>
+        );
+    }
 
     return (
         <>

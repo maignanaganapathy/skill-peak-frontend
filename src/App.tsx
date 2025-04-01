@@ -1,3 +1,4 @@
+// App.tsx
 import React from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { ThemeProvider } from "@mui/material/styles";
@@ -16,7 +17,7 @@ import SignUp from "./features/auth/pages/Signup";
 
 // 🔹 Quiz Features
 import QuizList from "./features/quiz/QuizListing/QuizList";
-import QuizCreation from "./features/quiz/QuizCreation/QuizForm";
+import QuizCreation from "./features/quiz/QuizCreation/QuizForm"; // Assuming QuizForm is the correct component
 import QuizPage from "./features/quiz/QuizAttending/AppContainer";
 
 // 🔹 Contexts and Toasts
@@ -46,6 +47,7 @@ const App: React.FC = () => {
                 <Route path="/projects/:projectId/roles" element={<AccessControlPage />} /> {/* Add this line */}
                 <Route path="/quizzes" element={<QuizList />} />
                 <Route path="/quiz/create" element={<QuizCreation />} />
+                <Route path="/quiz/edit/:id" element={<QuizCreation />} /> {/* Add this route for editing */}
                 <Route path="/quizzes/:id" element={<QuizPage />} />
                 {/* Add other protected routes here */}
               </Route>
