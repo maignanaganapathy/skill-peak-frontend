@@ -49,8 +49,8 @@ export const Program: React.FC = () => {
     setExpandedProjectId(prevId => prevId === projectId ? null : projectId);
   };
 
-  const handleManagePermissions = () => {
-    navigate("/access");
+  const handleManagePermissions = (projectId: number) => {
+    navigate(`/projects/${projectId}/roles`); // Navigate to the roles management page
   };
 
   const fetchProjects = async () => {
@@ -89,7 +89,7 @@ export const Program: React.FC = () => {
 
   const handleDeleteProject = async (projectId: string) => {
     try {
-      await api.delete(`<span class="math-inline">\{BACKEND\_URL\}/projects/</span>{projectId}`);
+      await api.delete(`${BACKEND_URL}/projects/${projectId}`);
       fetchProjects();
     } catch (error) {
       console.error("Error deleting project:", error);
@@ -248,9 +248,9 @@ export const Program: React.FC = () => {
                     <DeleteIcon sx={{ fontSize: 20, color: "#000" }} />
                   </IconButton>
 
-                  <IconButton size="small" onClick={handleManagePermissions}>
-                    <ManageAccountsIcon sx={{ fontSize: 20, color: "#000" }} />
-                  </IconButton>
+                  <IconButton size="small" component="button" onClick={() => handleManagePermissions(project.id)}>
+  <ManageAccountsIcon sx={{ fontSize: 20, color: "#000" }} />
+</IconButton>
                   <IconButton
                     size="small"
                     onClick={() => handleToggle(project.id)} // Pass project ID to handleToggle

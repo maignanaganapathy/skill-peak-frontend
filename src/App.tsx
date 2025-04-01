@@ -5,7 +5,6 @@ import CssBaseline from "@mui/material/CssBaseline";
 import theme from "./theme"; // Your custom MUI theme
 
 // 🔹 Admin Features
-
 import { NotificationManager } from "./features/admin/Notification/NotificationManager";
 import Program from "./features/admin/Project/Program";
 import AccessControlPage from "./features/admin/ManagePermissions/AccessControlPage";
@@ -44,6 +43,7 @@ const App: React.FC = () => {
                 <Route path="/notification" element={<NotificationManager />} />
                 <Route path="/dashboard" element={<Program />} />
                 <Route path="/access" element={<AccessControlPage />} />
+                <Route path="/projects/:projectId/roles" element={<AccessControlPage />} /> {/* Add this line */}
                 <Route path="/quizzes" element={<QuizList />} />
                 <Route path="/quiz/create" element={<QuizCreation />} />
                 <Route path="/quizzes/:id" element={<QuizPage />} />
