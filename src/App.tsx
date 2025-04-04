@@ -1,4 +1,3 @@
-// App.tsx
 import React from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { ThemeProvider } from "@mui/material/styles";
@@ -11,7 +10,7 @@ import Program from "./features/admin/Project/Program";
 import AccessControlPage from "./features/admin/ManagePermissions/AccessControlPage";
 
 // 🔹 Auth & Dashboard Features
-import {LandingPage} from "./features/landing/Landingpage"; // Ensure the correct file casing
+import { LandingPage } from "./features/landing/Landingpage"; // Ensure the correct file casing
 import Login from "./features/auth/pages/Login";
 import SignUp from "./features/auth/pages/Signup";
 
@@ -19,6 +18,9 @@ import SignUp from "./features/auth/pages/Signup";
 import QuizList from "./features/quiz/QuizListing/QuizList";
 import QuizCreation from "./features/quiz/QuizCreation/QuizForm"; // Assuming QuizForm is the correct component
 import QuizPage from "./features/quiz/QuizAttending/AppContainer";
+
+// 🔹 Contact Feature
+import ContactForm from "./features/contact/ContactForm";
 
 // 🔹 Contexts and Toasts
 import { PermissionsProvider } from "./context/PermissionsContext";
@@ -38,16 +40,17 @@ const App: React.FC = () => {
               <Route path="/" element={<LandingPage />} />
               <Route path="/login" element={<Login />} />
               <Route path="/signup" element={<SignUp />} />
+              <Route path="/contact" element={<ContactForm />} />
 
               {/* 🔹 Protected Routes */}
               <Route element={<ProtectedRoutes />}>
                 <Route path="/notification" element={<NotificationManager />} />
                 <Route path="/dashboard" element={<Program />} />
                 <Route path="/access" element={<AccessControlPage />} />
-                <Route path="/projects/:projectId/roles" element={<AccessControlPage />} /> {/* Add this line */}
+                <Route path="/projects/:projectId/roles" element={<AccessControlPage />} />
                 <Route path="/quizzes" element={<QuizList />} />
                 <Route path="/quiz/create" element={<QuizCreation />} />
-                <Route path="/quiz/edit/:id" element={<QuizCreation />} /> {/* Add this route for editing */}
+                <Route path="/quiz/edit/:id" element={<QuizCreation />} />
                 <Route path="/quizzes/:id" element={<QuizPage />} />
                 {/* Add other protected routes here */}
               </Route>
