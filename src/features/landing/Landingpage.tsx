@@ -7,6 +7,8 @@ import { Features } from "./Features";
 import { About } from "./About";
 import { Partners } from "./Partners";
 import { Footer } from "./Footer";
+import { Sections } from "./Sections";
+
 
 export const LandingPage: React.FC = () => {
   return (
@@ -15,6 +17,7 @@ export const LandingPage: React.FC = () => {
       <Hero />
       <Features />
       <About />
+      <Sections />
       <Partners />
       <Footer />
     </main>

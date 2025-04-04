@@ -1,4 +1,4 @@
-"use client";
+
 import React from "react";
 import Tick from "./assets/Tick.svg"; // Import the tick SVG
 

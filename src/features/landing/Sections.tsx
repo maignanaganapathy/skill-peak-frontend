@@ -1,13 +1,12 @@
-"use client";
 import React from "react";
 import { IconContainer } from "./IconContainer";
 
 type IconType =
-  | "assessment"
+  | "pre"
   | "interactive"
-  | "post-assessment"
-  | "learning"
-  | "evaluation"
+  | "post"
+  | "activities"
+  | "mid"
   | "certificate";
 
 interface SectionCardProps {
@@ -37,7 +36,7 @@ const SectionCard: React.FC<SectionCardProps> = ({
 export const Sections: React.FC = () => {
   const leftSections: SectionCardProps[] = [
     {
-      icon: "assessment" as IconType,
+      icon: "pre" as IconType,
       title: "Pre-training Assessment",
       description:
         "The pre-training assessment gauges participants' existing knowledge, ensuring they're prepared to engage with course material. This readiness check helps tailor the training to individual needs, optimizing the learning experience by addressing knowledge gaps and adjusting difficulty levels from the start.",
@@ -49,7 +48,7 @@ export const Sections: React.FC = () => {
         "Engagement is key to retention, and our interactive activities – including quizzes, simulations, and discussion boards – ensure learners apply concepts in real-time. This hands-on approach enhances understanding and encourages active participation, making learning more dynamic and enjoyable.",
     },
     {
-      icon: "post-assessment" as IconType,
+      icon: "post" as IconType,
       title: "Post-training Assessment",
       description:
         "Our post-training assessment provides a comprehensive final test and feedback, allowing learners to evaluate their growth. Self-reflection prompts offer insights into areas for future improvement, helping participants internalize learning while reinforcing key takeaways from the course.",
@@ -58,13 +57,13 @@ export const Sections: React.FC = () => {
 
   const rightSections: SectionCardProps[] = [
     {
-      icon: "learning" as IconType,
+      icon: "activities" as IconType,
       title: "Engaging Learning Modules",
       description:
         "Our multimedia-rich learning modules cater to diverse learning preferences, ensuring participants stay engaged. Videos, PDFs, presentations, and case studies offer varied perspectives and deepen understanding, making complex concepts more digestible while keeping learners actively involved throughout their journey.",
     },
     {
-      icon: "evaluation" as IconType,
+      icon: "mid" as IconType,
       title: "Mid-training Evaluation",
       description:
         "Mid-training evaluations, including practical exercises, allow participants to apply learned concepts. This reinforces skills, identifies areas for improvement, and promotes a deeper understanding. These exercises offer immediate feedback, ensuring learners stay on track to meet their training goals effectively.",
@@ -82,8 +81,9 @@ export const Sections: React.FC = () => {
       <h1 className="mb-20 text-5xl font-bold tracking-tighter text-black leading-[60px]">
         SECTIONS
       </h1>
-      <div className="flex flex-wrap justify-center gap-x-10 gap-y-10 max-w-[1200px]">
-        <div className="flex flex-col gap-10 w-[463px] max-md:w-full">
+      <div className="flex flex-wrap justify-center gap-x-20 gap-y-10 max-w-[1200px]">
+  <div className="flex flex-col gap-10 flex-1 max-md:w-full">
+    
           {leftSections.map((section, index) => (
             <SectionCard
               key={index}
@@ -93,7 +93,7 @@ export const Sections: React.FC = () => {
             />
           ))}
         </div>
-        <div className="flex flex-col gap-10 w-[463px] max-md:w-full">
+        <div className="flex flex-col gap-10 flex-1 max-md:w-full">
           {rightSections.map((section, index) => (
             <SectionCard
               key={index}

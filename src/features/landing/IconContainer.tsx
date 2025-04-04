@@ -1,33 +1,56 @@
 import React from "react";
-import { CustomIcons } from "./CustomIcons";
+import pre from "./assets/pre.png"; // These imports are in the body
+import post from "./assets/post.png";
+import mid from "./assets/mid.png";
+import Interactive from "./assets/Interactive.png";
+import certificate from "./assets/certificate.png";
+import activities from "./assets/activities.png";
 
 interface IconContainerProps {
-  icon: 'assessment' | 'interactive' | 'post-assessment' | 'learning' | 'evaluation' | 'certificate';
+  icon: 'pre' | 'interactive' | 'post' | 'activities' | 'mid' | 'certificate';
 }
 
 export const IconContainer: React.FC<IconContainerProps> = ({ icon }) => {
   const iconMap = {
-    'assessment': <CustomIcons.Assessment />,
-    'interactive': (
+    'pre': (
       <img
-        src="https://cdn.builder.io/api/v1/image/assets/TEMP/aa96f5bcfcdfbf20e4bd3aa419e5539621e726b9"
-        alt="Meeting room icon"
+        src={pre}
+        alt="Pre-training Assessment icon"
         className="w-[30px] h-[30px] absolute left-[7px] top-[8px]"
       />
     ),
-    'post-assessment': <CustomIcons.PostAssessment />,
-    'learning': (
+    'interactive': (
       <img
-        src="https://cdn.builder.io/api/v1/image/assets/TEMP/3a1c3133fa2e325aa91fdca4c590039cfca7e1d3"
-        alt="Critical thinking icon"
+        src={Interactive}
+        alt="Interactive Activities icon"
+        className="w-[30px] h-[30px] absolute left-[7px] top-[8px]"
+      />
+    ),
+    'post': (
+      <img
+        src={post}
+        alt="Post-training Assessment icon"
+        className="w-[30px] h-[30px] absolute left-[7px] top-[8px]"
+      />
+    ),
+    'activities': (
+      <img
+        src={activities}
+        alt="Engaging Learning Modules icon"
         className="w-[32px] h-[32px] absolute left-[6px] top-[8px]"
       />
     ),
-    'evaluation': <CustomIcons.Evaluation />,
+    'mid': (
+      <img
+        src={mid}
+        alt="Mid-training Evaluation icon"
+        className="w-[30px] h-[30px] absolute left-[7px] top-[8px]"
+      />
+    ),
     'certificate': (
       <img
-        src="https://cdn.builder.io/api/v1/image/assets/TEMP/3e54d6467fc30d16ccc5220cd78393d073703d85"
-        alt="Certificate icon"
+        src={certificate}
+        alt="Downloadable Certificate icon"
         className="w-[41px] h-[41px] absolute left-[1px] top-[2px]"
       />
     ),
@@ -41,3 +64,4 @@ export const IconContainer: React.FC<IconContainerProps> = ({ icon }) => {
     </div>
   );
 };
+
