@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { ThemeProvider } from "@mui/material/styles";
 import CssBaseline from "@mui/material/CssBaseline";
 import theme from "./theme"; // Your custom MUI theme
+import ComingSoon from './ComingSoon';
 
 // 🔹 Admin Features
 import { NotificationManager } from "./features/admin/Notification/NotificationManager";
@@ -41,7 +42,7 @@ const App: React.FC = () => {
               <Route path="/login" element={<Login />} />
               <Route path="/signup" element={<SignUp />} />
               <Route path="/contact" element={<ContactForm />} />
-
+              <Route path="/comingsoon" element={<ComingSoon />} />
               {/* 🔹 Protected Routes */}
               <Route element={<ProtectedRoutes />}>
                 <Route path="/notification" element={<NotificationManager />} />

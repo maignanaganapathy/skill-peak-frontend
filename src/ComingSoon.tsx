@@ -28,7 +28,7 @@ const ComingSoon: React.FC<ComingSoonProps> = () => {
 
   return (
     <div style={styles.comingSoonContainer}>
-      <h1 style={styles.heading}>Coming Soon</h1>
+      <h1 style={styles.heading}>Coming Soon...</h1>
       
     </div>
   );

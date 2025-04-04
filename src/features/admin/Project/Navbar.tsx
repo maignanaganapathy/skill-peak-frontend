@@ -91,7 +91,7 @@ const Navbar: React.FC<NavbarProps> = ({ onLogout }) => {
         >
           <List>
             <ListItem disablePadding>
-              <ListItemButton onClick={() => handleMenuItemClick('/dashboard')}>
+              <ListItemButton onClick={() => handleMenuItemClick('/comingsoon')}> {/* Updated route */}
                 <ListItemIcon>
                   <DashboardIcon color="primary" />
                 </ListItemIcon>
