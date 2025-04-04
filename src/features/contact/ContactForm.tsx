@@ -3,7 +3,7 @@ import { Box, Typography, TextField, Button, Grid, Paper } from '@mui/material';
 import LocationOnIcon from '@mui/icons-material/LocationOn';
 import PhoneIcon from '@mui/icons-material/Phone';
 import EmailIcon from '@mui/icons-material/Email';
-import Navbar from './Navbar';
+import Navbar from '../landing/Navbar';
 
 const ContactForm = () => {
   return (
