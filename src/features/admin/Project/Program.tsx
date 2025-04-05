@@ -20,6 +20,8 @@ import SectionList from "../AddSection/SectionList";
 import { api } from "../../../utils/axiosConfig";
 import { BACKEND_URL } from "../../../config";
 import Navbar from "./Navbar";
+import { usePermissions } from "../../../context/PermissionsContext"; // Import usePermissions
+import { Permissions } from "../../../constants/Permissions"; // Import Permissions enum
 
 interface Project {
   id: number;
@@ -30,7 +32,7 @@ interface Project {
   createdById: number;
   updatedAt: string;
   updatedById: number;
-  sections: any[]; // Define the correct type for sections
+  sections: any[];
   createdBy: { id: number; email: string };
   updatedBy: { id: number; email: string };
 }
@@ -38,26 +40,27 @@ interface Project {
 export const Program: React.FC = () => {
   const [expandedProjectId, setExpandedProjectId] = useState<number | null>(null);
   const [projects, setProjects] = useState<Project[]>([]);
-  const [allQuizzes, setAllQuizzes] = useState<any[]>([]); // State for all quizzes
+  const [allQuizzes, setAllQuizzes] = useState<any[]>([]);
   const [loadingQuizzes, setLoadingQuizzes] = useState(false);
   const [quizFetchError, setQuizFetchError] = useState<string | null>(null);
   const navigate = useNavigate();
   const [selectedProject, setSelectedProject] = useState<any>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const { checkHasPermission } = usePermissions(); // Access checkHasPermission
 
   const handleToggle = (projectId: number) => {
-    setExpandedProjectId(prevId => prevId === projectId ? null : projectId);
+    setExpandedProjectId((prevId) => (prevId === projectId ? null : projectId));
   };
 
   const handleManagePermissions = (projectId: number) => {
-    navigate(`/projects/${projectId}/roles`); // Navigate to the roles management page
+    navigate(`/projects/${projectId}/roles`);
   };
 
   const fetchProjects = async () => {
     try {
       const response = await api.get(`${BACKEND_URL}/projects`);
       setProjects(response.data);
-      console.log("Projects fetched after potential section delete:", response.data); // Add this line
+      console.log("Projects fetched after potential section delete:", response.data);
     } catch (error) {
       console.error("Error fetching projects:", error);
     }
@@ -84,7 +87,7 @@ export const Program: React.FC = () => {
 
   useEffect(() => {
     fetchProjects();
-    fetchAllQuizzes(); // Fetch quizzes in Program
+    fetchAllQuizzes();
   }, []);
 
   const handleDeleteProject = async (projectId: string) => {
@@ -97,21 +100,18 @@ export const Program: React.FC = () => {
   };
 
   const handleLogout = () => {
-    // Implement your logout logic here, e.g., clearing cookies, local storage, etc.
     console.log('Logout clicked from Program');
-    // After logout, you might want to redirect to the login page
     navigate('/login');
   };
 
   const getInitials = (name: string): string => {
     const words = name.split(' ');
-    const initials = words.map(word => word.charAt(0).toUpperCase()).join('');
+    const initials = words.map((word) => word.charAt(0).toUpperCase()).join('');
     return initials;
   };
 
   return (
     <Box>
-      {/* Include the Navbar component */}
       <Navbar onLogout={handleLogout} />
 
       <Box
@@ -123,7 +123,6 @@ export const Program: React.FC = () => {
           p: 2.5,
         }}
       >
-        {/* Header */}
         <Box
           sx={{
             display: "flex",
@@ -142,7 +141,6 @@ export const Program: React.FC = () => {
             Programs
           </Typography>
 
-          {/* ✅ Pass refresh callback to ModalWrapper */}
           <ModalWrapper
             onProjectCreated={fetchProjects}
             open={isModalOpen}
@@ -152,8 +150,8 @@ export const Program: React.FC = () => {
 
           <Button
             onClick={() => {
-              setSelectedProject(null); // Reset to null for new project
-              setIsModalOpen(true); // Open modal
+              setSelectedProject(null);
+              setIsModalOpen(true);
             }}
             sx={{
               backgroundColor: "#A5C8E5",
@@ -181,7 +179,6 @@ export const Program: React.FC = () => {
           </Box>
         )}
 
-        {/* Render Projects and their SectionLists */}
         {projects.map((project) => (
           <React.Fragment key={project.id}>
             <Card
@@ -202,14 +199,14 @@ export const Program: React.FC = () => {
               >
                 <Avatar
                   sx={{
-                    width: 80, // Or 82, match the desired size
-                    height: 80, // Or 82, match the desired size
+                    width: 80,
+                    height: 80,
                     borderRadius: "50%",
                     border: "1px solid #1E4D92",
-                    backgroundColor: "#f0f0f0", // You can customize this
-                    fontSize: "1.5rem", // Adjust font size as needed
+                    backgroundColor: "#f0f0f0",
+                    fontSize: "1.5rem",
                     fontWeight: 600,
-                    color: "#333", // Adjust text color as needed
+                    color: "#333",
                   }}
                 >
                   {getInitials(project.name)}
@@ -237,23 +234,27 @@ export const Program: React.FC = () => {
                     alignItems: "center",
                   }}
                 >
-                  <IconButton size="small" onClick={() => {
-                    setSelectedProject(project);
-                    setIsModalOpen(true);
-                  }}>
-                    <EditIcon sx={{ fontSize: 20, color: "#000" }} />
-                  </IconButton>
+                  {checkHasPermission(Permissions.EDIT_PROJECT) && (
+                    <IconButton size="small" onClick={() => {
+                      setSelectedProject(project);
+                      setIsModalOpen(true);
+                    }}>
+                      <EditIcon sx={{ fontSize: 20, color: "#000" }} />
+                    </IconButton>
+                  )}
 
-                  <IconButton size="small" onClick={() => handleDeleteProject(String(project.id))}>
-                    <DeleteIcon sx={{ fontSize: 20, color: "#000" }} />
-                  </IconButton>
+                  {checkHasPermission(Permissions.DELETE_PROJECT) && (
+                    <IconButton size="small" onClick={() => handleDeleteProject(String(project.id))}>
+                      <DeleteIcon sx={{ fontSize: 20, color: "#000" }} />
+                    </IconButton>
+                  )}
 
                   <IconButton size="small" component="button" onClick={() => handleManagePermissions(project.id)}>
-  <ManageAccountsIcon sx={{ fontSize: 20, color: "#000" }} />
-</IconButton>
+                    <ManageAccountsIcon sx={{ fontSize: 20, color: "#000" }} />
+                  </IconButton>
                   <IconButton
                     size="small"
-                    onClick={() => handleToggle(project.id)} // Pass project ID to handleToggle
+                    onClick={() => handleToggle(project.id)}
                     sx={{
                       width: 25,
                       height: 25,
@@ -276,7 +277,6 @@ export const Program: React.FC = () => {
             </Card>
             {expandedProjectId === project.id && (
               <Box mt={2}>
-                {/* ✅ Pass projects and allQuizzes as props, and the update function */}
                 <SectionList
                   projectId={project.id}
                   projects={projects}

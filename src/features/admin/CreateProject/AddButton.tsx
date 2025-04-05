@@ -1,12 +1,20 @@
 import React from "react";
 import { Button } from "@mui/material";
+import { usePermissions } from "../../../context/PermissionsContext"; // Import usePermissions
+import { Permissions } from "../../../constants/Permissions"; // Import Permissions enum
 
 interface AddButtonProps {
   onClick?: () => void;
-  marginTop?: string | number; // Add marginTop prop
+  marginTop?: string | number;
 }
 
 export const AddButton: React.FC<AddButtonProps> = ({ onClick, marginTop }) => {
+  const { checkHasPermission } = usePermissions();
+
+  if (!checkHasPermission(Permissions.CREATE_PROJECT)) {
+    return null; // 🔒 Do not show button if no permission
+  }
+
   return (
     <Button
       variant="contained"
