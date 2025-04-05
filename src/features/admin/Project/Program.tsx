@@ -20,8 +20,8 @@ import SectionList from "../AddSection/SectionList";
 import { api } from "../../../utils/axiosConfig";
 import { BACKEND_URL } from "../../../config";
 import Navbar from "./Navbar";
-import { usePermissions } from "../../../context/PermissionsContext"; // Import usePermissions
-import { Permissions } from "../../../constants/Permissions"; // Import Permissions enum
+import { usePermissions } from "../../../context/PermissionsContext";
+import { Permissions } from "../../../constants/Permissions";
 
 interface Project {
   id: number;
@@ -46,7 +46,7 @@ export const Program: React.FC = () => {
   const navigate = useNavigate();
   const [selectedProject, setSelectedProject] = useState<any>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const { checkHasPermission } = usePermissions(); // Access checkHasPermission
+  const { checkHasPermission } = usePermissions();
 
   const handleToggle = (projectId: number) => {
     setExpandedProjectId((prevId) => (prevId === projectId ? null : projectId));
@@ -100,13 +100,13 @@ export const Program: React.FC = () => {
   };
 
   const handleLogout = () => {
-    console.log('Logout clicked from Program');
-    navigate('/login');
+    console.log("Logout clicked from Program");
+    navigate("/login");
   };
 
   const getInitials = (name: string): string => {
-    const words = name.split(' ');
-    const initials = words.map((word) => word.charAt(0).toUpperCase()).join('');
+    const words = name.split(" ");
+    const initials = words.map((word) => word.charAt(0).toUpperCase()).join("");
     return initials;
   };
 
@@ -235,23 +235,36 @@ export const Program: React.FC = () => {
                   }}
                 >
                   {checkHasPermission(Permissions.EDIT_PROJECT) && (
-                    <IconButton size="small" onClick={() => {
-                      setSelectedProject(project);
-                      setIsModalOpen(true);
-                    }}>
+                    <IconButton
+                      size="small"
+                      onClick={() => {
+                        setSelectedProject(project);
+                        setIsModalOpen(true);
+                      }}
+                    >
                       <EditIcon sx={{ fontSize: 20, color: "#000" }} />
                     </IconButton>
                   )}
 
                   {checkHasPermission(Permissions.DELETE_PROJECT) && (
-                    <IconButton size="small" onClick={() => handleDeleteProject(String(project.id))}>
+                    <IconButton
+                      size="small"
+                      onClick={() => handleDeleteProject(String(project.id))}
+                    >
                       <DeleteIcon sx={{ fontSize: 20, color: "#000" }} />
                     </IconButton>
                   )}
 
-                  <IconButton size="small" component="button" onClick={() => handleManagePermissions(project.id)}>
-                    <ManageAccountsIcon sx={{ fontSize: 20, color: "#000" }} />
-                  </IconButton>
+                  {checkHasPermission(Permissions.MANAGE_ACCOUNT) && (
+                    <IconButton
+                      size="small"
+                      component="button"
+                      onClick={() => handleManagePermissions(project.id)}
+                    >
+                      <ManageAccountsIcon sx={{ fontSize: 20, color: "#000" }} />
+                    </IconButton>
+                  )}
+
                   <IconButton
                     size="small"
                     onClick={() => handleToggle(project.id)}
@@ -267,7 +280,10 @@ export const Program: React.FC = () => {
                       sx={{
                         fontSize: 27,
                         color: "#fff",
-                        transform: expandedProjectId === project.id ? "rotate(180deg)" : "rotate(0deg)",
+                        transform:
+                          expandedProjectId === project.id
+                            ? "rotate(180deg)"
+                            : "rotate(0deg)",
                         transition: "transform 0.3s ease",
                       }}
                     />
