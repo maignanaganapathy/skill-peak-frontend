@@ -4,8 +4,15 @@ import LocationOnIcon from '@mui/icons-material/LocationOn';
 import PhoneIcon from '@mui/icons-material/Phone';
 import EmailIcon from '@mui/icons-material/Email';
 import Navbar from '../landing/Navbar';
+import { useNavigate } from 'react-router-dom'; // Import useNavigate
 
 const ContactForm = () => {
+  const navigate = useNavigate(); // Initialize useNavigate
+
+  const handleSendClick = () => {
+    navigate('/comingsoon'); // Navigate to ComingSoon page
+  };
+
   return (
     <>
       {/* Fixed Navbar at Top */}
@@ -58,6 +65,7 @@ const ContactForm = () => {
                         width: '130px',
                         borderRadius: 13,
                       }}
+                      onClick={handleSendClick} // Attach the click handler
                     >
                       SEND
                     </Button>
