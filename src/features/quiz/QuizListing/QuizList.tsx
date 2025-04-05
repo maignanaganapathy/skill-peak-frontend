@@ -17,7 +17,7 @@ const QuizList: React.FC = () => {
     const [searchQuery, setSearchQuery] = useState("");
     const [selectedProject, setSelectedProject] = useState<string | null>(null);
     const [page, setPage] = useState(0);
-    const [rowsPerPage, setRowsPerPage] = useState(3);
+    const [rowsPerPage, setRowsPerPage] = useState(10);
     const [loading, setLoading] = useState(true);
     const [totalQuizzes, setTotalQuizzes] = useState(0);
 
@@ -47,8 +47,9 @@ const QuizList: React.FC = () => {
     };
 
     useEffect(() => {
+        console.log("Location changed, fetching data..."); // ADD THIS LINE
         fetchQuizzesData();
-    }, [page, rowsPerPage, searchQuery, selectedProject, location]);
+    }, [location]); // SIMPLIFIED DEPENDENCY ARRAY
 
     const handleEdit = (id: number) => {
         navigate(`/quiz/edit/${id}`);
@@ -152,7 +153,7 @@ const QuizList: React.FC = () => {
                         <QuizTableComponent
                             quizzes={paginatedQuizzes}
                             editIndex={null} // editIndex is no longer used here
-                            editData={null}    // editData is no longer used here
+                            editData={null}     // editData is no longer used here
                             handleEdit={(index) => handleEdit(quizzes[index].id)} // Pass the quiz ID to handleEdit
                             handleSave={handleSave}
                             handleDelete={(index) => handleDelete(quizzes[index].id)} // Pass the quiz ID to handleDelete

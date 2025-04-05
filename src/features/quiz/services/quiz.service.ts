@@ -1,14 +1,13 @@
 // src/services/quiz.service.ts
-import { api } from '../../../utils/axiosConfig'; // Adjust the import path based on your file structure
-import { BACKEND_URL } from '../../../config'; // Adjust the path as needed
-
+import { api } from '../../../utils/axiosConfig'; 
+import { BACKEND_URL } from '../../../config'; 
 export const getQuizzes = async (page: number, rowsPerPage: number, search: string, selectedProject: string | null) => {
   try {
     const response = await api.post(`${BACKEND_URL}/quiz/list`, {
       page: page,
       rowsPerPage: rowsPerPage,
       search: search,
-      projectIds: selectedProject ? [selectedProject] : undefined, // Adjust based on your backend
+      projectIds: selectedProject ? [selectedProject] : undefined, 
     });
     return response.data;
   } catch (error) {
@@ -57,4 +56,3 @@ export const getQuizDetails = async (quizId: string) => { // Changed quizId to s
   }
 };
 
-// Add other quiz related API calls here as needed

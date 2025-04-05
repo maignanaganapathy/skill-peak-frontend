@@ -100,20 +100,38 @@ const QuizForm: React.FC = () => {
                     setDescription(data.description);
 
                     const transformedQuestions: FormQuestion[] = data.questions.map((q: any) => {
-                        const correctOptionId = q.correctOptions[0]?.optionId;
+                        const correctOptionIds = q.correctOptions.map((co: any) => co.optionId); // Get an array of correct option IDs
 
-                        const transformedOptions: FormOptionWithBackendId[] = q.options.map((opt: any) => ({
-                            id: opt.id.toString(),
-                            backendId: opt.id,
-                            option: opt.option,
-                            isCorrect: opt.id === correctOptionId,
-                        }));
+                        let transformedOptions: FormOptionWithBackendId[] = [];
+                        if (q.optionType === "TEXT") {
+                            transformedOptions = q.options.map((opt: any) => ({
+                                id: opt.id.toString(),
+                                backendId: opt.id,
+                                option: opt.option,
+                                isCorrect: correctOptionIds.includes(opt.id), // Check if option ID is in the array of correct IDs
+                            }));
+                        } else if (q.optionType === "IMAGE") {
+                            // Assuming your backend returns image options in a similar 'options' array
+                            transformedOptions = q.options.map((opt: any) => ({
+                                id: opt.id.toString(), // Or however you identify image options
+                                backendId: opt.id,
+                                option: opt.url, // Assuming 'url' is the relevant property
+                                isCorrect: correctOptionIds.includes(opt.id),
+                            }));
+                            // You might need to handle 'imageOptions' separately if your backend structure differs significantly
+                        } else if (q.optionType === "YES_NO") {
+                            transformedOptions = [
+                                { id: "yes", option: "Yes", isCorrect: correctOptionIds.includes("yes") },
+                                { id: "no", option: "No", isCorrect: correctOptionIds.includes("no") },
+                            ] as FormOptionWithBackendId[]; // Type assertion
+                        }
 
                         return {
                             id: q.id,
                             question: q.question,
                             optionType: q.optionType,
                             options: transformedOptions,
+                            // If you have a separate 'imageOptions' array, you'll need to handle it here
                         };
                     });
 
@@ -130,6 +148,12 @@ const QuizForm: React.FC = () => {
                     console.error("Error fetching quiz for edit:", error);
                 })
                 .finally(() => setLoading(false));
+        } else {
+            reset({ title: "", description: "", questions: [] });
+            setTitle("Untitled");
+            setDescription("");
+            setEditTitle(false);
+            setEditDescription(false);
         }
     }, [isEditing, quizId, reset]);
 
@@ -224,7 +248,9 @@ const QuizForm: React.FC = () => {
                 response = await createQuiz(payload);
                 console.log("✅ Quiz submitted successfully:", response.data);
             }
-            navigate("/quizzes");
+            console.log("Navigating to /quizzes"); // ADD THIS LINE
+            // navigate("/quizzes"); // COMMENT OUT THIS LINE
+            window.location.reload(); // ADD THIS LINE (TEMPORARY)
         } catch (error: any) {
             console.error("⚠️ Submission error:", error.response ? error.response.data : error.message);
         } finally {

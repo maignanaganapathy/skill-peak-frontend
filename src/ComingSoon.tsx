@@ -1,4 +1,4 @@
-// src/ComingSoon.tsx
+
 import React from 'react';
 import { CSSProperties } from 'react'; // Import CSSProperties
 
