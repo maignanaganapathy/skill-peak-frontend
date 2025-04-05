@@ -18,7 +18,7 @@ export interface FormSectionProps {
   projectId: number;
   sectionToEdit?: Section;
   quizzes: any[];
-  // Removed onSectionCreationError prop
+
 }
 
 // Explicitly define the component type with forwardRef

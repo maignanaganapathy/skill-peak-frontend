@@ -1,5 +1,5 @@
 import React from "react";
-import { Box, Paper, Typography, Button, IconButton, SvgIcon, Avatar } from "@mui/material"; // Removed SvgIcon import if not used elsewhere
+import { Box, Paper, Typography, Button, IconButton, Avatar } from "@mui/material";
 import DescriptionIcon from "@mui/icons-material/Description";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
@@ -8,6 +8,8 @@ import { Section } from "./section";
 import { api } from "../../../utils/axiosConfig";
 import { useNavigate } from 'react-router-dom';
 import { BACKEND_URL } from "../../../config";
+import { usePermissions } from "../../../context/PermissionsContext"; // Import usePermissions
+import { Permissions } from "../../../constants/Permissions"; // Import Permissions enum
 
 import PreAssessmentPng from './assets/pre.png';
 import PostAssessmentPng from './assets/post.png';
@@ -24,6 +26,7 @@ const SectionCard: React.FC<SectionCardProps> = ({ section, onDelete, onEdit, on
     const isQuizSection = ["Pre Assessment", "Post Assessment", "Mid Assessment"].includes(section.sectionType);
     const isCustomOrLinkSection = ["Custom Quiz", "Custom Link"].includes(section.sectionType);
     const navigate = useNavigate();
+    const { checkHasPermission } = usePermissions(); // Access checkHasPermission
 
     const handleCheckLink = async () => {
         if (isQuizSection && section.quizId) {
@@ -54,8 +57,8 @@ const SectionCard: React.FC<SectionCardProps> = ({ section, onDelete, onEdit, on
 
     let sectionIcon;
     const iconStyle = {
-        width: '32px', // Adjust as needed
-        height: '34px', // Adjust as needed
+        width: '32px',
+        height: '34px',
     };
 
     if (section.sectionType === "Pre Assessment") {
@@ -118,12 +121,16 @@ const SectionCard: React.FC<SectionCardProps> = ({ section, onDelete, onEdit, on
                 </Button>
 
                 <Box display="flex" gap={2}>
-                    <IconButton color="default" onClick={() => onEdit(section)}>
-                        <EditIcon />
-                    </IconButton>
-                    <IconButton color="default" onClick={onDelete}>
-                        <DeleteIcon />
-                    </IconButton>
+                    {checkHasPermission(Permissions.EDIT_SECTION) && (
+                        <IconButton color="default" onClick={() => onEdit(section)}>
+                            <EditIcon />
+                        </IconButton>
+                    )}
+                    {checkHasPermission(Permissions.DELETE_SECTION) && (
+                        <IconButton color="default" onClick={onDelete}>
+                            <DeleteIcon />
+                        </IconButton>
+                    )}
                 </Box>
             </Box>
         </Paper>

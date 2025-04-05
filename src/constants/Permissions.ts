@@ -5,6 +5,8 @@ export enum Permissions {
     CREATE_PROJECT = "create_project",
     EDIT_PROJECT = "edit_project",
     DELETE_PROJECT = "delete_project",
+    MANAGE_ACCOUNT="manage_account",
+    MANAGE_QUIZ="manage_quiz",
     
     // Add more as needed
   }

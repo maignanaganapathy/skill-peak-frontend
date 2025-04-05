@@ -1,6 +1,7 @@
 import { usePermissions } from "../../../context/PermissionsContext";
 import { Paper, Button, Typography } from "@mui/material";
 import React, { forwardRef, Ref } from "react";
+import { Permissions } from "../../../constants/Permissions"; 
 
 interface AddSectionButtonProps {
   isExpanded: boolean;
@@ -11,9 +12,10 @@ export const AddSectionButton = forwardRef<HTMLDivElement, AddSectionButtonProps
   ({ isExpanded, onToggle }, ref) => {
     const { checkHasPermission } = usePermissions();
 
-    /* if (!checkHasPermission(Permissions.CREATE_SECTION)) {
-      return null; // 🔒 Do not show button if no permission
-    }*/
+    if (!checkHasPermission(Permissions.CREATE_PROJECT)) {
+      return null; 
+    }
+
     return (
       <Paper
         elevation={0}
@@ -22,11 +24,11 @@ export const AddSectionButton = forwardRef<HTMLDivElement, AddSectionButtonProps
           borderColor: "rgba(0, 0, 0, 0.2)",
           borderRadius: "16px",
           p: 2.5,
-          maxWidth: "730px", // 👈 adjust this value as needed
-          width: "100%",      // 👈 ensures responsiveness
-          mx: "auto",      // 👈 centers the paper horizontally
+          maxWidth: "730px",
+          width: "100%",
+          mx: "auto",
         }}
-        ref={ref} // Attach the ref here to the Paper (which renders a div)
+        ref={ref}
       >
         <Button
           fullWidth
