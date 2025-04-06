@@ -39,12 +39,18 @@ interface Role {
   isNameChanged?: boolean;
 }
 
+interface PermissionInfo {
+  id: number;
+  name: string;
+}
+
 const AccessControlTable: React.FC = () => {
   const [roles, setRoles] = useState<Role[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
   const [isSavingAll, setIsSavingAll] = useState(false);
+  const [availablePermissions, setAvailablePermissions] = useState<PermissionInfo[]>([]);
 
   const projectIdFromURL = "3";
 
@@ -97,9 +103,19 @@ const AccessControlTable: React.FC = () => {
     }
   }, [navigate, projectIdFromURL]);
 
+  const fetchAvailablePermissions = useCallback(async () => {
+    try {
+      const response = await api.get(`${BACKEND_URL}/permissions`);
+      setAvailablePermissions(response.data);
+    } catch (error) {
+      console.error("Error fetching available permissions:", error);
+    }
+  }, []);
+
   useEffect(() => {
+    fetchAvailablePermissions();
     fetchPermissions();
-  }, [fetchPermissions]);
+  }, [fetchPermissions, fetchAvailablePermissions]);
 
   const handleAddRole = () => {
     setRoles((prev) => [
@@ -185,83 +201,72 @@ const AccessControlTable: React.FC = () => {
     const roleToDelete = roles[index];
 
     if (roleToDelete.isNew || roleToDelete.projectRoleId === 0) {
-      setRoles((prev) => prev.filter((_, i) => i !== index));
-      return;
+        setRoles((prev) => prev.filter((_, i) => i !== index));
+        return;
     }
 
     const confirmDelete = window.confirm(
-      `Are you sure you want to delete the role "${roleToDelete.name}"?`
+        `Are you sure you want to delete the role "${roleToDelete.name}"?`
     );
     if (!confirmDelete) {
-      return;
+        return;
     }
 
     try {
-      if (projectIdFromURL) {
-        await api.delete(
-          `${BACKEND_URL}/projects/${projectIdFromURL}/roles/${roleToDelete.projectRoleId}`
-        );
+        await api.delete(`${BACKEND_URL}/role-permissions/${roleToDelete.projectRoleId}`);
         setRoles((prev) => prev.filter((_, i) => i !== index));
         fetchPermissions();
         alert(`Role "${roleToDelete.name}" deleted successfully.`);
-      } else {
-        alert("Project ID is missing.");
-      }
     } catch (error: any) {
-      console.error("Error deleting role:", error);
-      alert("Failed to delete role.");
-      if (error.response && error.response.status === 401) {
-        navigate("/login");
-      }
+        console.error("Error deleting role:", error);
+        alert("Failed to delete role.");
+        if (error.response && error.response.status === 401) {
+            navigate("/login");
+        }
     }
-  };
-
-  const handlePermissionToggle = async (roleIndex: number, permission: string) => {
+};
+  const handlePermissionToggle = async (roleIndex: number, permissionName: string) => {
     const updatedRoles = [...roles];
     const role = updatedRoles[roleIndex];
 
     if (role.isNew || role.projectRoleId === 0) {
-      alert("Please save the role name first.");
-      return;
+        alert("Please save the role name first.");
+        return;
     }
 
-    const currentPermission = role.permissions[permission];
+    const currentPermission = role.permissions[permissionName];
     const isChecked = currentPermission?.checked;
 
     try {
-      if (projectIdFromURL) {
-        if (!isChecked) {
-          const response = await api.post(
-            `${BACKEND_URL}/projects/${projectIdFromURL}/roles/${role.projectRoleId}/permissions`,
-            { permissionName: permission }
-          );
-          const rpId = response.data?.data?.id;
-          role.permissions[permission] = { checked: true, rpId };
+        const permissionInfo = availablePermissions.find((perm) => perm.name === permissionName);
+        if (permissionInfo) {
+            if (!isChecked) {
+                const response = await api.post(
+                    `${BACKEND_URL}/role-permissions`,
+                    { roleId: role.projectRoleId, permissionId: permissionInfo.id }
+                );
+                const rpId = response.data?.data?.id;
+                role.permissions[permissionName] = { checked: true, rpId };
+            } else {
+                //you will need to make a delete request to your backend.
+                //you will have to add a delete route to your backend.
+                //or change how the frontend handles the delete request.
+                //here is an example of a delete request.
+                await api.delete(`${BACKEND_URL}/role-permissions/${currentPermission.rpId}`);
+                role.permissions[permissionName] = { checked: false };
+            }
+            setRoles(updatedRoles);
         } else {
-          const rpId = currentPermission.rpId;
-          if (rpId) {
-            await api.delete(
-              `${BACKEND_URL}/projects/${projectIdFromURL}/roles/${role.projectRoleId}/permissions/${rpId}`
-            );
-            role.permissions[permission] = { checked: false };
-          } else {
-            console.error("Permission ID not found for deletion.");
-            alert("Permission ID not found. Try refreshing.");
-            return;
-          }
+            console.error("Permission ID not found.");
         }
-        setRoles(updatedRoles);
-      } else {
-        alert("Project ID is missing.");
-      }
     } catch (error: any) {
-      console.error("Error toggling permission:", error);
-      alert("Something went wrong while updating permissions.");
-      if (error.response && error.response.status === 401) {
-        navigate("/login");
-      }
+        console.error("Error toggling permission:", error);
+        alert("Something went wrong while updating permissions.");
+        if (error.response && error.response.status === 401) {
+            navigate("/login");
+        }
     }
-  };
+};
 
   const handleSaveAllRoles = async () => {
     setIsSavingAll(true);

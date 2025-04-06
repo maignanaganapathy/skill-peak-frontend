@@ -1,6 +1,6 @@
 // src/features/quiz/QuizCreation/QuizForm.tsx
 import React, { useState, useEffect } from "react";
-import { useForm, useFieldArray, Control, UseFormRegister, FieldArrayWithId } from "react-hook-form";
+import { useForm, useFieldArray, Control, UseFormRegister } from "react-hook-form";
 import {
     Box,
     Button,
@@ -18,11 +18,9 @@ import {
 import EditIcon from "@mui/icons-material/Edit";
 import CheckIcon from "@mui/icons-material/Check";
 import QuestionField from "./components/QuestionField";
-import { UpdateQuizInput, Quiz, SectionWithProject, Question as QuizQuestion, AnswerOption } from "../types/quiz";
-import { QuizHeader } from "./components/QuizHeader";
 import { useNavigate, useParams } from "react-router-dom";
-import { createQuiz, updateQuiz, getQuizDetails } from "../services/quiz.service"; // Import getQuizDetails
-
+import { createQuiz, updateQuiz, getQuizDetails } from "../services/quiz.service";
+import { QuizHeader } from "./components/QuizHeader"; // Adjust the path if necessary
 interface FormOption {
     id: string;
     option: string;
@@ -30,7 +28,7 @@ interface FormOption {
 }
 
 interface FormQuestion {
-    id?: number; // Optional ID for existing questions
+    id?: number;
     question: string;
     optionType: string;
     options: FormOptionWithBackendId[];
@@ -38,7 +36,7 @@ interface FormQuestion {
 }
 
 interface FormOptionWithBackendId extends FormOption {
-    backendId?: number; // Optional ID from the backend
+    backendId?: number;
 }
 
 interface QuizFormValues {
@@ -51,7 +49,7 @@ const QuizForm: React.FC = () => {
     const navigate = useNavigate();
     const { id: quizIdParam } = useParams<{ id?: string }>();
     const isEditing = !!quizIdParam;
-    const quizId = quizIdParam; // Keep quizId as string to match service
+    const quizId = quizIdParam;
 
     const [title, setTitle] = useState("Untitled");
     const [editTitle, setEditTitle] = useState(false);
@@ -100,7 +98,7 @@ const QuizForm: React.FC = () => {
                     setDescription(data.description);
 
                     const transformedQuestions: FormQuestion[] = data.questions.map((q: any) => {
-                        const correctOptionIds = q.correctOptions.map((co: any) => co.optionId); // Get an array of correct option IDs
+                        const correctOptionIds = q.correctOptions.map((co: any) => co.optionId);
 
                         let transformedOptions: FormOptionWithBackendId[] = [];
                         if (q.optionType === "TEXT") {
@@ -108,22 +106,20 @@ const QuizForm: React.FC = () => {
                                 id: opt.id.toString(),
                                 backendId: opt.id,
                                 option: opt.option,
-                                isCorrect: correctOptionIds.includes(opt.id), // Check if option ID is in the array of correct IDs
-                            }));
-                        } else if (q.optionType === "IMAGE") {
-                            // Assuming your backend returns image options in a similar 'options' array
-                            transformedOptions = q.options.map((opt: any) => ({
-                                id: opt.id.toString(), // Or however you identify image options
-                                backendId: opt.id,
-                                option: opt.url, // Assuming 'url' is the relevant property
                                 isCorrect: correctOptionIds.includes(opt.id),
                             }));
-                            // You might need to handle 'imageOptions' separately if your backend structure differs significantly
+                        } else if (q.optionType === "IMAGE") {
+                            transformedOptions = q.options.map((opt: any) => ({
+                                id: opt.id.toString(),
+                                backendId: opt.id,
+                                option: opt.url,
+                                isCorrect: correctOptionIds.includes(opt.id),
+                            }));
                         } else if (q.optionType === "YES_NO") {
                             transformedOptions = [
                                 { id: "yes", option: "Yes", isCorrect: correctOptionIds.includes("yes") },
                                 { id: "no", option: "No", isCorrect: correctOptionIds.includes("no") },
-                            ] as FormOptionWithBackendId[]; // Type assertion
+                            ] as FormOptionWithBackendId[];
                         }
 
                         return {
@@ -131,7 +127,6 @@ const QuizForm: React.FC = () => {
                             question: q.question,
                             optionType: q.optionType,
                             options: transformedOptions,
-                            // If you have a separate 'imageOptions' array, you'll need to handle it here
                         };
                     });
 
@@ -248,11 +243,11 @@ const QuizForm: React.FC = () => {
                 response = await createQuiz(payload);
                 console.log("✅ Quiz submitted successfully:", response.data);
             }
-            console.log("Navigating to /quizzes"); // ADD THIS LINE
-            // navigate("/quizzes"); // COMMENT OUT THIS LINE
-            window.location.reload(); // ADD THIS LINE (TEMPORARY)
+            console.log("Navigating to /quizzes");
+            navigate("/quizzes");
         } catch (error: any) {
             console.error("⚠️ Submission error:", error.response ? error.response.data : error.message);
+            alert("Failed to submit quiz. Please try again.");
         } finally {
             setLoading(false);
         }
@@ -273,9 +268,7 @@ const QuizForm: React.FC = () => {
             <Box sx={{ pt: "110px", px: 3 }}>
                 <Paper elevation={3} sx={{ p: 3 }}>
                     {formErrors.title && <FormHelperText error>{formErrors.title}</FormHelperText>}
-                    {formErrors.questions && (
-                        <FormHelperText error>{formErrors.questions}</FormHelperText>
-                    )}
+                    {formErrors.questions && <FormHelperText error>{formErrors.questions}</FormHelperText>}
                     <Box display="flex" alignItems="center" mb={3}>
                         {editTitle ? (
                             <>
@@ -351,9 +344,7 @@ const QuizForm: React.FC = () => {
                                     setValue={setValue}
                                     onDelete={() => remove(index)}
                                     onMoveUp={() => index > 0 && move(index, index - 1)}
-                                    onMoveDown={() =>
-                                        index < fields.length - 1 && move(index, index + 1)
-                                    }
+                                    onMoveDown={() => index < fields.length - 1 && move(index, index + 1)}
                                     onDuplicate={() => {
                                         const current = getValues(`questions.${index}`);
                                         append({ ...current });
@@ -366,17 +357,13 @@ const QuizForm: React.FC = () => {
                                             <RadioGroup
                                                 aria-label={`question-${index}-options`}
                                                 name={`questions.${index}.correctOption`}
-                                                value={
-                                                    question?.options.find((opt) => opt.isCorrect)?.id || ""
-                                                }
+                                                value={question?.options.find((opt) => opt.isCorrect)?.id || ""}
                                                 onChange={(e) => {
                                                     const selectedValue = e.target.value;
-                                                    const updatedOptions = question?.options.map(
-                                                        (option) => ({
-                                                            ...option,
-                                                            isCorrect: option.id === selectedValue,
-                                                        })
-                                                    );
+                                                    const updatedOptions = question?.options.map((option) => ({
+                                                        ...option,
+                                                        isCorrect: option.id === selectedValue,
+                                                    }));
                                                     setValue(`questions.${index}.options`, updatedOptions);
                                                 }}
                                             >
