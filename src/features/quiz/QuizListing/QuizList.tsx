@@ -4,11 +4,11 @@ import FilterComponent from "./FilterComponent";
 import SearchComponent from "./SearchComponent";
 import QuizTableComponent from "./QuizTable";
 import PaginationComponent from "./PaginationComponent";
-import { QuizHeader } from "./Header";
+import Navbar from "../../Navbar"; // Import Navbar
 import CreateQuizButton from "./CreateQuizButton";
 import { Quiz } from "../types/quiz";
 import { useLocation, useNavigate } from "react-router-dom";
-import { getQuizzes, updateQuiz, deleteQuiz } from "../services/quiz.service"; // Import the new functions
+import { getQuizzes, updateQuiz, deleteQuiz } from "../services/quiz.service";
 
 const QuizList: React.FC = () => {
     const location = useLocation();
@@ -21,7 +21,6 @@ const QuizList: React.FC = () => {
     const [loading, setLoading] = useState(true);
     const [totalQuizzes, setTotalQuizzes] = useState(0);
 
-    // Extract all unique project names from the sections of all quizzes
     const allProjects: string[] = [
         ...new Set(
             quizzes.flatMap((quiz) =>
@@ -35,7 +34,7 @@ const QuizList: React.FC = () => {
     const fetchQuizzesData = async () => {
         try {
             setLoading(true);
-            console.log("Frontend - Fetching page:", page + 1); // Log the page being sent
+            console.log("Frontend - Fetching page:", page + 1);
             const data = await getQuizzes(page + 1, rowsPerPage, searchQuery, selectedProject);
             setQuizzes(data.quizzes);
             setTotalQuizzes(data.totalCount);
@@ -47,19 +46,17 @@ const QuizList: React.FC = () => {
     };
 
     useEffect(() => {
-        console.log("Location changed, fetching data..."); // ADD THIS LINE
+        console.log("Location changed, fetching data...");
         fetchQuizzesData();
-    }, [location]); // SIMPLIFIED DEPENDENCY ARRAY
+    }, [location]);
 
     const handleEdit = (id: number) => {
         navigate(`/quiz/edit/${id}`);
     };
 
     const handleSave = async () => {
-        // This function is no longer directly used for editing in this component
-        // as editing is moved to the QuizCreation component.
         console.warn("handleSave called in QuizList, but editing is now in QuizCreation.");
-        fetchQuizzesData(); // Refresh the list after potential external changes
+        fetchQuizzesData();
     };
 
     const handleDelete = async (id: number) => {
@@ -72,7 +69,6 @@ const QuizList: React.FC = () => {
         }
     };
 
-    // This function is no longer directly used for editing fields in this component.
     const handleChangeEditField = (field: keyof Quiz, value: any) => {
         console.warn("handleChangeEditField called in QuizList, but editing is now in QuizCreation.");
     };
@@ -82,7 +78,6 @@ const QuizList: React.FC = () => {
             quiz.title?.toLowerCase().includes(searchQuery.toLowerCase()) ||
             quiz.description?.toLowerCase().includes(searchQuery.toLowerCase());
 
-        // Check if the quiz has a section belonging to the selected project
         const matchesProject = selectedProject
             ? quiz.sections.some(
                 (section) => section.project?.name === selectedProject
@@ -99,7 +94,6 @@ const QuizList: React.FC = () => {
 
     const handleChangePage = (event: unknown, newPage: number) => {
         setPage(newPage);
-        // When calling the backend, we already use page + 1 in useEffect
     };
 
     const handleChangeRowsPerPage = (
@@ -115,7 +109,7 @@ const QuizList: React.FC = () => {
 
     return (
         <>
-            <QuizHeader />
+            <Navbar title="QUIZ MANAGEMENT" /> {/* Use Navbar with title "Quiz Management" */}
 
             <Container maxWidth="lg">
                 <Box sx={{ my: 4 }}>
@@ -152,17 +146,17 @@ const QuizList: React.FC = () => {
                     ) : (
                         <QuizTableComponent
                             quizzes={paginatedQuizzes}
-                            editIndex={null} // editIndex is no longer used here
-                            editData={null}     // editData is no longer used here
-                            handleEdit={(index) => handleEdit(quizzes[index].id)} // Pass the quiz ID to handleEdit
+                            editIndex={null}
+                            editData={null}
+                            handleEdit={(index) => handleEdit(quizzes[index].id)}
                             handleSave={handleSave}
-                            handleDelete={(index) => handleDelete(quizzes[index].id)} // Pass the quiz ID to handleDelete
+                            handleDelete={(index) => handleDelete(quizzes[index].id)}
                             handleChangeEditField={handleChangeEditField}
                         />
                     )}
 
                     <PaginationComponent
-                        count={totalQuizzes} // Use totalQuizzes from the API response
+                        count={totalQuizzes}
                         page={page}
                         rowsPerPage={rowsPerPage}
                         handleChangePage={handleChangePage}

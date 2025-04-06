@@ -20,7 +20,8 @@ import CheckIcon from "@mui/icons-material/Check";
 import QuestionField from "./components/QuestionField";
 import { useNavigate, useParams } from "react-router-dom";
 import { createQuiz, updateQuiz, getQuizDetails } from "../services/quiz.service";
-import { QuizHeader } from "./components/QuizHeader"; // Adjust the path if necessary
+import Navbar from "../../Navbar"; // Adjust the path if necessary
+
 interface FormOption {
     id: string;
     option: string;
@@ -263,7 +264,7 @@ const QuizForm: React.FC = () => {
 
     return (
         <>
-            <QuizHeader onSubmit={handleQuizSubmit} />
+            <Navbar title="Quiz Builder" onSubmit={handleQuizSubmit} showSubmit={true}/>
 
             <Box sx={{ pt: "110px", px: 3 }}>
                 <Paper elevation={3} sx={{ p: 3 }}>

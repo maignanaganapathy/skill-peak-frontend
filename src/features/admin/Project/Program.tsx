@@ -19,7 +19,7 @@ import ModalWrapper from "../CreateProject/ModalWrapper";
 import SectionList from "../AddSection/SectionList";
 import { api } from "../../../utils/axiosConfig";
 import { BACKEND_URL } from "../../../config";
-import Navbar from "./Navbar";
+import Navbar from "../../Navbar";
 import { usePermissions } from "../../../context/PermissionsContext";
 import { Permissions } from "../../../constants/Permissions";
 
@@ -112,7 +112,7 @@ export const Program: React.FC = () => {
 
   return (
     <Box>
-      <Navbar onLogout={handleLogout} />
+      <Navbar onLogout={handleLogout} homepage={true} title="DASHBOARD" /> {/* Added homepage prop */}
 
       <Box
         component="main"
