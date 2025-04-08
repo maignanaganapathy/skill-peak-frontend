@@ -1,54 +1,94 @@
-
-import React, { useState, useEffect, useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
+// src/features/admin/ManagePermissions/AccessControlPage.tsx
+import React, { useState, useEffect } from 'react';
+import Navbar from '../../Navbar';
+import UserRoleManager from './components/UserRole/UserRoleManager';
+import { fetchProjectRoles } from './services/api';
 import { api } from '../../../utils/axiosConfig';
 import { BACKEND_URL } from '../../../config';
-import Navbar from '../../Navbar';
-import AccessControlTable, { Role, PermissionInfo } from './AccessControlTable';
-import UserRoleManager from './UserRoleManager';
+import { useParams } from 'react-router-dom';
+import styled from 'styled-components';
+import AccessControlTable from './components/AccessControl/AccessControlTable'; // Ensure this file exists and is correctly implemented
+
+export interface Role {
+  id: number;
+  roleName: string;
+  projectRoleId: number;
+  name: string;
+  isNew?: boolean;
+  permissions: { [perm: string]: { checked: boolean; rpId?: number } };
+  isNameChanged?: boolean;
+}
+
+export interface PermissionInfo {
+  id: number;
+  name: string;
+  description: string;
+}
+
+const Container = styled.div`
+  padding: 1.5rem;
+  margin-left: auto;
+  margin-right: auto;
+  max-width: 1200px;
+`;
 
 const AccessControlPage: React.FC = () => {
+  const { projectId: routeProjectId } = useParams<{ projectId: string }>();
+  const projectId = routeProjectId ? parseInt(routeProjectId, 10) : undefined;
+
   const [roles, setRoles] = useState<Role[]>([]);
   const [availablePermissions, setAvailablePermissions] = useState<PermissionInfo[]>([]);
-
-  const [loading, setLoading] = useState(true); // Add loading state.
-  const [error, setError] = useState<string | null>(null); // Add error state.
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const fetchRolesAndPermissions = async () => {
+    const fetchInitialData = async () => {
+      if (!projectId) {
+        setError('Project ID is missing in the URL.');
+        setLoading(false);
+        return;
+      }
       try {
-        const [rolesResponse, permissionsResponse] = await Promise.all([
-          api.get(`${BACKEND_URL}/projects/3/roles`),
+        const [rolesData, permissionsResponse] = await Promise.all([
+          fetchProjectRoles(projectId),
           api.get(`${BACKEND_URL}/auth/permissions`),
         ]);
-        setRoles(rolesResponse.data);
-        setAvailablePermissions(permissionsResponse.data);
-      } catch (error) {
-        console.error('Error:', error);
+        setRoles(rolesData as Role[]);
+        setAvailablePermissions(permissionsResponse.data as PermissionInfo[]);
+      } catch (err: any) {
+        console.error('Error fetching roles and permissions:', err);
+        setError('Failed to load roles and permissions.');
       } finally {
         setLoading(false);
       }
     };
-  
-    fetchRolesAndPermissions();
-  }, []);
-  
+
+    fetchInitialData();
+  }, [projectId]);
 
   if (loading) {
-    return <div>Loading...</div>; // Render loading indicator.
+    return <div>Loading...</div>;
   }
 
   if (error) {
-    return <div>Error: {error}</div>; // Render error message.
+    return <div>Error: {error}</div>;
   }
 
   return (
     <main>
       <Navbar title="PROJECT DETAILS" />
-      <div className="p-6 mx-auto max-w-[1200px]">
-        <AccessControlTable roles={roles} availablePermissions={availablePermissions} />
+      <Container>
+        {projectId !== undefined ? (
+          <AccessControlTable
+            roles={roles}
+            availablePermissions={availablePermissions}
+            projectId={String(projectId)}
+          />
+        ) : (
+          <div>Error: Project ID is missing.</div>
+        )}
         <UserRoleManager roles={roles} />
-      </div>
+      </Container>
     </main>
   );
 };
