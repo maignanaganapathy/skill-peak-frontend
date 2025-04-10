@@ -15,13 +15,16 @@ import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import ManageAccountsIcon from "@mui/icons-material/ManageAccounts";
-import ModalWrapper from "../CreateProject/ModalWrapper";
-import SectionList from "../AddSection/SectionList";
-import { api } from "../../../utils/axiosConfig";
-import { BACKEND_URL } from "../../../config";
+import ModalWrapper from "./components/CreateProject/ModalWrapper";
+import SectionList from "./components/AddSection/SectionList";
 import Navbar from "../../Navbar";
 import { usePermissions } from "../../../context/PermissionsContext";
 import { Permissions } from "../../../constants/Permissions";
+import {
+  fetchProjects as fetchProjectsApi,
+  fetchAllQuizzes as fetchAllQuizzesApi,
+  deleteProject as deleteProjectApi,
+} from "./services/api";
 
 interface Project {
   id: number;
@@ -58,7 +61,7 @@ export const Program: React.FC = () => {
 
   const fetchProjects = async () => {
     try {
-      const response = await api.get(`${BACKEND_URL}/projects`);
+      const response = await fetchProjectsApi();
       setProjects(response.data);
       console.log("Projects fetched after potential section delete:", response.data);
     } catch (error) {
@@ -70,7 +73,7 @@ export const Program: React.FC = () => {
     setLoadingQuizzes(true);
     setQuizFetchError(null);
     try {
-      const response = await api.post(`${BACKEND_URL}/quiz/list`, {});
+      const response = await fetchAllQuizzesApi();
       const options = response.data.quizzes.map((quiz: any) => ({
         id: String(quiz.id),
         title: quiz.title,
@@ -92,7 +95,7 @@ export const Program: React.FC = () => {
 
   const handleDeleteProject = async (projectId: string) => {
     try {
-      await api.delete(`${BACKEND_URL}/projects/${projectId}`);
+      await deleteProjectApi(projectId);
       fetchProjects();
     } catch (error) {
       console.error("Error deleting project:", error);
