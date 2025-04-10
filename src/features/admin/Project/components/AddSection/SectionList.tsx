@@ -4,8 +4,10 @@ import SectionCard from "./SectionCard";
 import { FormSection } from "./FormSection";
 import { Section } from "./section";
 import { AddSectionButton } from "./AddSectionButton";
-import { api } from "../../../../../utils/axiosConfig"; // Ensure this import is present
-import { BACKEND_URL } from "../../../../../config";
+import {
+  updateSection as updateSectionApi,
+  deleteSection as deleteSectionApi,
+} from "../../services/api"; // Import API functions
 
 interface Project {
   id: number;
@@ -85,8 +87,8 @@ const SectionList: React.FC<SectionListProps> = ({ projectId, projects, allQuizz
 
   const updateSection = async (updatedSection: Section) => {
     try {
-      const response = await api.put(`${BACKEND_URL}/sections/${updatedSection.id}`, updatedSection);
-  
+      const response = await updateSectionApi(updatedSection.id, updatedSection);
+
       const updatedProjects = projects.map((project) => {
         if (project.id === projectId) {
           return {
@@ -98,7 +100,7 @@ const SectionList: React.FC<SectionListProps> = ({ projectId, projects, allQuizz
         }
         return project;
       });
-  
+
       onProjectsUpdated(updatedProjects);
       setIsEditing(false);
       setOpenProgramFormSectionId(null);
@@ -108,17 +110,17 @@ const SectionList: React.FC<SectionListProps> = ({ projectId, projects, allQuizz
       alert("Failed to update section.");
     }
   };
-  
+
 
   const deleteSection = async (sectionId: number) => {
     try {
-      await api.delete(`${BACKEND_URL}/sections/${sectionId}`);
+      await deleteSectionApi(sectionId);
       const updatedProjects = projects.map((project) => {
         if (project.id === projectId) {
           return {
-              ...project,
-              sections: project.sections.filter((section) => section.id !== sectionId),
-            };
+            ...project,
+            sections: project.sections.filter((section) => section.id !== sectionId),
+          };
         }
         return project;
       });

@@ -151,23 +151,25 @@ export const Program: React.FC = () => {
             project={selectedProject}
           />
 
-          <Button
-            onClick={() => {
-              setSelectedProject(null);
-              setIsModalOpen(true);
-            }}
-            sx={{
-              backgroundColor: "#A5C8E5",
-              color: "#000",
-              borderRadius: "15px",
-              textTransform: "none",
-              width: "100px",
-              fontWeight: "bold",
-              fontSize: "1rem",
-            }}
-          >
-            New +
-          </Button>
+          {checkHasPermission(Permissions.CREATE_PROJECT) && (
+            <Button
+              onClick={() => {
+                setSelectedProject(null);
+                setIsModalOpen(true);
+              }}
+              sx={{
+                backgroundColor: "#A5C8E5",
+                color: "#000",
+                borderRadius: "15px",
+                textTransform: "none",
+                width: "100px",
+                fontWeight: "bold",
+                fontSize: "1rem",
+              }}
+            >
+              New +
+            </Button>
+          )}
         </Box>
 
         {quizFetchError && (

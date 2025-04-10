@@ -4,8 +4,10 @@ import { AddButton } from "./AddButton";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
-import { api } from "../../../../../utils/axiosConfig"; // Import the configured api instance
-import { BACKEND_URL } from "../../../../../config"; // Corrected import path
+import {
+  createProject as createProjectApi,
+  updateProject as updateProjectApi,
+} from "../../services/api"; 
 
 interface FormFieldProps {
   label: string;
@@ -86,11 +88,11 @@ const InputDesign: React.FC<InputDesignProps> = ({
       };
 
       if (project?.id) {
-        // Edit Mode – PUT request
-        await api.put(`${BACKEND_URL}/projects/${project.id}`, payload);
+        
+        await updateProjectApi(project.id, payload);
       } else {
-        // Create Mode – POST request
-        await api.post(`${BACKEND_URL}/projects`, payload);
+        
+        await createProjectApi(payload);
       }
 
       onProjectCreated();

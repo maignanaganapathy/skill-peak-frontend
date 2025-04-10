@@ -9,8 +9,10 @@ import React, { useState, forwardRef, Ref } from "react";
 import { FloatingLabelInput } from "./FloatingLabelInput";
 import FloatingLabelSelect from "./FloatingLabelSelect"; // Keep this import
 import { Section } from "./section";
-import { api } from "../../../../../utils/axiosConfig"; // Import the configured api instance
-import { BACKEND_URL } from "../../../../../config"; // Import BACKEND_URL
+import {
+  createSection as createSectionApi,
+  updateSection as updateSectionApi,
+} from "../../services/api"; 
 
 export interface FormSectionProps {
   isExpanded: boolean;
@@ -18,10 +20,8 @@ export interface FormSectionProps {
   projectId: number;
   sectionToEdit?: Section;
   quizzes: any[];
-
 }
 
-// Explicitly define the component type with forwardRef
 export const FormSection = forwardRef<HTMLDivElement, FormSectionProps>((
   { isExpanded, onSectionCreated, projectId, sectionToEdit, quizzes },
   ref
@@ -53,21 +53,9 @@ export const FormSection = forwardRef<HTMLDivElement, FormSectionProps>((
 
       let response;
       if (sectionToEdit) {
-        response = await api.put(
-          `${BACKEND_URL}/sections/${sectionToEdit.id}`,
-          payload,
-          {
-            headers: {
-              "Content-Type": "application/json",
-            },
-          }
-        );
+        response = await updateSectionApi(sectionToEdit.id, payload);
       } else {
-        response = await api.post(`${BACKEND_URL}/sections`, payload, {
-          headers: {
-            "Content-Type": "application/json",
-          },
-        });
+        response = await createSectionApi(payload);
       }
 
       console.log("API Response:", response.data);
