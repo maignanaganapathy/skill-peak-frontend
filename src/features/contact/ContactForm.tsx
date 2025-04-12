@@ -5,12 +5,30 @@ import PhoneIcon from '@mui/icons-material/Phone';
 import EmailIcon from '@mui/icons-material/Email';
 import Navbar from '../landing/Navbar';
 import { useNavigate } from 'react-router-dom'; // Import useNavigate
+import { useForm } from 'react-hook-form';
+import { sendContactForm } from './services/api'; // Import the API function
+
+// Define the type for form data
+type ContactFormData = {
+  name: string;
+  phone: string;
+  email: string;
+  message: string;
+};
 
 const ContactForm = () => {
   const navigate = useNavigate(); // Initialize useNavigate
+  const { register, handleSubmit, reset, formState: { errors } } = useForm<ContactFormData>(); // Using types with useForm
 
-  const handleSendClick = () => {
-    navigate('/comingsoon'); // Navigate to ComingSoon page
+  // Handle form submission
+  const onSubmit = async (data: ContactFormData) => {
+    try {
+      await sendContactForm(data); 
+      reset();
+      navigate('/comingsoon'); 
+    } catch (error) {
+      console.error("Failed to send contact form", error);
+    }
   };
 
   return (
@@ -35,43 +53,86 @@ const ContactForm = () => {
                 </Typography>
               </Box>
 
-              <Grid container spacing={2}>
-                <Grid item xs={12}>
-                  <TextField label="Name" fullWidth variant="outlined" size="small" />
+              <form onSubmit={handleSubmit(onSubmit)}>
+                <Grid container spacing={2}>
+                  <Grid item xs={12}>
+                    <TextField
+                      label="Name"
+                      fullWidth
+                      variant="outlined"
+                      size="small"
+                      {...register('name', { required: 'Name is required' })}
+                      error={!!errors.name}
+                      helperText={errors.name?.message}
+                    />
+                  </Grid>
+                  <Grid item xs={12} sm={6}>
+  <TextField
+    label="Phone"
+    fullWidth
+    variant="outlined"
+    size="small"
+    {...register('phone', {
+      required: 'Phone is required',
+      pattern: {
+        value: /^[0-9]{10}$/,
+        message: 'Phone number must be 10 digits',
+      },
+    })}
+    error={!!errors.phone}
+    helperText={errors.phone?.message}
+  />
+</Grid>
+
+<Grid item xs={12} sm={6}>
+  <TextField
+    label="Email"
+    fullWidth
+    variant="outlined"
+    size="small"
+    {...register('email', {
+      required: 'Email is required',
+      pattern: {
+        value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+        message: 'Enter a valid email address',
+      },
+    })}
+    error={!!errors.email}
+    helperText={errors.email?.message}
+  />
+</Grid>
+
+                  <Grid item xs={12}>
+                    <TextField
+                      label="Message"
+                      fullWidth
+                      multiline
+                      rows={2}
+                      variant="outlined"
+                      {...register('message', { required: 'Message is required' })}
+                      error={!!errors.message}
+                      helperText={errors.message?.message}
+                    />
+                  </Grid>
+                  <Grid item xs={12}>
+                    <Box className="flex justify-center">
+                      <Button
+                        variant="contained"
+                        sx={{
+                          backgroundColor: '#1E4D92',
+                          fontWeight: 'bold',
+                          fontSize: '18px',
+                          width: '130px',
+                          borderRadius: 13,
+                        }}
+                        type="submit"
+                      >
+                        SEND
+                      </Button>
+                    </Box>
+                  </Grid>
                 </Grid>
-                <Grid item xs={12} sm={6}>
-                  <TextField label="Phone" fullWidth variant="outlined" size="small" />
-                </Grid>
-                <Grid item xs={12} sm={6}>
-                  <TextField label="Email" fullWidth variant="outlined" size="small" />
-                </Grid>
-                <Grid item xs={12}>
-                  <TextField
-                    label="Message"
-                    fullWidth
-                    multiline
-                    rows={2}
-                    variant="outlined"
-                  />
-                </Grid>
-                <Grid item xs={12}>
-                  <Box className="flex justify-center">
-                    <Button
-                      variant="contained"
-                      sx={{
-                        backgroundColor: '#1E4D92',
-                        fontWeight: 'bold',
-                        fontSize: '18px',
-                        width: '130px',
-                        borderRadius: 13,
-                      }}
-                      onClick={handleSendClick} // Attach the click handler
-                    >
-                      SEND
-                    </Button>
-                  </Box>
-                </Grid>
-              </Grid>
+              </form>
             </Box>
 
             {/* Blue Contact Info Card (Hidden on small screens) */}
