@@ -46,6 +46,7 @@ const Login: React.FC = () => {
 
             // Call setAuthToken after setting the cookie
             setAuthToken();
+            Cookies.set("userEmail", formData.email, { expires: 1, path: '/' });
 
             toast.success("Login successful!");
 
