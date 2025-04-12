@@ -140,14 +140,24 @@ const Login: React.FC = () => {
 
                     {/* Forgot password link */}
                     <Box textAlign="right" mb={2}>
-                        <MuiLink
-                            href="#"
-                            variant="caption"
-                            color="secondary"
-                            underline="none"
-                        >
-                            Forgot password?
-                        </MuiLink>
+                    <MuiLink
+    component="button"
+    variant="caption"
+    color="secondary"
+    underline="none"
+    sx={{ fontWeight: 500, cursor: "pointer" }}
+    onClick={() =>
+        toast.info("Please contact admin at admin@goripe.com", {
+            position: "top-center",
+            autoClose: 5000,
+            closeOnClick: true,
+        })
+    }
+>
+    Forgot password?
+</MuiLink>
+
+
                     </Box>
 
                     {/* ✅ Reused Submit Button */}
