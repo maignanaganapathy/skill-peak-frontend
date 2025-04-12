@@ -1,163 +1,140 @@
 import React, { useState } from "react";
 import {
-  Box,
-  TextField,
-  Typography,
-  IconButton,
-  InputAdornment,
+    Box,
+    TextField,
+    Typography,
+    IconButton,
 } from "@mui/material";
-import { useForm, Controller } from "react-hook-form";
-import Button from "../components/Button";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
-import { resetPassword } from "../services/api"; 
-
-interface FormData {
-  currentPassword: string;
-  newPassword: string;
-  confirmPassword: string;
-}
+import Button from "../components/Button";
+import { toast } from "react-toastify";
+import { resetPassword } from "../services/api";
+import { useNavigate } from "react-router-dom";
+import Navbar from "../../../features/Navbar";
+import Cookies from "js-cookie";
 
 const ResetPassword: React.FC = () => {
-  const {
-    handleSubmit,
-    control,
-    watch,
-    reset,
-    formState: { errors },
-  } = useForm<FormData>();
+    const navigate = useNavigate();
+    const email = Cookies.get("userEmail") || "";
 
-  const [showPassword, setShowPassword] = useState(false);
-  const toggleVisibility = () => setShowPassword(!showPassword);
+    const [currentPassword, setCurrentPassword] = useState("");
+    const [newPassword, setNewPassword] = useState("");
+    const [confirmPassword, setConfirmPassword] = useState("");
+    const [showPassword, setShowPassword] = useState(false);
 
-  const newPassword = watch("newPassword");
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
 
-  const onSubmit = async (data: FormData) => {
-    try {
-      const response = await resetPassword(
-        data.currentPassword,
-        data.newPassword
-      );
-      console.log("Reset successful:", response);
-      alert("Password reset successfully!");
-      reset(); // Clear form
-    } catch (error: any) {
-      console.error("Reset error:", error);
-      alert(error.message || "Password reset failed.");
-    }
-  };
+        if (!email) {
+            toast.error("Email not found. Please log in again.");
+            return;
+        }
 
-  return (
-    <Box
-      display="flex"
-      justifyContent="center"
-      alignItems="center"
-      minHeight="100vh"
-      p={2}
-      bgcolor="#f5f5f5"
-    >
-      <Box
-        width={{ xs: "100%", sm: "450px" }}
-        bgcolor="white"
-        borderRadius={3}
-        boxShadow={3}
-        p={4}
-        sx={{ border: "1px solid #ddd" }}
-      >
-        <Typography variant="h6" fontWeight={600} mb={3} textAlign="center">
-          Reset Password
-        </Typography>
+        if (newPassword !== confirmPassword) {
+            toast.error("New password and confirm password do not match.");
+            return;
+        }
 
-        <form onSubmit={handleSubmit(onSubmit)}>
-          {/* Current Password */}
-          <Controller
-            name="currentPassword"
-            control={control}
-            defaultValue=""
-            rules={{ required: "Current password is required" }}
-            render={({ field }) => (
-              <TextField
-                {...field}
-                label="Current Password"
-                type={showPassword ? "text" : "password"}
-                fullWidth
-                margin="normal"
-                error={!!errors.currentPassword}
-                helperText={errors.currentPassword?.message}
-                InputProps={{
-                  endAdornment: (
-                    <InputAdornment position="end">
-                      <IconButton onClick={toggleVisibility}>
-                        {showPassword ? (
-                          <VisibilityOffIcon />
-                        ) : (
-                          <VisibilityIcon />
-                        )}
-                      </IconButton>
-                    </InputAdornment>
-                  ),
-                }}
-              />
-            )}
-          />
+        try {
+            await resetPassword(email, currentPassword, newPassword);
+            toast.success("Password reset successfully!");
+            navigate("/dashboard");
+        } catch (error: any) {
+            toast.error(error.message || error.error || "Failed to reset password.");
+        }
+    };
 
-          {/* New Password */}
-          <Controller
-            name="newPassword"
-            control={control}
-            defaultValue=""
-            rules={{
-              required: "New password is required",
-              minLength: {
-                value: 6,
-                message: "Password must be at least 6 characters",
-              },
-            }}
-            render={({ field }) => (
-              <TextField
-                {...field}
-                label="New Password"
-                type={showPassword ? "text" : "password"}
-                fullWidth
-                margin="normal"
-                error={!!errors.newPassword}
-                helperText={errors.newPassword?.message}
-              />
-            )}
-          />
+    return (
+        <>
+           <Navbar title="Reset Password" />
 
-          {/* Confirm Password */}
-          <Controller
-            name="confirmPassword"
-            control={control}
-            defaultValue=""
-            rules={{
-              required: "Please confirm your password",
-              validate: (value) =>
-                value === newPassword || "Passwords do not match",
-            }}
-            render={({ field }) => (
-              <TextField
-                {...field}
-                label="Confirm Password"
-                type={showPassword ? "text" : "password"}
-                fullWidth
-                margin="normal"
-                error={!!errors.confirmPassword}
-                helperText={errors.confirmPassword?.message}
-              />
-            )}
-          />
+            <Box
+                display="flex"
+                justifyContent="center"
+                alignItems="center"
+                minHeight="100vh"
+                p={2}
+                bgcolor="#f5f5f5"
+            >
+                <Box
+                    width={{ xs: "100%", sm: "450px" }}
+                    bgcolor="white"
+                    borderRadius={3}
+                    boxShadow={3}
+                    p={4}
+                    sx={{ border: "1px solid #ddd" }}
+                >
+                    <Typography variant="h6" fontWeight={500} textAlign="center" mb={3}>
+                        Reset Your Password
+                    </Typography>
 
-          {/* Submit Button with color="primary" */}
-          <Button type="submit" color="primary" variant="contained" fullWidth>
-  Reset Password
-</Button>
+                    <form onSubmit={handleSubmit}>
+                        {/* Current Password */}
+                        <Typography variant="caption" fontWeight={500}>
+                            Current Password
+                        </Typography>
+                        <Box position="relative" mb={2}>
+                            <TextField
+                                fullWidth
+                                required
+                                type={showPassword ? "text" : "password"}
+                                value={currentPassword}
+                                onChange={(e) => setCurrentPassword(e.target.value)}
+                                placeholder="Enter current password"
+                                size="small"
+                            />
+                        </Box>
 
-        </form>
-      </Box>
-    </Box>
-  );
+                        {/* New Password */}
+                        <Typography variant="caption" fontWeight={500}>
+                            New Password
+                        </Typography>
+                        <Box position="relative" mb={2}>
+                            <TextField
+                                fullWidth
+                                required
+                                type={showPassword ? "text" : "password"}
+                                value={newPassword}
+                                onChange={(e) => setNewPassword(e.target.value)}
+                                placeholder="Enter new password"
+                                size="small"
+                            />
+                        </Box>
+
+                        {/* Confirm Password */}
+                        <Typography variant="caption" fontWeight={500}>
+                            Confirm Password
+                        </Typography>
+                        <Box position="relative" mb={3}>
+                            <TextField
+                                fullWidth
+                                required
+                                type={showPassword ? "text" : "password"}
+                                value={confirmPassword}
+                                onChange={(e) => setConfirmPassword(e.target.value)}
+                                placeholder="Confirm new password"
+                                size="small"
+                            />
+                            <IconButton
+                                onClick={() => setShowPassword(!showPassword)}
+                                sx={{
+                                    position: "absolute",
+                                    right: 10,
+                                    top: "50%",
+                                    transform: "translateY(-50%)",
+                                }}
+                            >
+                                {showPassword ? <VisibilityOffIcon /> : <VisibilityIcon />}
+                            </IconButton>
+                        </Box>
+
+                        <Button type="submit">Reset Password</Button>
+                    </form>
+                </Box>
+            </Box>
+        </>
+    );
 };
 
 export default ResetPassword;

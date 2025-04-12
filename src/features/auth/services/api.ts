@@ -25,11 +25,13 @@ export const signup = async (email: string, mobile: string, password: string) =>
 };
 
 export const resetPassword = async (
+  email: string,
   currentPassword: string,
   newPassword: string
 ) => {
   try {
     const response = await api.post("/auth/reset-password", {
+      email,
       currentPassword,
       newPassword,
     });
