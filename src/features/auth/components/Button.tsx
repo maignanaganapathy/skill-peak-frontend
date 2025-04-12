@@ -8,7 +8,9 @@ interface ButtonProps {
   fullWidth?: boolean;
   variant?: "contained" | "outlined" | "text";
   disabled?: boolean;
+  color?: "inherit" | "primary" | "secondary" | "success" | "error" | "info" | "warning";
 }
+
 
 const Button: React.FC<ButtonProps> = ({
   children,

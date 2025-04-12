@@ -23,3 +23,18 @@ export const signup = async (email: string, mobile: string, password: string) =>
     throw error.response ? error.response.data : error;
   }
 };
+
+export const resetPassword = async (
+  currentPassword: string,
+  newPassword: string
+) => {
+  try {
+    const response = await api.post("/auth/reset-password", {
+      currentPassword,
+      newPassword,
+    });
+    return response.data;
+  } catch (error: any) {
+    throw error.response ? error.response.data : error;
+  }
+};
