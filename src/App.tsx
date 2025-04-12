@@ -5,6 +5,8 @@ import CssBaseline from "@mui/material/CssBaseline";
 import theme from "./theme";
 import ComingSoon from './ComingSoon';
 import AnimatedCheckCircles from "./features/landing/Animation"; // Import your animation component
+import ResetPassword from "./features/auth/pages/ResetPassword";
+
 
 // Admin Features
 import { NotificationManager } from "./features/admin/Notification/NotificationManager";
@@ -29,6 +31,7 @@ import { PermissionsProvider } from "./context/PermissionsContext";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import ProtectedRoutes from "./routes/ProtectedRoutes";
+
 
 const App: React.FC = () => {
     return (
@@ -56,6 +59,8 @@ const App: React.FC = () => {
                                 <Route path="/quiz/create" element={<QuizCreation />} />
                                 <Route path="/quiz/edit/:id" element={<QuizCreation />} />
                                 <Route path="/quizzes/:id" element={<QuizPage />} />
+                                <Route path="/reset-password" element={<ResetPassword />} />
+
                                 {/* Add other protected routes here */}
                             </Route>
                         </Routes>
