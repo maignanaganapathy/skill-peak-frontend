@@ -5,17 +5,18 @@ import {
     Typography,
     IconButton,
     Link as MuiLink,
+    Modal,
 } from "@mui/material";
 import { Link, useNavigate } from "react-router-dom";
 import CloseIcon from "@mui/icons-material/Close";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
 import logo from "../../../assets/logo.svg";
-import { login } from "../services/api"; // Assuming your login API function is here
+import { login } from "../services/api";
 import Button from "../components/Button";
 import { toast } from "react-toastify";
 import Cookies from "js-cookie";
-import { setAuthToken } from "../../../utils/axiosConfig"; // Import the setAuthToken function
+import { setAuthToken } from "../../../utils/axiosConfig";
 
 const Login: React.FC = () => {
     const navigate = useNavigate();
@@ -25,6 +26,8 @@ const Login: React.FC = () => {
         email: "",
         password: "",
     });
+    const [openForgotPasswordModal, setOpenForgotPasswordModal] = React.useState(false);
+    const [isSubmitting, setIsSubmitting] = React.useState(false); // Track submission state
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
@@ -37,26 +40,44 @@ const Login: React.FC = () => {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
+        // Prevent login attempt if forgot password modal is open
+        if (openForgotPasswordModal) {
+            return;
+        }
+
+        // Basic client-side validation
+        if (!formData.email || !formData.password) {
+            toast.error("Please fill out all required fields.");
+            return;
+        }
+
+        setIsSubmitting(true);
         try {
             const response = await login(formData.email, formData.password);
 
-            // ✅ Set token and userId in cookies, explicitly setting the path to root
             Cookies.set("authToken", response.token, { expires: 1, path: '/' });
             Cookies.set("userId", response.userId.toString(), { expires: 1, path: '/' });
 
-            // Call setAuthToken after setting the cookie
             setAuthToken();
             Cookies.set("userEmail", formData.email, { expires: 1, path: '/' });
 
             toast.success("Login successful!");
-
-            // Redirect to the /program route
             navigate("/dashboard");
         } catch (error: any) {
             toast.error(error.message || "Login failed. Please try again.");
+        } finally {
+            setIsSubmitting(false);
         }
     };
 
+    const handleOpenForgotPasswordModal = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
+        e.preventDefault(); // Prevent form submission when clicking "Forgot password?"
+        setOpenForgotPasswordModal(true);
+    };
+
+    const handleCloseForgotPasswordModal = () => {
+        setOpenForgotPasswordModal(false);
+    };
 
     return (
         <Box
@@ -141,28 +162,22 @@ const Login: React.FC = () => {
 
                     {/* Forgot password link */}
                     <Box textAlign="right" mb={2}>
-                    <MuiLink
-    component="button"
-    variant="caption"
-    color="secondary"
-    underline="none"
-    sx={{ fontWeight: 500, cursor: "pointer" }}
-    onClick={() =>
-        toast.info("Please contact admin at admin@goripe.com", {
-            position: "top-center",
-            autoClose: 5000,
-            closeOnClick: true,
-        })
-    }
->
-    Forgot password?
-</MuiLink>
-
-
+                        <MuiLink
+                            component="button"
+                            variant="caption"
+                            color="secondary"
+                            underline="none"
+                            sx={{ fontWeight: 500, cursor: "pointer" }}
+                            onClick={handleOpenForgotPasswordModal}
+                        >
+                            Forgot password?
+                        </MuiLink>
                     </Box>
 
                     {/* ✅ Reused Submit Button */}
-                    <Button type="submit">Log In</Button>
+                    <Button type="submit" disabled={isSubmitting}>
+                        Log In
+                    </Button>
                 </form>
 
                 {/* Footer Link */}
@@ -180,6 +195,38 @@ const Login: React.FC = () => {
                         </MuiLink>
                     </Typography>
                 </Box>
+
+                {/* Forgot Password Modal */}
+                <Modal open={openForgotPasswordModal} onClose={handleCloseForgotPasswordModal}>
+                    <Box
+                        sx={{
+                            position: 'absolute',
+                            top: '50%',
+                            left: '50%',
+                            transform: 'translate(-50%, -50%)',
+                            width: 400,
+                            bgcolor: 'background.paper',
+                            boxShadow: 24,
+                            p: 4,
+                            borderRadius: 2,
+                        }}
+                    >
+                        <Typography variant="h6" component="h2" mb={2}>
+                            Forgot Password
+                        </Typography>
+                        <Typography variant="body1" mb={2}>
+                            If you've forgotten your password, please contact our support team at
+                            skillpeakripe@gmail.com. Send an email from your registered email address
+                            with a subject line “Password Reset Request,” and our team will provide you
+                            with a temporary password and instructions.
+                        </Typography>
+                        <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
+                            <Button onClick={handleCloseForgotPasswordModal}>
+                                Close
+                            </Button>
+                        </Box>
+                    </Box>
+                </Modal>
             </Box>
         </Box>
     );
