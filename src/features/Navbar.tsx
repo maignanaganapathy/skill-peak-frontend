@@ -23,6 +23,7 @@ import { useNavigate } from 'react-router-dom';
 import { usePermissions } from '../context/PermissionsContext';
 import { Permissions } from '../constants/Permissions';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
+import LockResetIcon from '@mui/icons-material/LockReset';
 
 interface NavbarProps {
   title: string;
@@ -68,7 +69,7 @@ const Navbar: React.FC<NavbarProps> = ({
   };
 
   const handleLogoClick = () => {
-    navigate('/');
+    navigate('/dashboard');
   };
 
   const handleBackClick = () => {
@@ -161,6 +162,14 @@ const Navbar: React.FC<NavbarProps> = ({
                   </ListItemButton>
                 </ListItem>
               )}
+                <ListItem disablePadding>
+                  <ListItemButton onClick={() => handleMenuItemClick('/reset-password')}>
+                    <ListItemIcon>
+                      <LockResetIcon color="primary" />
+                    </ListItemIcon>
+                    <ListItemText primary="Reset Password" />
+                  </ListItemButton>
+                </ListItem>
               <Divider />
               <ListItem disablePadding>
                 <ListItemButton

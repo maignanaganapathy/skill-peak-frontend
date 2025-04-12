@@ -10,7 +10,7 @@ import { Sections } from "./Sections";
 export const LandingPage: React.FC = () => {
   return (
     <main className="min-h-screen bg-white">
-      <Navbar  /> {/* Pass the title prop */}
+      <Navbar  />
       <Hero />
       <Features />
       <About />
