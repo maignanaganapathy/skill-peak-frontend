@@ -11,8 +11,8 @@ import { sendContactForm } from './services/api'; // Import the API function
 // Define the type for form data
 type ContactFormData = {
   name: string;
-  phone: string;
   email: string;
+  phone: string;
   message: string;
 };
 

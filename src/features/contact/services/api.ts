@@ -2,10 +2,10 @@ import { api } from "../../../utils/axiosConfig"
 
 export const sendContactForm = async (data: {
   name: string;
-  phone: string;
   email: string;
+  phone: string;
   message: string;
 }) => {
-  const response = await api.post('/api/contact', data);
+  const response = await api.post('/contact', data);
   return response.data;
 };
