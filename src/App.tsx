@@ -32,6 +32,7 @@ import { PermissionsProvider } from "./context/PermissionsContext";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import ProtectedRoutes from "./routes/ProtectedRoutes";
+import ScoreBoard from "./features/TeamDashboard/components/ScoreBoardTable";
 
 const App: React.FC = () => {
     return (
@@ -62,6 +63,7 @@ const App: React.FC = () => {
                                 <Route path="/reset-password" element={<ResetPassword />} />
                                 <Route path="/project/:projectId/teams" element={<TeamDashboardPage />} />
                                 {/* Add other protected routes here */}
+                                <Route path="/project/:projectId/scoreboard" element={<ScoreBoard />} />
                             </Route>
 
                             {/* Catch-all route for Page Not Found */}

@@ -18,7 +18,7 @@ import MenuIcon from '@mui/icons-material/Menu';
 import DashboardIcon from '@mui/icons-material/Dashboard';
 import QuizIcon from '@mui/icons-material/Quiz';
 import ExitToAppIcon from '@mui/icons-material/ExitToApp';
-import Logo from '../assets/logo.svg'; // Updated logo path
+import Logo from '../assets/logo.svg';
 import { useNavigate } from 'react-router-dom';
 import { usePermissions } from '../context/PermissionsContext';
 import { Permissions } from '../constants/Permissions';
@@ -34,8 +34,9 @@ interface NavbarProps {
   isComplete?: boolean;
   isScoreView?: boolean;
   showBack?: boolean;
-  projectDate?: string;
-  projectLocation?: string;
+  teamName?: string;
+  tagline?: string;
+  projectId?: number;
 }
 
 const Navbar: React.FC<NavbarProps> = ({
@@ -47,8 +48,9 @@ const Navbar: React.FC<NavbarProps> = ({
   isComplete = false,
   isScoreView = false,
   showBack = false,
-  projectDate,
-  projectLocation,
+  teamName,
+  tagline,
+  projectId,
 }) => {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
@@ -68,6 +70,11 @@ const Navbar: React.FC<NavbarProps> = ({
     navigate(route);
   };
 
+  const handleTeamDashboardClick = () => {
+    handleClose();
+    navigate(`/project/${projectId}/dashboard`);
+  };
+
   const handleLogoClick = () => {
     navigate('/dashboard');
   };
@@ -77,36 +84,92 @@ const Navbar: React.FC<NavbarProps> = ({
   };
 
   return (
-    <AppBar position="static" sx={{ backgroundColor: 'primary.main', height: '80px', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-      <Toolbar sx={{ minHeight: '80px', width: '100%', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+    <AppBar
+      position="static"
+      sx={{
+        backgroundColor: 'primary.main',
+        height: '80px',
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+      }}
+    >
+      <Toolbar
+        sx={{
+          minHeight: '80px',
+          width: '100%',
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+        }}
+      >
         <Box sx={{ display: 'flex', alignItems: 'center' }}>
           {showBack && (
-            <IconButton onClick={handleBackClick} color="inherit" aria-label="go back" sx={{ mr: 1 }}>
+            <IconButton
+              onClick={handleBackClick}
+              color="inherit"
+              aria-label="go back"
+              sx={{ mr: 1 }}
+            >
               <ChevronLeftIcon sx={{ fontSize: 40 }} />
             </IconButton>
           )}
-          <IconButton onClick={handleLogoClick} edge="start" color="inherit" aria-label="logo">
+          <IconButton
+            onClick={handleLogoClick}
+            edge="start"
+            color="inherit"
+            aria-label="logo"
+          >
             <Box sx={{ display: 'flex', alignItems: 'center' }}>
-              <img src={Logo} alt="Logo" style={{ height: 50, marginRight: 9 }} />
+              <img
+                src={Logo}
+                alt="Logo"
+                style={{ height: 50, marginRight: 9 }}
+              />
             </Box>
           </IconButton>
         </Box>
 
-        <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-          <Typography variant="h6" component="div" sx={{ fontWeight: 'bold', fontSize: '1.5rem' }}>
+        <Box
+          sx={{
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            maxWidth: '60%',
+            textAlign: 'center',
+          }}
+        >
+          <Typography
+            variant="h6"
+            component="div"
+            sx={{
+              fontWeight: 'bold',
+              fontSize: '1.2rem',
+              wordWrap: 'break-word',
+            }}
+          >
             {title}
           </Typography>
-          {projectDate && projectLocation && (
-            <div className="flex gap-3 items-center text-sm text-white mt-1">
-              <time dateTime={projectDate}>{new Date(projectDate).toLocaleDateString()}</time>
-              <span>|</span>
-              <span>{projectLocation}</span>
+          {teamName && tagline && (
+            <div className="flex flex-col items-center mt-1">
+              <span style={{ wordWrap: 'break-word', fontWeight: 600 }}>
+                {teamName}
+              </span>
+              <span style={{ wordWrap: 'break-word', fontSize: '0.8rem' }}>
+                {tagline}
+              </span>
             </div>
           )}
         </Box>
 
         {homepage ? (
-          <IconButton size="large" edge="end" color="inherit" aria-label="menu" onClick={handleMenuClick}>
+          <IconButton
+            size="large"
+            edge="end"
+            color="inherit"
+            aria-label="menu"
+            onClick={handleMenuClick}
+          >
             <MenuIcon />
           </IconButton>
         ) : showSubmit ? (
@@ -125,7 +188,11 @@ const Navbar: React.FC<NavbarProps> = ({
                 bgcolor: isComplete ? 'secondary.dark' : 'grey.400',
               },
             }}
-            title={!isComplete ? 'Please answer all questions before submitting' : 'Submit assessment'}
+            title={
+              !isComplete
+                ? 'Please answer all questions before submitting'
+                : 'Submit assessment'
+            }
           >
             SUBMIT
           </Button>
@@ -145,7 +212,7 @@ const Navbar: React.FC<NavbarProps> = ({
           >
             <List>
               <ListItem disablePadding>
-                <ListItemButton onClick={() => handleMenuItemClick('/comingsoon')}>
+                <ListItemButton onClick={handleTeamDashboardClick}>
                   <ListItemIcon>
                     <DashboardIcon color="primary" />
                   </ListItemIcon>
@@ -162,14 +229,14 @@ const Navbar: React.FC<NavbarProps> = ({
                   </ListItemButton>
                 </ListItem>
               )}
-                <ListItem disablePadding>
-                  <ListItemButton onClick={() => handleMenuItemClick('/reset-password')}>
-                    <ListItemIcon>
-                      <LockResetIcon color="primary" />
-                    </ListItemIcon>
-                    <ListItemText primary="Reset Password" />
-                  </ListItemButton>
-                </ListItem>
+              <ListItem disablePadding>
+                <ListItemButton onClick={() => handleMenuItemClick('/reset-password')}>
+                  <ListItemIcon>
+                    <LockResetIcon color="primary" />
+                  </ListItemIcon>
+                  <ListItemText primary="Reset Password" />
+                </ListItemButton>
+              </ListItem>
               <Divider />
               <ListItem disablePadding>
                 <ListItemButton
@@ -193,3 +260,4 @@ const Navbar: React.FC<NavbarProps> = ({
 };
 
 export default Navbar;
+

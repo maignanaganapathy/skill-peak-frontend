@@ -10,7 +10,7 @@ import {
 } from "../../services/api";
 
 import { Project } from "../../types/Project";
-import TeamDashboardCard from "../Teams/TeamDashboardCard"; // Import the new component
+import TeamDashboardCard from "../TeamDashboardCard"; // Import the new component
 
 interface SectionListProps {
     projectId: number;

@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Box, Typography, List, ListItem } from '@mui/material'; // Import Material UI components
 import { api } from '../../../../../utils/axiosConfig';
 import { Project } from '../../types/Project';
-import TeamDashboardCard from './TeamDashboardCard';
+import TeamDashboardCard from '../TeamDashboardCard';
 
 interface ProjectWithCount extends Project {
     _count: {
