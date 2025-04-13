@@ -4,9 +4,8 @@ import { ThemeProvider } from "@mui/material/styles";
 import CssBaseline from "@mui/material/CssBaseline";
 import theme from "./theme";
 import ComingSoon from './ComingSoon';
-import AnimatedCheckCircles from "./features/landing/Animation"; // Import your animation component
+import AnimatedCheckCircles from "./features/landing/Animation";
 import ResetPassword from "./features/auth/pages/ResetPassword";
-
 
 // Admin Features
 import { NotificationManager } from "./features/admin/Notification/NotificationManager";
@@ -17,6 +16,8 @@ import AccessControlPage from "./features/admin/ManagePermissions/AccessControlP
 import { LandingPage } from "./features/landing/Landingpage";
 import Login from "./features/auth/pages/Login";
 import SignUp from "./features/auth/pages/Signup";
+import TeamDashboardPage from "./features/TeamDashboard/TeamDashboard";
+import NotFoundPage from "./NotFoundPage"; // Import your NotFoundPage component
 
 // Quiz Features
 import QuizList from "./features/quiz/QuizListing/QuizList";
@@ -31,8 +32,6 @@ import { PermissionsProvider } from "./context/PermissionsContext";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import ProtectedRoutes from "./routes/ProtectedRoutes";
-import Graph from "./features/TeamDashboard/Graph";
-
 
 const App: React.FC = () => {
     return (
@@ -48,7 +47,7 @@ const App: React.FC = () => {
                             <Route path="/signup" element={<SignUp />} />
                             <Route path="/contact" element={<ContactForm />} />
                             <Route path="/comingsoon" element={<ComingSoon />} />
-                            <Route path="/animation" element={<AnimatedCheckCircles />} /> {/* Add the animation route */}
+                            <Route path="/animation" element={<AnimatedCheckCircles />} />
 
                             {/* Protected Routes */}
                             <Route element={<ProtectedRoutes />}>
@@ -61,11 +60,12 @@ const App: React.FC = () => {
                                 <Route path="/quiz/edit/:id" element={<QuizCreation />} />
                                 <Route path="/quizzes/:id" element={<QuizPage />} />
                                 <Route path="/reset-password" element={<ResetPassword />} />
-                                <Route path="/project/:projectId/graphs" element={<Graph />} />
-
-
+                                <Route path="/project/:projectId/teams" element={<TeamDashboardPage />} />
                                 {/* Add other protected routes here */}
                             </Route>
+
+                            {/* Catch-all route for Page Not Found */}
+                            <Route path="*" element={<NotFoundPage />} />
                         </Routes>
 
                         {/* Toast Notifications */}

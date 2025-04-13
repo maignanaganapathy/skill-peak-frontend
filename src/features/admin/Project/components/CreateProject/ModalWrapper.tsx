@@ -3,12 +3,7 @@ import { Modal, Box, IconButton } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import InputDesign from "./InputDesign";
 
-interface Project {
-  id: number;
-  name: string;
-  description: string;
-  date: string;
-}
+import { Project } from "../../types/Project";
 
 interface ModalWrapperProps {
   onProjectCreated: () => void;

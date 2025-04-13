@@ -25,20 +25,9 @@ import {
   fetchAllQuizzes as fetchAllQuizzesApi,
   deleteProject as deleteProjectApi,
 } from "./services/api";
+import { Project } from "./types/Project";
 
-interface Project {
-  id: number;
-  name: string;
-  description: string;
-  date: string;
-  createdAt: string;
-  createdById: number;
-  updatedAt: string;
-  updatedById: number;
-  sections: any[];
-  createdBy: { id: number; email: string };
-  updatedBy: { id: number; email: string };
-}
+
 
 export const Program: React.FC = () => {
   const [expandedProjectId, setExpandedProjectId] = useState<number | null>(null);
