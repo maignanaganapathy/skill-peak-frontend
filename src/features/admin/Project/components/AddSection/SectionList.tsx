@@ -126,9 +126,19 @@ const SectionList: React.FC<SectionListProps> = ({ projectId, projects, allQuizz
     };
 
     return (
-        <Box display="flex" flexDirection="column" alignItems="center" gap={2} mt={2}>
-            {currentProjectWithCount && (
-                <TeamDashboardCard projectId={projectId} teamCount={currentProjectWithCount._count?.teams || 0} />
+    <Box
+      display="flex"
+      flexDirection="column"
+      alignItems="center"
+      gap={2}
+      mt={2}
+    >
+      {currentProjectWithCount &&
+        (currentProjectWithCount?._count.teams || 0) > 0 && (
+          <TeamDashboardCard
+            projectId={projectId}
+            teamCount={currentProjectWithCount._count?.teams || 0}
+          />
             )}
             {currentProjectSections.map((section) => (
                 <React.Fragment key={section.id}>
