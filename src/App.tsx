@@ -31,6 +31,7 @@ import { PermissionsProvider } from "./context/PermissionsContext";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import ProtectedRoutes from "./routes/ProtectedRoutes";
+import Graph from "./features/TeamDashboard/Graph";
 
 
 const App: React.FC = () => {
@@ -60,6 +61,8 @@ const App: React.FC = () => {
                                 <Route path="/quiz/edit/:id" element={<QuizCreation />} />
                                 <Route path="/quizzes/:id" element={<QuizPage />} />
                                 <Route path="/reset-password" element={<ResetPassword />} />
+                                <Route path="/project/:projectId/graphs" element={<Graph />} />
+
 
                                 {/* Add other protected routes here */}
                             </Route>
