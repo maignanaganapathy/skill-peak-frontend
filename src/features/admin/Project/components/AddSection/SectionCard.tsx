@@ -30,7 +30,7 @@ const SectionCard: React.FC<SectionCardProps> = ({ section, onDelete, onEdit, on
 
     const handleCheckLink = async () => {
         if (isQuizSection && section.quizId) {
-                navigate(`/quizzes/${section.quizId}`);
+                navigate(`/quiz/${section.id}/${section.quizId}`);
         } else if (isCustomOrLinkSection) {
             // navigate('/empty-page');
             window.open(section.linkUrl, '_blank');
