@@ -64,6 +64,7 @@ const App: React.FC = () => {
                                 <Route path="/project/:projectId/teams" element={<TeamDashboardPage />} />
                                 {/* Add other protected routes here */}
                                 <Route path="/project/:projectId/scoreboard" element={<ScoreBoard />} />
+                                <Route path="/certificate" element={<ComingSoon />} />
                             </Route>
 
                             {/* Catch-all route for Page Not Found */}
