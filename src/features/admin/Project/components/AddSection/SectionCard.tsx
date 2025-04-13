@@ -30,26 +30,10 @@ const SectionCard: React.FC<SectionCardProps> = ({ section, onDelete, onEdit, on
 
     const handleCheckLink = async () => {
         if (isQuizSection && section.quizId) {
-            try {
-                const response = await api.post(
-                    `${BACKEND_URL}/quiz/${section.quizId}/attend`,
-                    { sectionId: section.id },
-                    {
-                        headers: {
-                            'Content-Type': 'application/json',
-                        },
-                    }
-                );
-                console.log("Quiz Attend Response:", response.data);
                 navigate(`/quizzes/${section.quizId}`);
-            } catch (error: any) {
-                console.error("Error attending quiz:", error);
-                if (error.response && error.response.status === 401) {
-                    console.error("Authorization failed.");
-                }
-            }
         } else if (isCustomOrLinkSection) {
-            navigate('/empty-page');
+            // navigate('/empty-page');
+            window.open(section.linkUrl, '_blank');
         } else {
             window.open(section.linkUrl, '_blank');
         }
@@ -71,8 +55,9 @@ const SectionCard: React.FC<SectionCardProps> = ({ section, onDelete, onEdit, on
         sectionIcon = <DescriptionIcon fontSize="large" />;
     }
 
-    return (
-        <Paper
+          
+    return (<Button fullWidth onClick={handleCheckLink} >
+              <Paper
             elevation={2}
             sx={{
                 display: "flex",
@@ -109,16 +94,6 @@ const SectionCard: React.FC<SectionCardProps> = ({ section, onDelete, onEdit, on
             </Box>
 
             <Box display="flex" flexDirection="column" alignItems="flex-end" gap={1}>
-                <Button
-                    variant="contained"
-                    color="primary"
-                    endIcon={<OpenInNewIcon />}
-                    sx={{ width: "130px", fontSize: "11px" }}
-                    onClick={handleCheckLink}
-                    disabled={(isQuizSection && !section.quizId) || isCustomOrLinkSection}
-                >
-                    Start Quiz
-                </Button>
 
                 <Box display="flex" gap={2}>
                     {checkHasPermission(Permissions.EDIT_SECTION) && (
@@ -134,6 +109,7 @@ const SectionCard: React.FC<SectionCardProps> = ({ section, onDelete, onEdit, on
                 </Box>
             </Box>
         </Paper>
+        </Button>  
     );
 };
 
