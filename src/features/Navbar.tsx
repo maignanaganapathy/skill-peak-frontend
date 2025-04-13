@@ -211,14 +211,6 @@ const Navbar: React.FC<NavbarProps> = ({
             }}
           >
             <List>
-              <ListItem disablePadding>
-                <ListItemButton onClick={handleTeamDashboardClick}>
-                  <ListItemIcon>
-                    <DashboardIcon color="primary" />
-                  </ListItemIcon>
-                  <ListItemText primary="Team Dashboard" />
-                </ListItemButton>
-              </ListItem>
               {checkHasPermission(Permissions.MANAGE_QUIZ) && (
                 <ListItem disablePadding>
                   <ListItemButton onClick={() => handleMenuItemClick('/quizzes')}>
@@ -237,7 +229,7 @@ const Navbar: React.FC<NavbarProps> = ({
                   <ListItemText primary="Reset Password" />
                 </ListItemButton>
               </ListItem>
-              <Divider />
+              {/* <Divider /> */}
               <ListItem disablePadding>
                 <ListItemButton
                   onClick={() => {
