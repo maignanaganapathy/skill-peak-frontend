@@ -1,36 +1,32 @@
-
-import React from 'react';
-import { CSSProperties } from 'react'; // Import CSSProperties
-
+import { Box, Typography } from "@mui/material";
+import React from "react";
+import theme from "./theme";
+import comingSoon from "./assets/comingsoon.png";
 interface ComingSoonProps {}
 
 const ComingSoon: React.FC<ComingSoonProps> = () => {
-  const styles: { [key: string]: CSSProperties } = { // Define the type of styles
-    comingSoonContainer: {
-      display: 'flex',
-      flexDirection: 'column',
-      alignItems: 'center',
-      justifyContent: 'center',
-      height: '100vh',
-      textAlign: 'center',
-      backgroundColor: '#f4f4f4', // Optional background color
-    },
-    heading: {
-      fontSize: '3em',
-      marginBottom: '10px',
-      color: '#333',
-    },
-    paragraph: {
-      fontSize: '1.2em',
-      color: '#777',
-    },
-  };
-
   return (
-    <div style={styles.comingSoonContainer}>
-      <h1 style={styles.heading}>Coming Soon...</h1>
-      
-    </div>
+    <Box
+      sx={{
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        justifyContent: "center",
+        minHeight: "80vh",
+        padding: theme.spacing(4),
+        textAlign: "center",
+      }}
+    >
+      <img src={comingSoon} alt="Coming Soon" style={{ width: "200px" }} />
+      <Typography variant="h4" component="h1" gutterBottom color="primary">
+        Coming Soon
+      </Typography>
+      <Typography
+        variant="subtitle1"
+        color="textSecondary"
+        paragraph
+      ></Typography>
+    </Box>
   );
 };
 
