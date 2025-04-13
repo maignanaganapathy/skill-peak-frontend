@@ -8,7 +8,10 @@ const getQuiztoAttend = async (quizId: number, sectionId: number) => {
 
 const submitQuiz = async (quizAttempt: QuizAttempt, quizId: number) => {
   console.log(quizAttempt, quizId);
-  //   return api.post(`${BACKEND_URL}/quiz/${quizId}/submit`, quizAttempt);
+  return api.post(`${BACKEND_URL}/quiz/${quizId}/submit`, quizAttempt);
+};
+const calculateQuiz = async (quizAttemptId: number) => {
+  return api.get(`${BACKEND_URL}/quiz/calculate/${quizAttemptId}`);
 };
 
-export { getQuiztoAttend, submitQuiz };
+export { getQuiztoAttend, submitQuiz, calculateQuiz };

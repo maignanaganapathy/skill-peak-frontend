@@ -18,7 +18,7 @@ const Question: React.FC<QuestionProps> = ({ question, onResponseChange }) => {
   useEffect(() => {
     onResponseChange({
       questionId: question.id,
-      selectionOptionIds: selectedOptions?.map((option) => option.optionId),
+      selectedOptionIds: selectedOptions?.map((option) => option.optionId),
       scaleValue,
     });
   }, [scaleValue, selectedOptions]);

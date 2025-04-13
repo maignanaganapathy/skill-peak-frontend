@@ -34,7 +34,34 @@ export interface QuizAttempt {
 }
 export interface QuizResponse {
   questionId: number;
-  selectionOptionIds?: number[];
+  selectedOptionIds?: number[];
   scaleValue?: number;
   inputText?: string;
+}
+
+export interface QuizAttemptData {
+  message: string;
+  quizAttempt: {
+    inferenceOverall: {
+      id: number;
+      text: string;
+    };
+    score: number;
+    quizAttemptSectionWiseInference: {
+      inference: {
+        id: number;
+        text: string;
+      } | null;
+      score: number;
+      quizSection: {
+        title: string;
+      };
+    }[];
+    section: {
+      quiz: {
+        title: string;
+        description: string;
+      };
+    };
+  };
 }
