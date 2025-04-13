@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { Box } from "@mui/material";
 import SectionCard from "./SectionCard";
 import { FormSection } from "./FormSection";
@@ -10,7 +10,7 @@ import {
 } from "../../services/api";
 
 import { Project } from "../../types/Project";
-import TeamDashboardCard from "../../components/TeamDashboardCard"; // Import the new component
+import TeamDashboardCard from "../Teams/TeamDashboardCard"; // Import the new component
 
 interface SectionListProps {
     projectId: number;
@@ -19,18 +19,30 @@ interface SectionListProps {
     onProjectsUpdated: (updatedProjects: Project[]) => void;
 }
 
+interface ProjectWithCount extends Project {
+    _count: {
+        teams: number;
+    };
+}
+
 const SectionList: React.FC<SectionListProps> = ({ projectId, projects, allQuizzes, onProjectsUpdated }) => {
     const [isEditing, setIsEditing] = useState<boolean>(false);
     const [sectionBeingEdited, setSectionBeingEdited] = useState<Section | undefined>(undefined);
     const [openProgramFormSectionId, setOpenProgramFormSectionId] = useState<number | null>(null);
     const [isAddSectionExpanded, setIsAddSectionExpanded] = useState(false);
     const formSectionRef = useRef<HTMLDivElement>(null);
+    const currentProjectWithCount = projects.find((project) => project.id === projectId) as ProjectWithCount | undefined;
+    const currentProjectSections: Section[] = currentProjectWithCount?.sections || [];
+
+    useEffect(() => {
+        // No changes needed here as you are correctly finding the current project.
+    }, [projectId, projects]);
 
     const handleOpenProgramForm = (sectionId: number | null = null) => {
         setOpenProgramFormSectionId(sectionId);
         setIsEditing(true);
         setIsAddSectionExpanded(false);
-        const sectionToEdit = projects.find(p => p.id === projectId)?.sections.find(s => s.id === sectionId);
+        const sectionToEdit = currentProjectWithCount?.sections?.find(s => s.id === sectionId);
         setSectionBeingEdited(sectionToEdit);
     };
 
@@ -113,12 +125,11 @@ const SectionList: React.FC<SectionListProps> = ({ projectId, projects, allQuizz
         }
     };
 
-    const currentProject = projects.find((project) => project.id === projectId);
-    const currentProjectSections: Section[] = currentProject?.sections || [];
-
     return (
         <Box display="flex" flexDirection="column" alignItems="center" gap={2} mt={2}>
-           {currentProject && <TeamDashboardCard projectId={projectId} />}
+            {currentProjectWithCount && (
+                <TeamDashboardCard projectId={projectId} teamCount={currentProjectWithCount._count?.teams || 0} />
+            )}
             {currentProjectSections.map((section) => (
                 <React.Fragment key={section.id}>
                     <SectionCard
@@ -138,9 +149,6 @@ const SectionList: React.FC<SectionListProps> = ({ projectId, projects, allQuizz
                     )}
                 </React.Fragment>
             ))}
-
-            {/* Team Dashboard Card */}
-           
 
             {/* Add Section Button */}
             <AddSectionButton isExpanded={isAddSectionExpanded} onToggle={handleAddSectionToggle} />

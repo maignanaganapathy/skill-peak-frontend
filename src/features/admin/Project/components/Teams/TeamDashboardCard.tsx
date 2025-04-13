@@ -1,38 +1,16 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { Card, CardContent, Typography, Box, useTheme } from '@mui/material';
 import Diversity3Icon from '@mui/icons-material/Diversity3';
 import { useNavigate } from 'react-router-dom';
-import { api } from '../../../../utils/axiosConfig';
-import { Project } from '../types/Project'; // Import the shared Project interface
 
 interface TeamDashboardCardProps {
     projectId: number;
+    teamCount: number;
 }
 
-const TeamDashboardCard: React.FC<TeamDashboardCardProps> = ({ projectId }) => {
+const TeamDashboardCard: React.FC<TeamDashboardCardProps> = ({ projectId, teamCount }) => {
     const navigate = useNavigate();
     const theme = useTheme();
-    const [teamCount, setTeamCount] = useState<number>(0);
-
-    const fetchProjectData = async () => {
-        try {
-            const response = await api.get<Project[]>('/projects');
-            const currentProject = response.data.find(project => project.id === projectId);
-            if (currentProject) {
-                setTeamCount(currentProject._count.teams);
-            } else {
-                console.warn(`Project with ID ${projectId} not found in API response.`);
-                setTeamCount(0);
-            }
-        } catch (error) {
-            console.error("Error fetching project data:", error);
-            setTeamCount(0);
-        }
-    };
-
-    useEffect(() => {
-        fetchProjectData();
-    }, [projectId]);
 
     const handleNavigateToTeamDashboard = () => {
         if (teamCount > 0) {
@@ -67,7 +45,9 @@ const TeamDashboardCard: React.FC<TeamDashboardCardProps> = ({ projectId }) => {
                         Team Dashboard
                     </Typography>
                 </Box>
-                
+                <Typography variant="body2" color="inherit">
+                    {teamCount > 0 ? `Manage ${teamCount} teams and view scores` : 'No teams found'}
+                </Typography>
             </CardContent>
         </Card>
     );
