@@ -76,7 +76,7 @@ const App: React.FC = () => {
                   element={<ScoreBoard />}
                 />
               </Route>
-
+              <Route path="/certificate" element={<ComingSoon />} />
               {/* Catch-all route for Page Not Found */}
               <Route path="*" element={<NotFoundPage />} />
             </Routes>
